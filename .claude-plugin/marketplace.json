@@ -1,0 +1,13 @@
+{
+  "name": "clojure-agent-skills",
+  "owner": {
+    "name": "Bracken Spencer"
+  },
+  "plugins": [
+    {
+      "name": "clojuredart",
+      "source": "./clojuredart",
+      "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "clojuredart",
+  "version": "0.1.0",
+  "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks",
+  "author": {
+    "name": "Bracken Spencer",
+    "url": "https://github.com/brackendev"
+  },
+  "repository": "https://github.com/brackendev/clojure-agent-skills",
+  "keywords": ["clojuredart", "clojure", "dart", "flutter", "cljd"]
+}
