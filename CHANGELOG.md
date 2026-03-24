@@ -1,6 +1,16 @@
-# Changelog -- clojuredart
+# Changelog
 
-## 0.1.0
+## clojure 0.1.0
+
+Initial release.
+
+### Skills
+
+- **clojure** (model-invoked): Curated Clojure style guide rules from bbatsov/clojure-style-guide, naming conventions, idiomatic patterns, threading macros, collection idioms, state management, and common anti-patterns.
+- **clj-new** (user-invoked): Scaffold a new Clojure project with deps.edn, test runner, tools.build, and cljfmt.
+- **clj-check** (user-invoked): Run the Clojure quality pipeline (clj-kondo lint, cljfmt format, test runner).
+
+## clojuredart 0.1.0
 
 Initial release.
 

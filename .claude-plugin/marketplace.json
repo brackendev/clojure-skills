@@ -5,6 +5,11 @@
   },
   "plugins": [
     {
+      "name": "clojure",
+      "source": "./clojure",
+      "description": "Clojure development skills: style guide, project scaffolding, and quality checks"
+    },
+    {
       "name": "clojuredart",
       "source": "./clojuredart",
       "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks"

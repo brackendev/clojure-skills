@@ -1,0 +1,11 @@
+{
+  "name": "clojure",
+  "version": "0.1.0",
+  "description": "Clojure development skills: style guide, project scaffolding, and quality checks",
+  "author": {
+    "name": "Bracken Spencer",
+    "url": "https://github.com/brackendev"
+  },
+  "repository": "https://github.com/brackendev/clojure-agent-skills",
+  "keywords": ["clojure", "clj", "deps-edn", "tools-deps"]
+}
