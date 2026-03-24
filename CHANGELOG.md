@@ -1,5 +1,9 @@
 # Changelog
 
+## clojure 0.1.2
+
+Instruct agent to start nREPL when clojure-mcp tools are unavailable.
+
 ## 0.1.1
 
 Add clojure-mcp MCP integration section to both plugins.
