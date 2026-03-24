@@ -96,6 +96,10 @@ Scaffolds a new ClojureDart Flutter project. Creates the Flutter project, config
 
 Runs the ClojureDart quality pipeline. Lints with clj-kondo, formats with cljfmt, and compiles with the ClojureDart compiler. Run all steps or specify individual steps.
 
+### Recommended
+
+- [bhauman/clojure-mcp](https://github.com/bhauman/clojure-mcp) -- MCP server for REPL-driven Clojure development. Provides REPL evaluation, namespace management, and file operations. The clojuredart plugin's REPL practices complement this MCP.
+
 ### Prerequisites
 
 - [Clojure CLI](https://clojure.org/guides/install_clojure) (tools.deps)

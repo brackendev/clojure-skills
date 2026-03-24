@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+Add clojure-mcp MCP integration section to both plugins.
+
 ## clojure 0.1.0
 
 Initial release.
