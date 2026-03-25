@@ -1,5 +1,9 @@
 # Changelog
 
+## clojure 0.1.4
+
+- Add function length guideline (10 LOC maximum, 5 LOC ideal) to Function Design section and Key Rules
+
 ## 0.1.3
 
 Rewrite skill descriptions as trigger-based matching rules so Claude invokes them more reliably.

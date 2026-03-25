@@ -78,6 +78,37 @@ Do not shadow `clojure.core` names:
 
 ## Function Design
 
+### Function length
+
+Avoid functions longer than 10 lines of code. Most functions should be shorter than 5 lines. Short functions are easier to understand, test, and compose. Extract helpers when a function grows beyond this threshold.
+
+```clojure
+;; good: small, focused functions
+(defn active-users [users]
+  (filter :active? users))
+
+(defn format-user [user]
+  (str (:first-name user) " " (:last-name user)))
+
+(defn active-user-names [users]
+  (->> (active-users users)
+       (map format-user)))
+
+;; bad: monolithic function doing multiple things
+(defn process-users [users]
+  (let [active (filter :active? users)
+        sorted (sort-by :last-name active)
+        grouped (group-by :department sorted)]
+    (doseq [[dept dept-users] grouped]
+      (println (str "Department: " dept))
+      (doseq [u dept-users]
+        (println (str "  " (:first-name u) " " (:last-name u)))
+        (when (:admin? u)
+          (println "    [ADMIN]"))
+        (when-let [email (:email u)]
+          (println (str "    " email)))))))
+```
+
 ### when vs if
 
 Use `when` for single-branch conditionals with side effects. Use `if` for two-branch decisions:
@@ -653,3 +684,4 @@ clj -X:test
 8. **No commas in collection literals.** Whitespace is the separator.
 9. **Prefer vectors over quoted lists.** `[1 2 3]` not `'(1 2 3)`.
 10. **Do not write macros when functions work.** Macros complicate debugging and composition.
+11. **Keep functions short.** Avoid functions longer than 10 LOC. Most should be under 5 LOC.
