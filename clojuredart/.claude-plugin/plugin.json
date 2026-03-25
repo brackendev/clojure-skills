@@ -1,6 +1,6 @@
 {
   "name": "clojuredart",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks",
   "author": {
     "name": "Bracken Spencer",

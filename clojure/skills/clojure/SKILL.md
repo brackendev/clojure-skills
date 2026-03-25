@@ -1,9 +1,10 @@
 ---
 name: clojure
 description: >-
-  Clojure expertise for working with .clj files, deps.edn projects, and JVM Clojure
-  development. Provides style guide rules, idiomatic patterns, naming conventions,
-  and common anti-patterns to avoid.
+  Use when writing, editing, reviewing, or discussing Clojure code. Triggers: .clj
+  files, deps.edn projects, project.clj, build.clj, clojure.test, REPL usage, or
+  any mention of Clojure. Covers idiomatic style, naming conventions, threading
+  macros, collection idioms, state management, and common anti-patterns.
 user-invocable: false
 ---
 

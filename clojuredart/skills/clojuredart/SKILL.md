@@ -1,9 +1,10 @@
 ---
 name: clojuredart
 description: >-
-  ClojureDart expertise for working with .cljd files, deps.edn with ClojureDart
-  dependencies, and Flutter projects with cljd-out/ directories. Provides syntax,
-  Dart interop patterns, project structure, and compilation knowledge.
+  Use when writing, editing, reviewing, or discussing ClojureDart code. Triggers:
+  .cljd files, deps.edn with tensegritics/clojuredart, cljd-out/ directories,
+  Flutter integration, or any mention of ClojureDart. Covers syntax, Dart interop,
+  widget macros, project structure, compilation, and common anti-patterns.
 user-invocable: false
 ---
 

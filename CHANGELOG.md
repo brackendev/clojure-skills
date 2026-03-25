@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+Rewrite skill descriptions as trigger-based matching rules so Claude invokes them more reliably.
+
 ## clojure 0.1.2
 
 Instruct agent to start nREPL when clojure-mcp tools are unavailable.
