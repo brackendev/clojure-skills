@@ -6,6 +6,6 @@
     "name": "Bracken Spencer",
     "url": "https://github.com/brackendev"
   },
-  "repository": "https://github.com/brackendev/clojure-agent-skills",
+  "repository": "https://github.com/brackendev/clojure-marketplace",
   "keywords": ["clojure", "clj", "deps-edn", "tools-deps"]
 }

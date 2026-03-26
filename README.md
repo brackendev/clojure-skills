@@ -1,4 +1,4 @@
-# Clojure Agent Skills
+# Clojure Marketplace
 
 [Agent Skills](https://agentskills.io) for the [Clojure](https://clojure.org) ecosystem by [brackendev](https://github.com/brackendev).
 
@@ -16,25 +16,25 @@
 #### 1. Add the Marketplace
 
 ```bash
-/plugin marketplace add brackendev/clojure-agent-skills
+/plugin marketplace add brackendev/clojure-marketplace
 ```
 
 #### 2. Install Plugins
 
 ```bash
 # Clojure development
-/plugin install clojure@clojure-agent-skills
+/plugin install clojure@clojure-marketplace
 
 # ClojureDart development
-/plugin install clojuredart@clojure-agent-skills
+/plugin install clojuredart@clojure-marketplace
 ```
 
 #### Uninstall
 
 ```bash
-/plugin uninstall clojure@clojure-agent-skills
-/plugin uninstall clojuredart@clojure-agent-skills
-/plugin marketplace remove brackendev/clojure-agent-skills
+/plugin uninstall clojure@clojure-marketplace
+/plugin uninstall clojuredart@clojure-marketplace
+/plugin marketplace remove brackendev/clojure-marketplace
 ```
 
 ### Other Agent Skills-compatible tools
