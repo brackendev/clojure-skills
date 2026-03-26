@@ -1,6 +1,6 @@
 # Clojure Marketplace
 
-[Clojure](https://clojure.org) ecosystem skills for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), built on the [Agent Skills](https://agentskills.io) open standard.
+Clojure and ClojureDart development skills, built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## Skills
 
