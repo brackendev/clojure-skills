@@ -1,5 +1,9 @@
 # Changelog
 
+## clojuredart 0.1.4
+
+- Add **cljd-upgrade** skill (model-invoked and user-invoked): Upgrade ClojureDart dependency in deps.edn to the latest commit, with fallback to direct SHA fetch when the built-in upgrade command has a stale cache. Verifies compilation and reverts on failure.
+
 ## clojure 0.1.4
 
 - Add function length guideline (10 LOC maximum, 5 LOC ideal) to Function Design section and Key Rules
