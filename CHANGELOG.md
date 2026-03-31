@@ -1,5 +1,9 @@
 # Changelog
 
+## clojure 0.1.5
+
+- Add **clojure-lenses** skill (model-invoked): Translate code-lenses design philosophies (grug, APOSD, Tidy First, Parse Don't Validate, Honest Code, Legacy Code) to idiomatic Clojure patterns. Auto-triggers when working in Clojure alongside code-lenses skills.
+
 ## clojuredart 0.1.4
 
 - Add **cljd-upgrade** skill (model-invoked and user-invoked): Upgrade ClojureDart dependency in deps.edn to the latest commit, with fallback to direct SHA fetch when the built-in upgrade command has a stale cache. Verifies compilation and reverts on failure.
