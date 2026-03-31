@@ -181,4 +181,5 @@ Clojure development skills: idiomatic style guide, project scaffolding, and qual
 
 ## Recommended
 
+- [brackendev/code-lenses](https://github.com/brackendev/code-lenses) -- Design philosophy skills (grug, APOSD, Tidy First, Parse Don't Validate, Honest Code, Legacy Code). When installed alongside this package, the **clojure-lenses** skill auto-triggers to translate language-agnostic design advice into idiomatic Clojure patterns.
 - [bhauman/clojure-mcp](https://github.com/bhauman/clojure-mcp) -- MCP server for REPL-driven Clojure development. Provides REPL evaluation, namespace management, and file operations.
