@@ -1,0 +1,30 @@
+{
+  "name": "clojuredart",
+  "version": "0.1.0",
+  "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, upgrades, and quality checks",
+  "author": {
+    "name": "Bracken Spencer",
+    "url": "https://github.com/brackendev"
+  },
+  "homepage": "https://github.com/brackendev/clojure-skills",
+  "repository": "https://github.com/brackendev/clojure-skills",
+  "keywords": ["clojuredart", "clojure", "dart", "flutter", "cljd"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ClojureDart",
+    "shortDescription": "ClojureDart development skills",
+    "longDescription": "ClojureDart development skills: syntax knowledge, Dart interop patterns, Flutter project scaffolding, quality checks, and dependency upgrades.",
+    "developerName": "Bracken Spencer",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/brackendev/clojure-skills",
+    "defaultPrompt": [
+      "Use cljd-new to scaffold a ClojureDart Flutter project.",
+      "Use cljd-check to run the quality pipeline.",
+      "Use cljd-upgrade to update the ClojureDart dependency."
+    ]
+  }
+}

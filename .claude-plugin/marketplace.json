@@ -1,17 +1,17 @@
 {
-  "name": "clojure-marketplace",
+  "name": "clojure-skills",
   "owner": {
     "name": "Bracken Spencer"
   },
   "plugins": [
     {
       "name": "clojure",
-      "source": "./clojure",
+      "source": "./claude/clojure",
       "description": "Clojure development skills: style guide, project scaffolding, and quality checks"
     },
     {
       "name": "clojuredart",
-      "source": "./clojuredart",
+      "source": "./claude/clojuredart",
       "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks"
     }
   ]

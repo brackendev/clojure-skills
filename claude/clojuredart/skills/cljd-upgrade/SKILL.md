@@ -3,6 +3,8 @@ name: cljd-upgrade
 description: >-
   Upgrade ClojureDart to the latest version. Use when the user asks to upgrade,
   update, or bump ClojureDart, deps.edn SHA, or tensegritics/clojuredart dependency.
+user-invocable: true
+disable-model-invocation: true
 ---
 
 # Upgrade ClojureDart

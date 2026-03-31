@@ -1,13 +1,20 @@
-# Clojure Marketplace
+# Clojure Skills
 
-Clojure and ClojureDart development skills, built on the [Agent Skills](https://agentskills.io) open standard.
+Clojure and ClojureDart development skills for AI coding agents. The same skills are packaged for Claude Code and Codex using the [Agent Skills](https://agentskills.io) open standard.
 
-## Skills
+## Plugins
 
-| Package | Description |
-|---------|-------------|
+| Plugin | Description |
+|--------|-------------|
 | **clojure** | Clojure development skills (style guide, scaffolding, quality checks) |
 | **clojuredart** | ClojureDart development skills (syntax, Dart interop, scaffolding, quality checks) |
+
+## Platforms
+
+| Platform | Package Path | Marketplace Metadata | Guide |
+|----------|--------------|----------------------|-------|
+| Claude Code | `./claude/` | `./.claude-plugin/marketplace.json` | [Claude README](./claude/README.md) |
+| Codex | `./codex/` | `./.agents/plugins/marketplace.json` | [Codex README](./codex/README.md) |
 
 ## Installation
 
@@ -16,41 +23,71 @@ Clojure and ClojureDart development skills, built on the [Agent Skills](https://
 #### 1. Add the Marketplace
 
 ```bash
-/plugin marketplace add brackendev/clojure-marketplace
+/plugin marketplace add brackendev/clojure-skills
 ```
 
 #### 2. Install Plugins
 
 ```bash
 # Clojure development
-/plugin install clojure@clojure-marketplace
+/plugin install clojure@clojure-skills
 
 # ClojureDart development
-/plugin install clojuredart@clojure-marketplace
+/plugin install clojuredart@clojure-skills
 ```
 
 #### Uninstall
 
 ```bash
-/plugin uninstall clojure@clojure-marketplace
-/plugin uninstall clojuredart@clojure-marketplace
-/plugin marketplace remove brackendev/clojure-marketplace
+/plugin uninstall clojure@clojure-skills
+/plugin uninstall clojuredart@clojure-skills
+/plugin marketplace remove brackendev/clojure-skills
 ```
+
+### Codex
+
+1. Open the repository root in Codex (not the `./codex/` subdirectory).
+2. Open `Plugins` in the Codex app, or run `codex` and enter `/plugins`.
+3. Find the Clojure Marketplace entry and install `Clojure` or `ClojureDart`.
+4. Start a new thread and reference a skill by name in your prompt.
 
 ### Other Agent Skills-compatible tools
 
 These skills follow the [Agent Skills](https://agentskills.io) open standard. Compatible tools include [OpenCode](https://opencode.ai), [Cursor](https://www.cursor.com), [Gemini CLI](https://github.com/google-gemini/gemini-cli), and others that support the `.claude/skills/` path.
 
-Clone the repository and symlink skill directories from `clojure/skills/` or `clojuredart/skills/` into the skills directory for your tool.
+Clone the repository and symlink skill directories from `claude/clojure/skills/` or `claude/clojuredart/skills/` into the skills directory for your tool.
 
 **OpenCode** searches `~/.config/opencode/skills/<name>/SKILL.md` and `~/.claude/skills/<name>/SKILL.md`. Create symlinks from the marketplace skills:
 
 ```bash
 mkdir -p ~/.config/opencode/skills
 cd ~/.claude/plugins/marketplaces/brackendev/
-ln -s clojure-marketplace/clojure/skills/* ~/.config/opencode/skills/
-ln -s clojure-marketplace/clojuredart/skills/* ~/.config/opencode/skills/
+ln -s clojure-skills/claude/clojure/skills/* ~/.config/opencode/skills/
+ln -s clojure-skills/claude/clojuredart/skills/* ~/.config/opencode/skills/
 ```
+
+## How To Use It
+
+Choose the platform guide that matches your agent:
+
+- [Claude README](./claude/README.md)
+- [Codex README](./codex/README.md)
+
+Both packages expose the same skills. The main difference is how they are invoked:
+
+- Claude Code uses installed plugin commands such as `/clojure:clj-check`
+- Codex uses the packaged skills directly in prompts such as `Use clj-check to run the quality pipeline.`
+
+## Repository Layout
+
+| Path | Contents |
+|------|----------|
+| `claude/clojure/` | Claude package: manifest and skills for Clojure |
+| `claude/clojuredart/` | Claude package: manifest and skills for ClojureDart |
+| `codex/clojure/` | Codex package: manifest and skills for Clojure |
+| `codex/clojuredart/` | Codex package: manifest and skills for ClojureDart |
+| `.claude-plugin/marketplace.json` | Repo-level Claude marketplace entry |
+| `.agents/plugins/marketplace.json` | Repo-level Codex marketplace entry |
 
 ## clojure
 
