@@ -6,16 +6,24 @@ This package lives in `./codex/`.
 
 ## What It Provides
 
-Two plugins:
+Two skill bundles:
 
 - **clojure** -- Idiomatic style guide, project scaffolding with deps.edn, and quality checks with clj-kondo, cljfmt, and test runner.
 - **clojuredart** -- ClojureDart syntax, Dart interop patterns, Flutter project scaffolding, quality checks, and dependency upgrades.
 
-These plugins are used through skills referenced in prompts in Codex.
+These skills are used directly in prompts in Codex.
 
 ## Setup
 
-This repo includes repo-scoped marketplace metadata for Codex:
+To install these skills in Codex, run this in a Codex thread:
+
+```text
+$skill-installer https://github.com/brackendev/clojure-skills
+```
+
+Then restart Codex to pick up the newly installed skills.
+
+This repo also includes repo-scoped Codex package metadata:
 
 | Path | Purpose |
 |------|---------|
@@ -25,23 +33,13 @@ This repo includes repo-scoped marketplace metadata for Codex:
 | `./codex/clojuredart/.codex-plugin/plugin.json` | Codex plugin manifest |
 | `./.agents/plugins/marketplace.json` | Repo-level Codex marketplace entry |
 
-To install these plugins in Codex:
-
-1. Open the repository root in Codex, not the `./codex/` subdirectory. Codex needs the repo root so it can see `./.agents/plugins/marketplace.json`.
-2. Restart Codex if this repo was already open before the marketplace file or plugin files were added or changed.
-3. Open the plugin directory:
-   - In the Codex app, open `Plugins`.
-   - In Codex CLI, run `codex` and enter `/plugins`.
-4. Find the repo marketplace entry and install `Clojure` or `ClojureDart`.
-5. Start a new thread and ask Codex to use one of the bundled skills.
-
-The marketplace entry points Codex to `./codex/clojure` and `./codex/clojuredart`, and the bundled skills live under their respective `skills/` directories.
+The bundled skills live under the `skills/` directories for the `clojure` and `clojuredart` packages.
 
 ## How To Use It
 
-After the plugins are installed, use the skill names directly in your prompt when you want Codex to apply them.
+After the skills are installed, use the skill names directly in your prompt when you want Codex to apply them.
 
-You can also type `@` to select the plugin or one of its bundled skills explicitly.
+You can also type `@` to select one of the installed skills explicitly.
 
 Examples:
 
