@@ -38,7 +38,10 @@ Each plugin bundles two types of skills:
 | `cljd-new` | Scaffold a new ClojureDart Flutter project with deps.edn, entry point, and formatting rules |
 | `cljd-check` | Run the quality pipeline: lint with clj-kondo, format with cljfmt, compile with ClojureDart |
 | `cljd-upgrade` | Upgrade the ClojureDart dependency to the latest version |
-| `clojuredart` | Auto-triggered syntax, Dart interop patterns, and project structure guidance for `.cljd` files |
+| `cljd-test` | Scaffold and run ClojureDart tests: unit tests, widget tests, integration tests, and tag-based filtering |
+| `cljd-nav` | Auto-triggered navigation patterns: named routes, go_router, Navigator API, tab navigation, and deep linking |
+| `clojuredart` | Auto-triggered syntax, Dart interop patterns, async, platform channels, and project structure guidance for `.cljd` files |
+| `clojuredart-lenses` | Auto-triggered translation of code-lenses design philosophies to idiomatic ClojureDart and Flutter patterns |
 
 ## How To Use It
 
@@ -67,6 +70,6 @@ Both packages expose the same skills. The main difference is how they are invoke
 
 - Clojure plugins require [Clojure CLI](https://clojure.org/guides/install_clojure) (tools.deps) and [clj-kondo](https://github.com/clj-kondo/clj-kondo).
 - ClojureDart plugins additionally require [Flutter SDK](https://docs.flutter.dev/get-started/install) and [ClojureDart](https://github.com/Tensegritics/ClojureDart).
-- [brackendev/code-lenses](https://github.com/brackendev/code-lenses) provides design philosophy skills (grug, APOSD, Tidy First, Parse Don't Validate, Honest Code, Legacy Code). When installed alongside this package, the **clojure-lenses** skill auto-triggers to translate language-agnostic design advice into idiomatic Clojure patterns.
+- [brackendev/code-lenses](https://github.com/brackendev/code-lenses) provides design philosophy skills (grug, APOSD, Tidy First, Parse Don't Validate, Honest Code, Legacy Code). When installed alongside this package, the **clojure-lenses** and **clojuredart-lenses** skills auto-trigger to translate language-agnostic design advice into idiomatic Clojure and ClojureDart patterns.
 - [bhauman/clojure-mcp](https://github.com/bhauman/clojure-mcp) provides an MCP server for REPL-driven Clojure development with REPL evaluation, namespace management, and file operations.
 - The skill content follows the [Agent Skills](https://agentskills.io) format, so other compatible tools can reuse the skill directories if they integrate them separately.

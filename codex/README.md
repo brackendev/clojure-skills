@@ -49,6 +49,8 @@ Use clj-check to lint and format this project.
 Use cljd-new to scaffold a ClojureDart Flutter project.
 Use cljd-check to run the quality pipeline.
 Use cljd-upgrade to update the ClojureDart dependency.
+Use cljd-test to run the test suite.
+Use cljd-test widget to run widget tests.
 ```
 
 ## Bundled Skills

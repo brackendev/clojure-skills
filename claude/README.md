@@ -64,6 +64,8 @@ Invoke skills through slash commands.
 /clojuredart:cljd-new my-app
 /clojuredart:cljd-check
 /clojuredart:cljd-upgrade
+/clojuredart:cljd-test
+/clojuredart:cljd-test widget
 ```
 
 ## Bundled Skills

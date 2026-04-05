@@ -161,12 +161,56 @@ Fix dynamic warnings immediately, starting with the first one (they cascade). Ad
 
 ## Async
 
+### await
+
 Use `await` for Dart async operations:
 
 ```clojure
 (let [result (await (some-async-call))]
   (process result))
 ```
+
+### Async Functions
+
+Mark functions as async with `^:async` when they need to return a `Future`:
+
+```clojure
+(defn ^:async fetch-data [^String url]
+  (let [response (await (http/get (Uri/parse url)))]
+    (.-body response)))
+```
+
+### Streams
+
+Dart Streams are watchable in `:watch` directives. Use `:default` for the initial value before the stream emits:
+
+```clojure
+(f/widget
+  :watch [position (geolocation/getPositionStream) :default nil]
+  (if position
+    (m/Text (str "Lat: " (.-latitude position)))
+    (m/Text "Waiting for GPS...")))
+```
+
+### Isolates
+
+Use `cljd.dart.isolates/spawn!` for background computation. Returns a map with `:in` and `:out` ports:
+
+```clojure
+(ns my-app.background
+  (:require [cljd.dart.isolates :as isolates]))
+
+(let [{:keys [in out]} (await (isolates/spawn!
+                                (fn [{:keys [in out]}]
+                                  ;; Runs in separate isolate
+                                  (let [msg (await (.first in))]
+                                    (await (.add out (process msg)))))))]
+  (await (.add in data))
+  (let [result (await (.first out))]
+    result))
+```
+
+Use isolates for CPU-intensive work (parsing large datasets, image processing) to avoid blocking the UI thread.
 
 ## Object Destructuring
 
@@ -568,7 +612,70 @@ Shorthand for `SizedBox` and `ColoredBox`:
   ...)
 ```
 
-Share cells via `:bind`/`:get` rather than passing as function arguments.
+Cells can depend on other cells and atoms. The dependency graph updates automatically:
+
+```clojure
+(def items (atom [{:name "A" :price 10} {:name "B" :price 20}]))
+
+;; Derived: recomputes when items changes
+(def total (f/$ (reduce + (map :price (f/<! items)))))
+
+;; Derived from derived: recomputes when total changes
+(def tax (f/$ (* 0.1 (f/<! total))))
+```
+
+Share cells via `:bind`/`:get` rather than passing as function arguments:
+
+```clojure
+;; Root: bind the atom and derived cells
+(f/widget
+  :bind {:cart (atom [])
+         :cart-total (f/$ (reduce + (map :price (f/<! (:cart %)))))}
+  (shop-screen))
+
+;; Consumer: get the derived cell
+(f/widget
+  :get [:cart-total]
+  :watch [total cart-total]
+  (m/Text (str "Total: $" total)))
+```
+
+### Scoped Watches
+
+`:watch` triggers rebuilds when the watched value changes (by `=`). For large state atoms, destructure to watch only the fields you need. This prevents rebuilds when unrelated fields change:
+
+```clojure
+;; Rebuilds on any change to app-state (wasteful)
+(f/widget
+  :watch [state app-state]
+  (m/Text (:name state)))
+
+;; Rebuilds only when :name changes (scoped)
+(f/widget
+  :watch [{:keys [name]} app-state]
+  (m/Text name))
+```
+
+For even finer control, use cells to pre-compute the exact value a widget needs:
+
+```clojure
+(def selected-name (f/$ (:name (f/<! app-state))))
+
+(f/widget
+  :watch [name selected-name]
+  (m/Text name))
+```
+
+### Choosing f/widget vs f/build
+
+| Need | Use |
+|------|-----|
+| A widget to place in the tree | `f/widget` |
+| A callback for a `builder:` parameter | `f/build` |
+| A route builder for go_router or MaterialPageRoute | `f/build` |
+| An `itemBuilder` for ListView.builder | `f/build` with index parameter |
+
+`f/widget` evaluates to a `Widget` instance. `f/build` evaluates to a function that returns a `Widget`. Flutter APIs that accept `builder:`, `itemBuilder:`, or route builder parameters expect functions, not widgets.
 
 ## REPL
 
@@ -578,7 +685,35 @@ After running `clj -M:cljd flutter`, a socket REPL starts (not nREPL). Connect w
 nc localhost <port>
 ```
 
-Special vars: `*1`, `*2`, `*3`, `*e`, `*env` (widget lexical bindings after `cljd.flutter.repl/pick!`).
+Special vars: `*1`, `*2`, `*3`, `*e`.
+
+### Interactive Widget Inspection
+
+`cljd.flutter.repl` provides tools for inspecting the live widget tree:
+
+```clojure
+(require '[cljd.flutter.repl :as repl])
+
+;; Pick a widget on screen (tap to select)
+(repl/pick!)
+
+;; After picking, *env* contains the widget's lexical bindings
+*env*
+;; => {:counter #<Atom@...>, :ctx #<BuildContext>, ...}
+
+;; Mount a new widget into the picked location
+(repl/mount!
+  (f/widget
+    :watch [n (get *env* :counter)]
+    (m/Text (str "Debug: " n))))
+```
+
+### REPL Limitations
+
+- Socket REPL, not nREPL. Editor integration is limited; `nc` or `telnet` works.
+- No `doc` or `apropos`. Use the ClojureDart source or this skill for API reference.
+- REPL expressions run on the main isolate. Long-running evaluations block the UI.
+- Hot reload preserves app state. REPL `def` evaluations do not persist across restarts.
 
 ## Entry Point Patterns
 
@@ -665,6 +800,61 @@ Use `doto` with `set!` to configure mutable Dart objects:
   (-> .-style (set! m/PaintingStyle.fill)))
 ```
 
+## Adding Dart Packages
+
+Use `flutter pub add` to add Dart/Flutter packages, then require them as strings in ClojureDart:
+
+```bash
+flutter pub add go_router
+flutter pub add http
+flutter pub add shared_preferences
+```
+
+```clojure
+(ns my-app.feature
+  (:require
+   ["package:go_router/go_router.dart" :as go]
+   ["package:http/http.dart" :as http]
+   ["package:shared_preferences/shared_preferences.dart" :as prefs]))
+```
+
+The package name in the require string matches the Dart package name (underscores, not hyphens). Check the package's Dart import statement on pub.dev for the exact string.
+
+For dev-only dependencies (testing, linting):
+
+```bash
+flutter pub add --dev integration_test
+```
+
+## Platform Channels and FFI
+
+### Platform Views
+
+Embed native platform views with `UiKitView` (iOS) or `AndroidView`:
+
+```clojure
+(m/UiKitView
+  .viewType "my-native-view"
+  .creationParams {:config "value"}
+  .creationParamsCodec (m/StandardMessageCodec))
+```
+
+### dart:ffi
+
+Access native C libraries through Dart's FFI:
+
+```clojure
+(ns my-app.native
+  (:require ["dart:ffi" :as ffi]))
+
+(let [lib (ffi/DynamicLibrary.open "libmy_native.so")
+      fn-ptr (.lookup lib #/(ffi/NativeFunction (-> ffi/Int32 ffi/Int32)) "my_function")
+      my-fn (.asFunction fn-ptr #/(-> int int))]
+  (my-fn 42))
+```
+
+Generic type parameters in FFI use the `#/(Type Params)` tagged literal syntax. The function signature types (`ffi/Int32`, `ffi/Void`) describe the C ABI; the `.asFunction` types describe the Dart types.
+
 ## Conditional Reading
 
 ClojureDart uses the Clojure reader, so `:clj` is always on. Put `:clj` last in reader conditionals. For macros needing Clojure host code, use `:cljd/clj-host`:
@@ -685,6 +875,43 @@ ClojureDart uses the Clojure reader, so `:clj` is always on. Put `:clj` last in 
 | clj-kondo | `clj-kondo --lint src` | Lint `.cljd` files |
 | cljfmt | `clj -M:cljfmt fix` | Format `.cljd` files |
 | Babashka | `bb script.bb` | Build scripts and automation |
+
+## Gotchas
+
+### Dynamic Warnings
+
+Dynamic warnings are the most common source of runtime failures. They occur when the compiler cannot infer a type for a method call or property access.
+
+**Symptoms:** Compilation output shows `dynamic call to .methodName` or `dynamic access to .property`.
+
+**Fix strategy:**
+1. Start with the first dynamic warning. They cascade: one unresolved type propagates to downstream calls.
+2. Add `^Type` hint to the variable or parameter causing the warning.
+3. Recompile and check if downstream warnings resolve.
+4. Common sources: function parameters without type hints, return values from Dart APIs, destructured values from untyped maps.
+
+```clojure
+;; Warning: dynamic call to .length
+(defn count-chars [s] (.-length s))
+
+;; Fixed: type hint resolves it
+(defn count-chars [^String s] (.-length s))
+```
+
+### Flutter Web
+
+- `HashMap` keyword access can return `null` in release builds on Flutter Web. If you encounter nil values that work in debug mode, check whether the data flows through Dart HashMap boundaries.
+- Type cast errors in release builds that do not appear in debug mode are typically caused by Dart's tree-shaking removing type information. Add explicit type hints at the boundary where data crosses from Dart to ClojureDart.
+- Web builds use `clj -M:cljd compile` followed by `flutter build web`. Test in release mode (`flutter run -d chrome --release`) before deploying.
+
+### Common Mistakes
+
+- **Trailing dot on constructors.** `(Type. args)` is Clojure JVM syntax. ClojureDart uses `(Type args)` without the dot.
+- **`instance?` instead of `dart/is?`.** ClojureDart uses `(dart/is? obj Type)` for type checks, not `instance?`.
+- **Missing `await` on Dart async calls.** Dart methods returning `Future` must be `await`ed. Without `await`, you receive a Future object instead of the resolved value.
+- **Editing `lib/cljd-out/`.** These files are generated by the compiler and overwritten on every compile. All source changes go in `src/`.
+- **Records with wrong constructor arity.** ClojureDart `defrecord` constructors take 3 extra arguments (meta, extmap, hash) beyond the declared fields. Use the map factory or positional factory instead of calling the constructor directly.
+- **`:watch nil` lint warnings.** `clj-kondo` may warn about `:watch` with a nil initial value. This is a false positive; `:watch` with `:default nil` is valid.
 
 ## Key Rules
 

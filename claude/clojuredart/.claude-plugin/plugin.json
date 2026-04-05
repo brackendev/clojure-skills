@@ -1,7 +1,7 @@
 {
   "name": "clojuredart",
-  "version": "0.1.0",
-  "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, upgrades, and quality checks",
+  "version": "0.1.1",
+  "description": "ClojureDart development skills: syntax, Dart interop, navigation, testing, project scaffolding, upgrades, and quality checks",
   "author": {
     "name": "Bracken Spencer",
     "url": "https://github.com/brackendev"
