@@ -1,0 +1,30 @@
+{
+  "name": "clojure",
+  "version": "0.1.2",
+  "description": "Clojure development skills: style guide, project scaffolding, and quality checks",
+  "author": {
+    "name": "Bracken Spencer",
+    "url": "https://github.com/brackendev"
+  },
+  "homepage": "https://github.com/brackendev/clojure-skills",
+  "repository": "https://github.com/brackendev/clojure-skills",
+  "keywords": ["clojure", "clj", "deps-edn", "tools-deps"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Clojure",
+    "shortDescription": "Clojure development skills",
+    "longDescription": "Clojure development skills: idiomatic style guide, project scaffolding with deps.edn, and quality checks with clj-kondo, cljfmt, and test runner.",
+    "developerName": "Bracken Spencer",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/brackendev/clojure-skills",
+    "defaultPrompt": [
+      "Use clj-new to scaffold a Clojure project.",
+      "Use clj-check to run the quality pipeline.",
+      "Apply the Clojure style guide to this code."
+    ]
+  }
+}

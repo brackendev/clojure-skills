@@ -1,73 +1,98 @@
 # Clojure Skills for Claude Code
 
-Clojure and ClojureDart development skills for Claude Code: style guides, project scaffolding, quality checks, and design philosophy translations.
-
-This package lives in `./claude/`.
-
-## What It Provides
-
-Two plugins:
-
-- **clojure** -- Idiomatic style guide, project scaffolding with deps.edn, and quality checks with clj-kondo, cljfmt, and test runner.
-- **clojuredart** -- ClojureDart syntax, Dart interop patterns, Flutter project scaffolding, quality checks, and dependency upgrades.
-
-These plugins are installed and invoked as Claude plugins with slash commands.
+Install, update, and use the `clojure` and `clojuredart` packages in Claude Code.
 
 ## Install
 
-This repo includes the Claude packages and marketplace metadata:
+### With APM
 
-| Path | Purpose |
-|------|---------|
-| `./claude/clojure` | Claude package root for Clojure |
-| `./claude/clojure/.claude-plugin/plugin.json` | Claude plugin manifest |
-| `./claude/clojuredart` | Claude package root for ClojureDart |
-| `./claude/clojuredart/.claude-plugin/plugin.json` | Claude plugin manifest |
-| `./.claude-plugin/marketplace.json` | Repo-level Claude marketplace entry |
-
-Add the marketplace:
+`clojure` per-project:
 
 ```bash
-/plugin marketplace add brackendev/clojure-skills
+apm install --target claude brackendev/clojure-skills/claude/clojure
 ```
 
-Install the plugins:
+`clojure` global:
 
 ```bash
-/plugin install clojure@clojure-skills
-/plugin install clojuredart@clojure-skills
+apm install -g --target claude brackendev/clojure-skills/claude/clojure
 ```
 
-Uninstall:
+`clojuredart` per-project:
 
 ```bash
-/plugin uninstall clojure@clojure-skills
-/plugin uninstall clojuredart@clojure-skills
-/plugin marketplace remove brackendev/clojure-skills
+apm install --target claude brackendev/clojure-skills/claude/clojuredart
 ```
 
-## How To Use It
-
-Invoke skills through slash commands.
-
-### Clojure
+`clojuredart` global:
 
 ```bash
-/clojure:clj-new my-app
+apm install -g --target claude brackendev/clojure-skills/claude/clojuredart
+```
+
+APM deploys these skills into `.claude/skills/`.
+
+### With Claude Marketplace
+
+```bash
+claude plugins marketplace add brackendev/clojure-skills
+claude plugins install clojure@clojure-skills
+claude plugins install clojuredart@clojure-skills
+```
+
+Remove them with:
+
+```bash
+claude plugins uninstall clojure
+claude plugins uninstall clojuredart
+```
+
+## Update
+
+### APM Installs
+
+Update all project-scoped installs from the project root:
+
+```bash
+apm deps update --target claude
+```
+
+Update one package:
+
+```bash
+apm deps update --target claude brackendev/clojure-skills/claude/clojure
+apm deps update --target claude brackendev/clojure-skills/claude/clojuredart
+```
+
+Update global installs:
+
+```bash
+apm deps update -g --target claude brackendev/clojure-skills/claude/clojure
+apm deps update -g --target claude brackendev/clojure-skills/claude/clojuredart
+```
+
+### Claude Marketplace
+
+Refresh marketplace metadata:
+
+```bash
+claude plugins marketplace update clojure-skills
+```
+
+Update installed plugins:
+
+```bash
+claude plugins update clojure
+claude plugins update clojuredart
+```
+
+If the plugin was installed outside the default user scope, pass the matching scope to the update command, for example `claude plugins update -s project clojure`.
+
+## Use
+
+```text
 /clojure:clj-check
-/clojure:clj-check lint
-```
-
-### ClojureDart
-
-```bash
-/clojuredart:cljd-new my-app
+/clojure:clj-new my-app
 /clojuredart:cljd-check
-/clojuredart:cljd-upgrade
 /clojuredart:cljd-test
-/clojuredart:cljd-test widget
 ```
-
-## Bundled Skills
-
-See the [root README](../README.md) for the full list of skills and auto-triggered behaviors.
