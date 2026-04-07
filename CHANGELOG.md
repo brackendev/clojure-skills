@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### clojure 0.1.2
+
+#### Changed
+
+- **clojure** (model-invoked): Expanded style guide coverage from bbatsov/clojure-style-guide. Moved Key Rules to the top of the skill for front-loaded context. Moved project workflows (CLI, MCP integration, project structure, deps.edn, tooling, REPL) to `references/project-workflows.md` to reduce always-loaded context size. Added laziness and realization guidance (run!, doseq, mapv, doall). Added nil-safe threading (some->, some->>, if-some, when-some). Added dispatch choice guidance (case/cond versus multimethods versus protocols). Added namespaced keys and boundary parsing with spec/Malli. Added comment form REPL workflows. Added naming conventions for side-effecting functions (`!`), CapitalCase for protocols/records/types, constants, and idiomatic parameter names. Added function design guidance for higher-order functions over loop/recur, positional parameter limits, pre/post conditions, flexible comparisons, function literals, and anonymous functions over comp/partial. Added collection idioms for vec over into, list* over cons, destructuring over index access, and record constructors. Corrected commas guidance to allow optional commas in maps. Added state management for refs, agents (send versus send-off), and io! macro. Added macro best practices for thin sugar over functions. Added comment conventions and #_ reader macro. Added namespace guidance for sorting requires, idiomatic aliases, and single-segment avoidance. Added new sections for privacy and metadata, exception handling, testing conventions, and docstrings. Softened absolute language for function length, pre/post conditions, and formatting rules.
+
 ### clojuredart 0.1.1
 
 #### Added
