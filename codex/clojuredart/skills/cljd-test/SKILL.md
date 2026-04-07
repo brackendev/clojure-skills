@@ -2,7 +2,6 @@
 name: cljd-test
 description: "Scaffold and run ClojureDart tests with cljd.test"
 argument-hint: "[unit|widget|all]"
-allowed-tools: Bash(clj*), Bash(flutter*), Read, Edit, Write, Glob, Grep
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -15,27 +14,27 @@ Run and scaffold tests for ClojureDart projects using `cljd.test`.
 
 Parse `$ARGUMENTS`:
 
-- Empty or `all`: Run all tests
-- `unit`: Run unit tests only (exclude widget tests)
-- `widget`: Run widget tests only
+| Argument | Action | Command |
+|----------|--------|---------|
+| (empty) or `all` | Run all tests | `clj -M:cljd test` |
+| `unit` | Run unit tests only | `clj -M:cljd test -- --tags unit` |
+| `widget` | Run widget tests only | `clj -M:cljd test -- --tags widget` |
+
+This assumes tests use `:tags` metadata (see Test Tags below). If the project does not use tags, `unit` runs all tests excluding widget test files, and `widget` runs only test files that require `flutter_test`.
 
 ## Run Tests
 
-```bash
-clj -M:cljd test
-```
-
-Pass arguments to `dart test` after `--`:
+Pass additional arguments to `dart test` after `--`:
 
 ```bash
-# Run tests with a specific tag
-clj -M:cljd test -- --tags unit
-
 # Run a specific test file
 clj -M:cljd test -- test/my_app/core_test.dart
 
 # Run with verbose output
 clj -M:cljd test -- --reporter expanded
+
+# Exclude slow tests
+clj -M:cljd test -- --exclude-tags slow
 ```
 
 Report results:

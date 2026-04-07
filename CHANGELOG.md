@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.2
+
+#### Changed
+
+- **clojuredart** (model-invoked): Moved Key Rules to the top of the skill for front-loaded context. Moved project workflows (MCP integration, CLI, project structure, deps.edn, tooling) to `references/project-workflows.md` to reduce always-loaded context size. Added pointer to references file after Key Rules. Removed redundant "When to Apply" section (covered by description frontmatter). Added directive decision guide for choosing between atoms, cells, `:bind`/`:get`, `:managed`, `:watch`, and `:bg-watcher`. Fixed Clojure version in deps.edn reference (1.11.0 to 1.12.0).
+- **cljd-nav** (model-invoked): Removed redundant "When to Apply" section (covered by description frontmatter).
+- **cljd-test** (user-invoked): Added mode-to-command table mapping `unit`, `widget`, and `all` arguments to specific `dart test` tag commands. Removed one-off `allowed-tools` frontmatter for consistency with other skills.
+
 ### clojure 0.1.2
 
 #### Changed

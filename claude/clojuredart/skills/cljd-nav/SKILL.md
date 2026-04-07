@@ -10,14 +10,6 @@ user-invocable: false
 
 Navigation patterns for ClojureDart Flutter applications.
 
-## When to Apply
-
-Apply when the user is:
-- Setting up routing or navigation
-- Adding screens or page transitions
-- Working with deep links, tab bars, or drawers
-- Integrating go_router or other routing packages
-
 ## Choosing an Approach
 
 | Approach | When to Use |
