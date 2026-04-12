@@ -6,6 +6,7 @@ description: >-
   working in Clojure alongside code-lenses skills. Prevents non-idiomatic
   translations of language-agnostic design advice.
 user-invocable: false
+effort: max
 ---
 
 # Code Lenses for Clojure

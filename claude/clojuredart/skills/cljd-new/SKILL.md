@@ -4,6 +4,7 @@ description: Scaffold a new ClojureDart Flutter project
 argument-hint: <project-name>
 user-invocable: true
 disable-model-invocation: true
+effort: auto
 ---
 
 # Scaffold a ClojureDart Flutter Project

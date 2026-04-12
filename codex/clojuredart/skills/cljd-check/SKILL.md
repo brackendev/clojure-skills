@@ -4,6 +4,7 @@ description: Run the ClojureDart quality pipeline (lint, format, compile)
 argument-hint: "[lint|format|compile]"
 user-invocable: true
 disable-model-invocation: true
+effort: auto
 ---
 
 # ClojureDart Quality Check

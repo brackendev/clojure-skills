@@ -4,6 +4,7 @@ description: "Scaffold and run ClojureDart tests with cljd.test"
 argument-hint: "[unit|widget|all]"
 user-invocable: true
 disable-model-invocation: true
+effort: max
 ---
 
 # ClojureDart Test

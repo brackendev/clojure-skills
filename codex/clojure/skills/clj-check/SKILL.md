@@ -4,6 +4,7 @@ description: Run the Clojure quality pipeline (lint, format, test)
 argument-hint: "[lint|format|test]"
 user-invocable: true
 disable-model-invocation: true
+effort: auto
 ---
 
 # Clojure Quality Check

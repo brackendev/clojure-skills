@@ -5,6 +5,7 @@ description: >-
   update, or bump ClojureDart, deps.edn SHA, or tensegritics/clojuredart dependency.
 user-invocable: true
 disable-model-invocation: true
+effort: max
 ---
 
 # Upgrade ClojureDart

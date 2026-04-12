@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.3
+
+#### Added
+
+- Added `effort` frontmatter to all applicable skills. Complex skills (clojuredart-lenses, cljd-upgrade, cljd-test) use `effort: max` for deep reasoning. Routine skills (cljd-check, cljd-new, cljd-nav) use `effort: auto` for adaptive thinking. The clojuredart model-invoked style guide has no effort set and runs inline.
+
+### clojure 0.1.3
+
+#### Added
+
+- Added `effort` frontmatter to all applicable skills. Complex skills (clojure-lenses) use `effort: max` for deep reasoning. Routine skills (clj-check, clj-new) use `effort: auto` for adaptive thinking. The clojure model-invoked style guide has no effort set and runs inline.
+
 ### clojuredart 0.1.2
 
 #### Changed

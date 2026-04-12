@@ -4,6 +4,7 @@ description: Scaffold a new Clojure project with deps.edn
 argument-hint: <project-name>
 user-invocable: true
 disable-model-invocation: true
+effort: auto
 ---
 
 # Scaffold a Clojure Project

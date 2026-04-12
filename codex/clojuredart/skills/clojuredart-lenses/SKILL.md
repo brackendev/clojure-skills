@@ -6,6 +6,7 @@ description: >-
   patterns. Auto-triggers when working in ClojureDart alongside code-lenses
   skills. Prevents non-idiomatic translations of language-agnostic design advice.
 user-invocable: false
+effort: max
 ---
 
 # Code Lenses for ClojureDart
