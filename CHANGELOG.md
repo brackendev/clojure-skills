@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.4
+
+#### Removed
+
+- Remove `effort` frontmatter from all skills (both Claude and Codex packages)
+
+### clojure 0.1.4
+
+#### Removed
+
+- Remove `effort` frontmatter from all skills (both Claude and Codex packages)
+
 ### clojuredart 0.1.3
 
 #### Added

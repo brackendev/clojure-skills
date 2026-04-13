@@ -4,7 +4,6 @@ description: >-
   ClojureDart navigation patterns: named routes, go_router, Navigator API,
   tab navigation, and deep linking in Flutter.
 user-invocable: false
-effort: auto
 ---
 
 # ClojureDart Navigation
