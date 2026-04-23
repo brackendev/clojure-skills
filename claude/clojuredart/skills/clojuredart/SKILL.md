@@ -664,7 +664,9 @@ Connect with:
 nc localhost <port>
 ```
 
-Forms evaluate in the running Dart isolate. `pick!` and `mount!` are referred by default in `cljd.user`. Special vars: `*1`, `*2`, `*3`, `*e`, and `*env` (bound after `pick!`).
+Or from Emacs: `C-u M-x inferior-lisp` and enter `nc localhost <port>`.
+
+Forms evaluate in the running Dart isolate. The default namespace is `cljd.user`. `pick!` and `mount!` (from `cljd.flutter.repl`) are referred by default. Special vars: `*1`, `*2`, `*3`, `*e`, and `*env` (bound after `pick!`). Switch namespace with `(ns my.app.core)`.
 
 ### Driving Live App State
 
@@ -681,22 +683,23 @@ Because `:watch` subscribes widgets to atoms, swapping a state atom from the REP
 
 ### Interactive Widget Inspection
 
-`cljd.flutter.repl` provides tools for inspecting the live widget tree:
+`pick!` and `mount!` are auto-referred in `cljd.user`. No require needed.
 
 ```clojure
-(require '[cljd.flutter.repl :as repl])
+;; Pick a widget on screen (tap to select in the running app)
+(pick!)
 
-;; Pick a widget on screen (tap to select)
-(repl/pick!)
+;; After picking, *env contains the widget's lexical bindings
+(keys *env)
+;; => (:counter :ctx ...)
 
-;; After picking, *env* contains the widget's lexical bindings
-*env*
-;; => {:counter #<Atom@...>, :ctx #<BuildContext>, ...}
+(get *env :counter)
+;; => #<Atom@...>
 
 ;; Mount a new widget into the picked location
-(repl/mount!
+(mount!
   (f/widget
-    :watch [n (get *env* :counter)]
+    :watch [n (get *env :counter)]
     (m/Text (str "Debug: " n))))
 ```
 

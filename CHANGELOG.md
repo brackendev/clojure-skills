@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.8
+
+#### Fixed
+
+- **clojuredart** (model-invoked): Corrected `*env*` to `*env` (no trailing asterisk) in the Interactive Widget Inspection example. The upstream README defines the var as `*env`, bound after `pick!`.
+- **clojuredart** (model-invoked): Removed the misleading `(require '[cljd.flutter.repl :as repl])` preamble and `repl/pick!` / `repl/mount!` calls. The skill already stated that `pick!` and `mount!` are auto-referred in `cljd.user`; the example now matches that and the upstream README.
+
+#### Changed
+
+- **clojuredart** (model-invoked): Added the upstream-documented `(keys *env)` idiom for exploring a picked widget's lexical bindings, `(ns my.app.core)` for switching namespaces in the REPL, and the Emacs `C-u M-x inferior-lisp` client alternative.
+
 ### clojuredart 0.1.7
 
 #### Changed
