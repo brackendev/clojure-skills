@@ -3,8 +3,10 @@ name: clojuredart
 description: >-
   Use when writing, editing, reviewing, or discussing ClojureDart code. Triggers:
   .cljd files, deps.edn with tensegritics/clojuredart, cljd-out/ directories,
-  Flutter integration, or any mention of ClojureDart. Covers syntax, Dart interop,
-  widget macros, project structure, compilation, and common anti-patterns.
+  Flutter integration, REPL usage (socket REPL on port printed by `clj -M:cljd
+  flutter`), or any mention of ClojureDart. Covers syntax, Dart interop, widget
+  macros, project structure, compilation, REPL-driven development, and common
+  anti-patterns.
 user-invocable: false
 ---
 
@@ -650,13 +652,32 @@ Atoms hold source-of-truth state. Cells derive computed values from atoms or oth
 
 ## REPL
 
-After running `clj -M:cljd flutter`, a socket REPL starts (not nREPL). Connect with:
+After running `clj -M:cljd flutter`, a socket REPL starts (not nREPL) and announces itself:
+
+```
+=== 🤫 ClojureDart REPL === listening on port === 60003 ===
+```
+
+Connect with:
 
 ```bash
 nc localhost <port>
 ```
 
-Special vars: `*1`, `*2`, `*3`, `*e`.
+Forms evaluate in the running Dart isolate. `pick!` and `mount!` are referred by default in `cljd.user`. Special vars: `*1`, `*2`, `*3`, `*e`, and `*env` (bound after `pick!`).
+
+### Driving Live App State
+
+Because `:watch` subscribes widgets to atoms, swapping a state atom from the REPL re-renders the UI with no file edit:
+
+```clojure
+;; In the REPL, fully-qualified names work from cljd.user without requires:
+(swap! my.app.state/auth-state assoc :error "Hello from REPL")
+;; UI updates immediately
+
+(swap! my.app.state/auth-state assoc :error nil)
+;; UI reverts
+```
 
 ### Interactive Widget Inspection
 
@@ -679,8 +700,29 @@ Special vars: `*1`, `*2`, `*3`, `*e`.
     (m/Text (str "Debug: " n))))
 ```
 
+### Driving the REPL from a Script
+
+Interactive use with `nc` works as documented. For scripted use (tests, automation, LLM tool calls), the client must keep stdin open for the full session. A pipeline that ends immediately triggers the broken-pipe bug below.
+
+```bash
+# Works: subshell holds stdin open across multiple forms + external actions.
+(
+  echo '(swap! my.app.state/auth-state assoc :error "Hello")'
+  sleep 2
+  # Take a screenshot, run assertions, etc.
+  echo '(swap! my.app.state/auth-state assoc :error nil)'
+  sleep 1
+) | nc localhost 60003
+
+# Broken: stdin EOFs before the REPL finishes writing.
+echo '(+ 1 2)' | nc localhost 60003
+```
+
 ### REPL Limitations
 
+- **Native Dart VM only.** `clj -M:cljd flutter -d chrome` compiles to JS and does not print a REPL port. Use `-d <ios-sim-udid>`, `-d emulator-5554`, or a desktop target.
+- **Beta stability: client disconnect kills the server's write thread.** The first `SocketException: Broken pipe` ends the REPL's output loop. New TCP connections are accepted but never receive responses. Restart `clj -M:cljd flutter` to recover. Inside one session, do not close the connection between forms.
+- **Short pipes trigger the bug above.** Piping a single form (`echo '...' | nc`) causes `nc` to close the socket as soon as stdin EOFs, which can race with the REPL's response write. Use a subshell with `sleep`s (see above) or a proper interactive terminal.
 - Socket REPL, not nREPL. Editor integration is limited; `nc` or `telnet` works.
 - No `doc` or `apropos`. Use the ClojureDart source or this skill for API reference.
 - REPL expressions run on the main isolate. Long-running evaluations block the UI.

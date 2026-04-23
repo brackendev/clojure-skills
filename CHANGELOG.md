@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.7
+
+#### Changed
+
+- **clojuredart** (model-invoked): Expanded the REPL section. Added the announcement line printed by `clj -M:cljd flutter` (`=== 🤫 ClojureDart REPL === listening on port === N ===`), a "Driving Live App State" example showing `swap!` on a `:watch`-backed atom to re-render the UI without a file edit, and a "Driving the REPL from a Script" section with the working subshell pattern for non-interactive use. Expanded limitations: native Dart VM only (no REPL port on `-d chrome`), and the beta stability issue where a client disconnect during a write kills the server's output thread with `SocketException: Broken pipe` and requires restarting `clj -M:cljd flutter` to recover.
+- **clojuredart** (model-invoked): Frontmatter description now lists `REPL usage` and `REPL-driven development` as triggers so REPL questions auto-match the skill.
+
 ### clojuredart 0.1.6
 
 #### Added
