@@ -1,78 +1,42 @@
 # Clojure Skills for Codex
 
-Install, update, and use the `clojure` and `clojuredart` packages in Codex.
+Install the `clojure` and `clojuredart` packages in Codex via APM.
+
+The examples below use `clojure` as the package name. Substitute `clojuredart` to install the other package, or run both commands to install both.
+
+> **Global installs:** APM 0.8.11 warns that Codex has no native user-scope deployment. The `-g` flag is shown below for completeness but is not reliable today. Prefer per-project installs.
+
+APM deploys skills into `.agents/skills/`.
 
 ## Install
 
-`clojure` per-project:
+Per-project:
 
 ```bash
 apm install --target codex brackendev/clojure-skills/codex/clojure
 ```
 
-`clojure` global:
-
-```bash
-apm install -g --target codex brackendev/clojure-skills/codex/clojure
-```
-
-`clojuredart` per-project:
-
-```bash
-apm install --target codex brackendev/clojure-skills/codex/clojuredart
-```
-
-`clojuredart` global:
-
-```bash
-apm install -g --target codex brackendev/clojure-skills/codex/clojuredart
-```
-
-Per-project installs deploy these skills into `.agents/skills/`.
-
-APM 0.8.11 currently warns that Codex does not have native user-scope deployment support, so the global commands above are not reliable today. Prefer per-project Codex installs.
+Global: add `-g`.
 
 ## Update
 
-Update all project-scoped installs from the project root:
-
 ```bash
-apm deps update --target codex
+apm deps update --target codex                                              # every project install
+apm deps update --target codex brackendev/clojure-skills/codex/clojure      # one package
+apm deps update -g --target codex brackendev/clojure-skills/codex/clojure   # one global install
 ```
-
-Update one package:
-
-```bash
-apm deps update --target codex brackendev/clojure-skills/codex/clojure
-apm deps update --target codex brackendev/clojure-skills/codex/clojuredart
-```
-
-Update global installs:
-
-```bash
-apm deps update -g --target codex brackendev/clojure-skills/codex/clojure
-apm deps update -g --target codex brackendev/clojure-skills/codex/clojuredart
-```
-
-Codex global updates have the same current limitation as Codex global installs.
 
 ## Uninstall
 
-Remove per-project installs:
+Add `-g` for global:
 
 ```bash
 apm uninstall brackendev/clojure-skills/codex/clojure
-apm uninstall brackendev/clojure-skills/codex/clojuredart
-```
-
-Remove global installs:
-
-```bash
-apm uninstall -g brackendev/clojure-skills/codex/clojure
-apm uninstall -g brackendev/clojure-skills/codex/clojuredart
 ```
 
 ## Use
+
+Codex skills are model-invoked. Phrase requests in natural language:
 
 ```text
 Use clj-new to scaffold a Clojure project called my-app.

@@ -1,106 +1,63 @@
 # Clojure Skills for Claude Code
 
-Install, update, and use the `clojure` and `clojuredart` packages in Claude Code.
+Install the `clojure` and `clojuredart` packages in Claude Code via APM or the native Claude marketplace.
 
-## Install
+The examples below use `clojure` as the package name. Substitute `clojuredart` to install the other package, or run both commands to install both.
 
-### With APM
+## APM
 
-`clojure` per-project:
+APM deploys skills into `.claude/skills/`.
+
+Install (per-project):
 
 ```bash
 apm install --target claude brackendev/clojure-skills/claude/clojure
 ```
 
-`clojure` global:
+Install (global): add `-g`.
+
+Update:
 
 ```bash
-apm install -g --target claude brackendev/clojure-skills/claude/clojure
+apm deps update --target claude                                              # every project install
+apm deps update --target claude brackendev/clojure-skills/claude/clojure     # one package
+apm deps update -g --target claude brackendev/clojure-skills/claude/clojure  # one global install
 ```
 
-`clojuredart` per-project:
-
-```bash
-apm install --target claude brackendev/clojure-skills/claude/clojuredart
-```
-
-`clojuredart` global:
-
-```bash
-apm install -g --target claude brackendev/clojure-skills/claude/clojuredart
-```
-
-APM deploys these skills into `.claude/skills/`.
-
-Remove them with:
+Uninstall (add `-g` for global):
 
 ```bash
 apm uninstall brackendev/clojure-skills/claude/clojure
-apm uninstall brackendev/clojure-skills/claude/clojuredart
 ```
 
-Remove global installs with:
+## Claude Marketplace
 
-```bash
-apm uninstall -g brackendev/clojure-skills/claude/clojure
-apm uninstall -g brackendev/clojure-skills/claude/clojuredart
-```
-
-### With Claude Marketplace
+Add the marketplace once:
 
 ```bash
 claude plugins marketplace add brackendev/clojure-skills
-claude plugins install clojure@clojure-skills
-claude plugins install clojuredart@clojure-skills
 ```
 
-Remove them with:
+Install:
+
+```bash
+claude plugins install clojure@clojure-skills
+```
+
+Update:
+
+```bash
+claude plugins marketplace update clojure-skills   # refresh marketplace metadata
+claude plugins update clojure
+```
+
+If a plugin was installed outside the default user scope, pass `-s <scope>` to the update command (for example `-s project`).
+
+Uninstall:
 
 ```bash
 claude plugins uninstall clojure
-claude plugins uninstall clojuredart
 ```
-
-## Update
-
-### APM Installs
-
-Update all project-scoped installs from the project root:
-
-```bash
-apm deps update --target claude
-```
-
-Update one package:
-
-```bash
-apm deps update --target claude brackendev/clojure-skills/claude/clojure
-apm deps update --target claude brackendev/clojure-skills/claude/clojuredart
-```
-
-Update global installs:
-
-```bash
-apm deps update -g --target claude brackendev/clojure-skills/claude/clojure
-apm deps update -g --target claude brackendev/clojure-skills/claude/clojuredart
-```
-
-### Claude Marketplace
-
-Refresh marketplace metadata:
-
-```bash
-claude plugins marketplace update clojure-skills
-```
-
-Update installed plugins:
-
-```bash
-claude plugins update clojure
-claude plugins update clojuredart
-```
-
-If the plugin was installed outside the default user scope, pass the matching scope to the update command, for example `claude plugins update -s project clojure`.
 
 ## Use
 
