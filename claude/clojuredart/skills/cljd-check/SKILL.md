@@ -25,13 +25,23 @@ Multiple arguments can be combined (e.g., `lint compile`).
 
 ### 1. Lint
 
-Run clj-kondo on the ClojureDart source:
+If `.clj-kondo/imports/tensegritics/clojuredart/` is missing, bootstrap the upstream exports first:
 
 ```bash
-clj-kondo --lint src
+if [ ! -d .clj-kondo/imports/tensegritics/clojuredart ]; then
+  clj-kondo --copy-configs --dependencies --lint "$(clj -Spath)" > /dev/null
+fi
 ```
 
-Report pass if exit code is 0, fail otherwise. Show the clj-kondo output.
+Run clj-kondo on both source and test trees:
+
+```bash
+clj-kondo --lint src test
+```
+
+If the project has no `test/` directory, lint `src` only.
+
+Report pass if exit code is 0 and there are no errors or warnings in the output. If the project's lint target is zero-errors-only, fail only on errors. Show the clj-kondo output either way.
 
 ### 2. Format
 

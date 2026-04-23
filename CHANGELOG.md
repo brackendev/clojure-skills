@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.6
+
+#### Added
+
+- **cljd-new** (user-invoked): Scaffolds clj-kondo lint setup. Writes `.clj-kondo/config.edn` with a `cljd.test/deftest` hook, Dart interop exclusions (`String?`, `DateTime?`, `Uri`, `int`, `double`, `DateTime`), and the `:flutter/widget` custom linter downgraded to `:warning` so future directive drift does not block builds. Writes `.clj-kondo/hooks/cljd_test.clj`. Runs `clj-kondo --copy-configs --dependencies` to import the upstream `tensegritics/clojuredart` hooks. Calls out two upstream hook gaps to patch when encountered: `:default`/`:value>`/`:dispose-value` options on `:watch`, and 3-form `catch` blocks.
+
+#### Changed
+
+- **cljd-check** (user-invoked): Bootstraps upstream clj-kondo exports when missing, then lints both `src` and `test` (previously `src` only). Without the upstream hooks, `cljd.flutter/widget` forms generate hundreds of false positives and the check is unusable.
+- **clojuredart** (model-invoked): Replaced the vague "`:watch nil` is a false positive" gotcha with a pointer to the real lint setup. Upstream already handles nil initial values; the remaining noise is entirely about missing the clj-kondo hook configuration.
+
 ### clojuredart 0.1.5
 
 #### Changed
