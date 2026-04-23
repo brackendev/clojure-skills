@@ -705,10 +705,10 @@ Because `:watch` subscribes widgets to atoms, swapping a state atom from the REP
 
 ### Driving the REPL from a Script
 
-Interactive use with `nc` works as documented. For scripted use (tests, automation, LLM tool calls), the client must keep stdin open for the full session. A pipeline that ends immediately triggers the broken-pipe bug below.
+Interactive use with `nc` works as documented. For scripted use (tests, automation, LLM tool calls), use a subshell so one connection sends multiple forms and can interleave external side effects (screenshots, assertions) between them.
 
 ```bash
-# Works: subshell holds stdin open across multiple forms + external actions.
+# Multi-form session with interleaved external actions.
 (
   echo '(swap! my.app.state/auth-state assoc :error "Hello")'
   sleep 2
@@ -717,15 +717,14 @@ Interactive use with `nc` works as documented. For scripted use (tests, automati
   sleep 1
 ) | nc localhost 60003
 
-# Broken: stdin EOFs before the REPL finishes writing.
-echo '(+ 1 2)' | nc localhost 60003
+# Single form works too. Give the REPL a moment to write back before stdin EOFs.
+(echo '(+ 1 2)'; sleep 1) | nc localhost 60003
 ```
 
 ### REPL Limitations
 
 - **Native Dart VM only.** `clj -M:cljd flutter -d chrome` compiles to JS and does not print a REPL port. Use `-d <ios-sim-udid>`, `-d emulator-5554`, or a desktop target.
-- **Beta stability: client disconnect kills the server's write thread.** The first `SocketException: Broken pipe` ends the REPL's output loop. New TCP connections are accepted but never receive responses. Restart `clj -M:cljd flutter` to recover. Inside one session, do not close the connection between forms.
-- **Short pipes trigger the bug above.** Piping a single form (`echo '...' | nc`) causes `nc` to close the socket as soon as stdin EOFs, which can race with the REPL's response write. Use a subshell with `sleep`s (see above) or a proper interactive terminal.
+- **Beta: client disconnect floods `clj -M:cljd flutter` logs with `Error: Write end dead`.** Cosmetic noise after `nc` closes stdin. The form that was sent evaluates and returns to the client before the flood. A fresh `nc` connection still evaluates forms and receives responses; no restart of `clj -M:cljd flutter` is needed.
 - Socket REPL, not nREPL. Editor integration is limited; `nc` or `telnet` works.
 - No `doc` or `apropos`. Use the ClojureDart source or this skill for API reference.
 - REPL expressions run on the main isolate. Long-running evaluations block the UI.

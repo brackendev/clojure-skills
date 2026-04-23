@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.9
+
+#### Fixed
+
+- **clojuredart** (model-invoked): Corrected the REPL beta-stability note. Prior text claimed a client disconnect killed the server's write thread, that subsequent TCP connections were accepted but never received responses, and that `clj -M:cljd flutter` had to be restarted to recover. Hands-on testing on the Android emulator showed the opposite: the form evaluates and the response reaches the client before the `Error: Write end dead` flood appears, and a fresh `nc` connection evaluates forms and receives responses without restarting. The limitation now describes the flood as cosmetic log noise rather than a blocker.
+- **clojuredart** (model-invoked): Removed the "short pipes trigger the bug" bullet. With a brief `sleep` before stdin EOFs, a single-form pipeline like `(echo '(+ 1 2)'; sleep 1) | nc localhost <port>` works; the Driving the REPL from a Script section now reflects this and reframes the subshell pattern as the right choice for multi-form sessions that interleave external side effects, not as a bug workaround.
+
 ### clojuredart 0.1.8
 
 #### Fixed
