@@ -35,15 +35,15 @@ APM deploys these skills into `.claude/skills/`.
 Remove them with:
 
 ```bash
-apm uninstall --target claude brackendev/clojure-skills/claude/clojure
-apm uninstall --target claude brackendev/clojure-skills/claude/clojuredart
+apm uninstall brackendev/clojure-skills/claude/clojure
+apm uninstall brackendev/clojure-skills/claude/clojuredart
 ```
 
 Remove global installs with:
 
 ```bash
-apm uninstall -g --target claude brackendev/clojure-skills/claude/clojure
-apm uninstall -g --target claude brackendev/clojure-skills/claude/clojuredart
+apm uninstall -g brackendev/clojure-skills/claude/clojure
+apm uninstall -g brackendev/clojure-skills/claude/clojuredart
 ```
 
 ### With Claude Marketplace

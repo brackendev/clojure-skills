@@ -61,15 +61,15 @@ Codex global updates have the same current limitation as Codex global installs.
 Remove per-project installs:
 
 ```bash
-apm uninstall --target codex brackendev/clojure-skills/codex/clojure
-apm uninstall --target codex brackendev/clojure-skills/codex/clojuredart
+apm uninstall brackendev/clojure-skills/codex/clojure
+apm uninstall brackendev/clojure-skills/codex/clojuredart
 ```
 
 Remove global installs:
 
 ```bash
-apm uninstall -g --target codex brackendev/clojure-skills/codex/clojure
-apm uninstall -g --target codex brackendev/clojure-skills/codex/clojuredart
+apm uninstall -g brackendev/clojure-skills/codex/clojure
+apm uninstall -g brackendev/clojure-skills/codex/clojuredart
 ```
 
 ## Use
