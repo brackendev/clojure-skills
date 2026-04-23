@@ -51,7 +51,7 @@ Compile ClojureDart to Dart:
 clj -M:cljd compile
 ```
 
-Report pass if exit code is 0, fail otherwise. Show any compilation errors.
+Report fail if exit code is non-zero, or if the output contains any `DYNAMIC WARNING: can't resolve member` lines. Those resolution failures exit 0 but indicate a method or property that does not exist on the target type, which throws `NoSuchMethodError` at runtime. Show any compilation errors and the offending warning lines.
 
 ## Report
 

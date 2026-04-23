@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### clojuredart 0.1.5
+
+#### Changed
+
+- **clojuredart** (model-invoked): Split Dynamic Warnings gotcha into two flavors: inference failures (fix with type hints) and resolution failures (`can't resolve member ...`, fix the wrong name or wrong type). Added a Common Mistakes entry warning against Python-style method names like `.__setitem` and `.__getitem` on Dart objects, with a pointer to the `(. m "[]=" k v)` operator syntax for Dart Map mutation.
+- **cljd-check** (user-invoked): Compile step now fails when output contains `DYNAMIC WARNING: can't resolve member` lines, even with exit code 0. These warnings indicate a method or property that does not exist on the target type and will throw `NoSuchMethodError` at runtime.
+
 ### clojuredart 0.1.4
 
 #### Removed
