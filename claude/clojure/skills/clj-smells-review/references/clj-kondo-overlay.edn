@@ -1,0 +1,45 @@
+;; clj-kondo overlay for clj-smells-review.
+;;
+;; Supplements the project's .clj-kondo/config.edn with linters tuned for
+;; the clj-smells catalog. Project config takes precedence; this overlay
+;; raises levels but cannot lower a project's explicit :off setting.
+;;
+;; Maps clj-kondo linters to clj-smells catalog entries. Each enabled
+;; linter corresponds to a Stage 1 detection in references/clj-smells-catalog.md.
+
+{:linters
+ {;; Implicit Namespace Dependencies
+  :refer-all {:level :warning}
+
+  ;; Excessive Refers (partial coverage; explicit-large refers handled by LLM)
+  :use {:level :warning}
+
+  ;; Redundant do block
+  :redundant-do {:level :warning}
+
+  ;; Nested Forms (nested let)
+  :redundant-let {:level :warning}
+
+  ;; Discourage internal RT class usage
+  :discouraged-var
+  {clojure.lang.RT/iter
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/get
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/nth
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/count
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/seq
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/conj
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/assoc
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+   clojure.lang.RT/dissoc
+   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}}
+
+  ;; Supporting context for several smells (unused bindings often appear
+  ;; in conditional build-up patterns).
+  :unused-binding {:level :warning}
+  :unused-namespace {:level :warning}}}

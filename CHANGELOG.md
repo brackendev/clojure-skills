@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### clojure 0.1.5
+
+#### Added
+
+- **clj-smells-review** (user-invoked): Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), a community catalog of 35 Clojure-specific code smells. Pairs `clj-kondo` static analysis with LLM-assisted detection for smells that static analysis cannot catch. Reports findings with severity tiers (`DEFECT`, `SMELL`, `HINT`) and a smell density verdict. Supports the same argument shape as code-lenses reviews: no argument reviews changed files, a path scopes to that path, `all` reviews the full codebase, and `fix` applies non-conflicting findings after the report. Catalog pinned to upstream commit `d1ae189` (2026-01-19); upstream changes require a digest refresh. Ships a clj-kondo overlay config (`references/clj-kondo-overlay.edn`) that enables `:refer-all`, `:redundant-do`, `:redundant-let`, and `:discouraged-var` entries for `clojure.lang.RT` methods. Falls back to LLM-only review when `clj-kondo` is not on PATH.
+- **clj-smells-reviewer** (Claude agent): Delegating agent that runs the `clj-smells-review` skill. Enables future integration with `code-lenses`'s `/review-all` command via an explicit `+clj-smells` opt-in (tracked in TODO).
+
+### clojuredart 0.1.10
+
+#### Added
+
+- **cljd-smells-review** (user-invoked, placeholder): Scaffolds a future ClojureDart-specific smells review. Currently prints a "not yet implemented" notice and exits. Placeholder lists planned categories (dynamic warnings, Dart interop, Flutter directive misuse, widget rebuild behavior, async patterns, generated files, project config). Ships now to reserve the command name; implementation is tracked in TODO.
+
 ### clojuredart 0.1.9
 
 #### Fixed

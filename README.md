@@ -4,11 +4,11 @@ Clojure and ClojureDart skills for Claude Code and Codex.
 
 ## Packages
 
-**`clojure`** — Idiomatic Clojure guidance, project scaffolding, and quality checks.
-Skills: `clj-new`, `clj-check`, `clojure`, `clojure-lenses`
+**`clojure`** — Idiomatic Clojure guidance, project scaffolding, quality checks, and code review.
+Skills: `clj-new`, `clj-check`, `clj-smells-review`, `clojure`, `clojure-lenses`
 
-**`clojuredart`** — ClojureDart syntax and interop guidance, Flutter project scaffolding, quality checks, testing, navigation, and upgrades.
-Skills: `cljd-new`, `cljd-check`, `cljd-upgrade`, `cljd-test`, `cljd-nav`, `clojuredart`, `clojuredart-lenses`
+**`clojuredart`** — ClojureDart syntax and interop guidance, Flutter project scaffolding, quality checks, testing, navigation, upgrades, and code review (placeholder).
+Skills: `cljd-new`, `cljd-check`, `cljd-upgrade`, `cljd-test`, `cljd-nav`, `cljd-smells-review`, `clojuredart`, `clojuredart-lenses`
 
 ## Install
 

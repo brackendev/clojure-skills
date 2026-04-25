@@ -7,12 +7,12 @@
     {
       "name": "clojure",
       "source": "./claude/clojure",
-      "description": "Clojure development skills: style guide, project scaffolding, and quality checks"
+      "description": "Clojure development skills: style guide, project scaffolding, quality checks, and code review"
     },
     {
       "name": "clojuredart",
       "source": "./claude/clojuredart",
-      "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, and quality checks"
+      "description": "ClojureDart development skills: syntax, Dart interop, project scaffolding, quality checks, and code review"
     }
   ]
 }

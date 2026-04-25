@@ -1,7 +1,7 @@
 {
   "name": "clojure",
-  "version": "0.1.4",
-  "description": "Clojure development skills: style guide, project scaffolding, and quality checks",
+  "version": "0.1.5",
+  "description": "Clojure development skills: style guide, project scaffolding, quality checks, and code review",
   "author": {
     "name": "Bracken Spencer",
     "url": "https://github.com/brackendev"
