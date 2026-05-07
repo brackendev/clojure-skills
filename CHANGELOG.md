@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### clojure 0.1.6
+
+#### Added
+
+- **clj-check** (user-invoked): Added a `dry` step that scans for duplicate top-level forms with [dry4clj](https://github.com/unclebob/dry4clj). The step runs as part of the default pipeline (now `lint, format, test, dry`) and is also addressable on its own (`/clj-check dry`). dry4clj exits 0 whether or not it finds candidates, so the step inspects stdout and reports pass only when it contains the literal `No duplicate candidates found.`. The project's `deps.edn` must define a `:dry4clj` alias.
+
+### clojuredart 0.1.11
+
+#### Added
+
+- **cljd-check** (user-invoked): Added a `dry` step that scans for duplicate top-level forms with [dry4clj](https://github.com/unclebob/dry4clj). The step runs as part of the default pipeline (now `lint, format, compile, dry`) and is also addressable on its own (`/cljd-check dry`). dry4clj exits 0 whether or not it finds candidates, so the step inspects stdout and reports pass only when it contains the literal `No duplicate candidates found.`. The skill notes that upstream dry4clj scans `.clj`, `.cljc`, and `.cljs` files only; covering `.cljd` requires a build with `.cljd` added to `dry4clj.core/source-extensions` (see brackendev/dry4clj branch `add-cljd-extension`, upstream PR #1).
+
 ### clojure 0.1.5
 
 #### Added
