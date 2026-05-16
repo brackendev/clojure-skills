@@ -1,6 +1,6 @@
 name: clojure-skills
 version: 0.1.12
-description: Clojure and ClojureDart toolkit covering idiomatic style, project scaffolding, quality checks, navigation, testing, upgrades, and code review, deployed to every runtime APM supports.
+description: Clojure and ClojureDart toolkit covering idiomatic style, code translation, project scaffolding, quality checks, navigation, testing, upgrades, and code review.
 author: Bracken Spencer
 license: MIT
 target: all
