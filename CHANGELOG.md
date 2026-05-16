@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### 0.1.12
+
+#### Changed
+
+- Consolidated the previously separate `clojure` and `clojuredart` packages into a single APM-first plugin named `clojure-skills`. One `apm install brackendev/clojure-skills` now deploys all thirteen skills to every runtime APM supports (Claude Code, Codex, OpenCode, Cursor, Copilot, Gemini, Windsurf).
+- Canonical skill source lives at `.apm/skills/<name>/`. Each skill ships `SKILL.md` plus `agents/openai.yaml` with the Clojure logo blue brand color (`#5881D8`); supporting `references/` files are preserved where they existed.
+- Added `.opencode/skills/<name>/SKILL.md` as byte-identical mirrors of the canonical source for local OpenCode validation.
+
+#### Removed
+
+- Removed the legacy two-plugin layout (`claude/`, `codex/`, `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`, and the per-plugin `plugin.json` files). These flipped the APM lockfile classification from `apm_package` to `marketplace_plugin` and suppressed skill deployment to every runtime.
+
 ### clojure 0.1.6
 
 #### Added

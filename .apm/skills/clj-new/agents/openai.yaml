@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure New"
+  short_description: "Scaffold a new Clojure project with deps.edn."
+  default_prompt: "Run /clj-new my-project."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: false

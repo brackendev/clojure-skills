@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure"
+  short_description: "Idiomatic Clojure style, naming conventions, and anti-patterns."
+  default_prompt: "Review this Clojure code for idiomatic style."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: true

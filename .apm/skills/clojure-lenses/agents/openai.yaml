@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure Lenses"
+  short_description: "Translate code-lenses design philosophies to idiomatic Clojure."
+  default_prompt: "Apply the grug lens to this Clojure code."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,10 @@
+.DS_Store
+!TODO.md
+
+# APM dependencies
+apm_modules/
+apm.lock.yaml
+
+# OpenCode local validation
+.opencode/node_modules/
+.opencode/package-lock.json
