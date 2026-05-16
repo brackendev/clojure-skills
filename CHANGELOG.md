@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### 0.1.13
+
+#### Removed
+
+- Extracted the ClojureDart skills (`clojuredart`, `clojuredart-lenses`, `cljd-nav`, `cljd-new`, `cljd-check`, `cljd-test`, `cljd-upgrade`, `cljd-smells-review`) into a separate package, [clojuredart-skills](https://github.com/brackendev/clojuredart-skills). Install that package alongside `clojure-skills` to keep ClojureDart coverage.
+
 ### 0.1.12
 
 #### Changed

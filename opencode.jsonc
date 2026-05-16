@@ -5,16 +5,8 @@
       "clj-check": "allow",
       "clj-new": "allow",
       "clj-smells-review": "allow",
-      "cljd-check": "allow",
-      "cljd-nav": "allow",
-      "cljd-new": "allow",
-      "cljd-smells-review": "allow",
-      "cljd-test": "allow",
-      "cljd-upgrade": "allow",
       "clojure": "allow",
-      "clojure-lenses": "allow",
-      "clojuredart": "allow",
-      "clojuredart-lenses": "allow"
+      "clojure-lenses": "allow"
     }
   }
 }
