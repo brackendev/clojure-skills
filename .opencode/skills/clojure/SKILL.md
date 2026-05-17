@@ -25,6 +25,10 @@ Host-specific guidance lives in companion skills, which override this baseline o
 
 This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
 
+## REPL-Driven Development
+
+REPL-driven development is the primary workflow for Clojure family code. Prefer evaluating small forms in a running REPL before changing larger code paths; let file edits follow from working REPL code, not the other way around. When no REPL is reachable, start one before continuing — the host skill names the dialect-specific command (nREPL on the JVM, the socket REPL on ClojureDart).
+
 ## Key Rules
 
 1. **Prefer `clojure.string` over host string interop.** Use `str/upper-case` not a host-native method.

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### 0.1.15
+
+#### Added
+
+- A `REPL-Driven Development` section in the `clojure` baseline `SKILL.md`. The section states the principle (REPL-first workflow, file edits follow working REPL code) and the recovery step (start a REPL when none is reachable), and points at the host skill for the dialect-specific command. This loads up front, so agents see the principle without having to load the references directory.
+
 ### 0.1.14
 
 #### Changed
