@@ -4,7 +4,15 @@ Clojure development skills packaged as an [APM](https://github.com/microsoft/apm
 
 Skills follow the [Agent Skills](https://agentskills.io) open standard. Two auto-trigger from conversation context (`clojure`, `clojure-lenses`); the rest appear as slash commands.
 
-For the ClojureDart equivalents, see [clojuredart-skills](https://github.com/brackendev/clojuredart-skills).
+## Companion packages
+
+This package covers idiomatic Clojure on the JVM. Install alongside it as needed:
+
+| Package | Focus |
+|---------|-------|
+| [clojure-skills](https://github.com/brackendev/clojure-skills) (this package) | Idiomatic Clojure style, scaffolding, quality checks, and code review. |
+| [biff-skills](https://github.com/brackendev/biff-skills) | [Biff](https://biffweb.com/) web framework: scaffolding, framework conventions, deployment. Designed to layer on top of this package. |
+| [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) | ClojureDart / Flutter equivalents for the Clojure toolkit. |
 
 ## Install
 
