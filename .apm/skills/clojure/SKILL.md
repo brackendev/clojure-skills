@@ -1,20 +1,33 @@
 ---
 name: clojure
 description: >-
-  Use when writing, editing, reviewing, or discussing Clojure code. Triggers: .clj
-  files, deps.edn projects, project.clj, build.clj, clojure.test, REPL usage, or
-  any mention of Clojure. Covers idiomatic style, naming conventions, threading
-  macros, collection idioms, state management, and common anti-patterns.
+  Use when writing, editing, reviewing, or discussing Clojure family code.
+  Triggers: .clj, .cljs, .cljc, and .cljd files; deps.edn projects;
+  shadow-cljs.edn; bb.edn; project.clj; build.clj; clojure.test, cljs.test,
+  cljd.test; clojure.core forms (`defn`, `let`, `ns`, threading macros,
+  destructuring, multimethods, protocols, transducers, specs, atoms); REPL
+  usage; or any mention of Clojure, ClojureScript, ClojureDart, or a Clojure
+  dialect. Covers idiomatic style, naming conventions, threading macros,
+  collection idioms, atom-based state, dispatch, formatting, namespaces, and
+  common anti-patterns.
 user-invocable: false
 ---
 
 # Clojure
 
-Clojure is a dynamic, functional Lisp dialect targeting the JVM. This skill covers idiomatic style, naming conventions, and patterns that are commonly violated. Does not apply to ClojureDart projects (those using `tensegritics/clojuredart` in deps.edn).
+This skill defines host-neutral Clojure family guidance. It applies to JVM Clojure (`.clj`), ClojureScript (`.cljs`), portable code (`.cljc`), and ClojureDart (`.cljd`).
+
+Host-specific guidance lives in companion skills, which override this baseline only in named domains: host interop, host-typed exception handling, host resource cleanup, runtime-specific concurrency primitives (refs, agents, STM), `alter-var-root` and var rebinding semantics, host-specific aliases, host-specific test runner ergonomics, host-specific build and run tooling.
+
+- [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) -- JVM Clojure: Java interop, refs / agents / STM, `with-open`, JVM-typed exceptions, `alter-var-root`, Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / test-runner / nREPL workflow.
+- [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) -- ClojureDart on Flutter: Dart interop, type hints and nullability, `cljd.flutter` directives, async, FFI, REPL.
+- [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) web framework on the JVM.
+
+This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
 
 ## Key Rules
 
-1. **Prefer `clojure.string` over Java interop.** Use `str/upper-case` not `.toUpperCase`.
+1. **Prefer `clojure.string` over host string interop.** Use `str/upper-case` not a host-native method.
 2. **Use keywords as map lookup functions.** `(:name m)` not `(get m :name)`.
 3. **Use sets as predicates.** `(remove #{1} coll)` not `(remove #(= % 1) coll)`.
 4. **Use `seq` for empty checks.** `(when (seq s) ...)` not `(when-not (empty? s) ...)`.
@@ -29,11 +42,10 @@ Clojure is a dynamic, functional Lisp dialect targeting the JVM. This skill cove
 13. **Prefer higher-order functions over `loop/recur`.** Use `map`, `filter`, `reduce`.
 14. **Limit positional parameters to three or four.** Use an options map beyond that.
 15. **Use `defn-` for private functions.** Use `^:private` for private vars.
-16. **Use `->Foo` constructors for records.** Not `(Foo. ...)`.
-17. **Never catch `Throwable`.** Catch specific exception types.
-18. **Use `with-open` for resource cleanup.** Not `try`/`finally`.
-19. **Realize lazy sequences when side effects matter.** Use `run!`, `doseq`, `mapv`, or `doall`.
-20. **Use `some->` and `some->>` for nil-safe pipelines.** Short-circuits on first `nil`.
+16. **Use `->Foo` constructors for records.** Not interop syntax. Applies on every host that ships `defrecord`. ClojureDart adds a further reason: the raw interop form requires extra meta/extmap/hash arguments the factory supplies automatically.
+17. **Realize lazy sequences when side effects matter.** Use `run!`, `doseq`, `mapv`, or `doall`.
+18. **Use `some->` and `some->>` for nil-safe pipelines.** Short-circuits on first `nil`.
+19. **Prefer `ex-info` for data-carrying exceptions.** Host-typed exceptions belong in the host skill.
 
 ## Naming Conventions
 
@@ -280,7 +292,7 @@ Consider function pre and post conditions as an alternative to manual checks:
 (defn foo [x]
   (if (pos? x)
     (bar x)
-    (throw (IllegalArgumentException. "x must be positive"))))
+    (throw (ex-info "x must be positive" {:value x}))))
 ```
 
 ### :else in cond
@@ -319,12 +331,12 @@ Use `%` when there is one parameter, `%1` when there are multiple. Do not use fu
 
 ```clojure
 ;; good
-#(Math/round %)
-#(Math/pow %1 %2)
+#(inc %)
+#(+ %1 %2)
 
 ;; bad
-#(Math/round %1)
-#(Math/pow % %2)
+#(inc %1)
+#(+ % %2)
 
 ;; good: multi-form body uses fn
 (fn [x]
@@ -408,7 +420,7 @@ Omit parentheses around forms that take no extra arguments:
 ;; good: stops if any step returns nil
 (some-> user :address :city str/upper-case)
 
-;; bad: NPE if :address is nil
+;; bad: NPE risk if :address is nil
 (-> user :address :city str/upper-case)
 ```
 
@@ -596,7 +608,7 @@ Use namespaced keywords to signal parsed domain data and prevent key collisions:
  :status :pending}
 ```
 
-Use `clojure.spec` or Malli at system boundaries to parse raw input into domain maps. Downstream functions receive conformed data and do not re-validate.
+Use a schema library available on the target runtime (`clojure.spec.alpha` and Malli on JVM and ClojureScript) at system boundaries to parse raw input into domain maps. Downstream functions receive conformed data and do not re-validate. The host skill names the runtime-specific options.
 
 ### Commas in collections
 
@@ -645,7 +657,7 @@ No commas in sequential collection literals (vectors, lists). Commas in maps are
 
 ### Record constructors
 
-Use auto-generated constructors, not interop syntax:
+Use auto-generated factory functions, not interop syntax:
 
 ```clojure
 (defrecord Foo [a b])
@@ -654,9 +666,11 @@ Use auto-generated constructors, not interop syntax:
 (->Foo 1 2)
 (map->Foo {:a 3 :b 4})
 
-;; bad
+;; bad: interop form
 (Foo. 1 2)
 ```
+
+The factory functions exist on every host that ships `defrecord` (JVM Clojure, ClojureScript, ClojureDart). ClojureDart raises the stakes further: the raw interop form requires three extra arguments (`nil {} -1` for meta, extmap, hash) that the factory functions supply automatically.
 
 ### Numeric idioms
 
@@ -678,6 +692,8 @@ Use auto-generated constructors, not interop syntax:
 
 ## State Management
 
+This section covers atoms only. Refs, agents, STM, `io!`, and `alter-var-root` are JVM-only and live in [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills).
+
 ### No def inside defn
 
 ```clojure
@@ -690,18 +706,6 @@ Use auto-generated constructors, not interop syntax:
 (defn foo []
   (let [x 5]
     ...))
-```
-
-### alter-var-root over re-def
-
-```clojure
-;; good
-(def thing 1)
-(alter-var-root #'thing (constantly nil))
-
-;; bad
-(def thing 1)
-(def thing nil)
 ```
 
 ### swap! over reset!
@@ -718,63 +722,6 @@ Prefer `swap!` to derive the new value from the old:
 (reset! a 5)
 ```
 
-### No atoms inside STM transactions
-
-```clojure
-;; good: atom update after transaction
-(dosync
-  (alter account-a - 100)
-  (alter account-b + 100))
-(swap! transfer-log conj {:from :a :to :b :amount 100})
-
-;; bad: swap! retries on every STM retry
-(dosync
-  (alter account-a - 100)
-  (alter account-b + 100)
-  (swap! transfer-log conj {:from :a :to :b :amount 100}))
-```
-
-### Refs: alter over ref-set
-
-```clojure
-(def r (ref 0))
-
-;; good
-(dosync (alter r + 5))
-
-;; bad
-(dosync (ref-set r 5))
-```
-
-### Agents: send vs send-off
-
-Use `send` for CPU-bound actions (fixed thread pool). Use `send-off` for actions that block on I/O (unbounded thread pool):
-
-```clojure
-;; good: pure computation
-(send agent-a + 42)
-
-;; good: blocking I/O
-(send-off agent-b (fn [state] (assoc state :data (slurp url))))
-
-;; bad: blocking I/O via send starves the fixed pool
-(send agent-b (fn [state] (assoc state :data (slurp url))))
-```
-
-### io! macro for I/O
-
-Wrap I/O calls with `io!` to prevent accidental use inside STM transactions:
-
-```clojure
-;; good
-(defn save-to-file [path content]
-  (io! (spit path content)))
-
-;; bad: could silently run multiple times if called inside dosync
-(defn save-to-file [path content]
-  (spit path content))
-```
-
 ## Dispatch
 
 Choose the simplest dispatch mechanism that fits:
@@ -783,12 +730,12 @@ Choose the simplest dispatch mechanism that fits:
 ;; Closed set of cases: use cond, case, or a map lookup
 (defn area [{:keys [type] :as shape}]
   (case type
-    :circle (* Math/PI (:radius shape) (:radius shape))
+    :circle (* 3.141592653589793 (:radius shape) (:radius shape))
     :rect   (* (:width shape) (:height shape))))
 
 ;; Open set with single dispatch axis: use multimethods
 (defmulti area :type)
-(defmethod area :circle [{:keys [radius]}] (* Math/PI radius radius))
+(defmethod area :circle [{:keys [radius]}] (* 3.141592653589793 radius radius))
 (defmethod area :rect [{:keys [width height]}] (* width height))
 
 ;; Performance-critical polymorphism or type-based dispatch: use protocols
@@ -797,40 +744,21 @@ Choose the simplest dispatch mechanism that fits:
 
 (defrecord Circle [radius]
   Shape
-  (area [_] (* Math/PI radius radius)))
+  (area [_] (* 3.141592653589793 radius radius)))
 ```
 
 Protocols require a concrete type to dispatch on. Multimethods dispatch on arbitrary functions of the arguments. For most application code, a `case` or map lookup on a keyword is sufficient and simpler than either.
 
 ## Strings
 
-Prefer `clojure.string` functions over Java interop:
+Prefer `clojure.string` functions over host string interop:
 
 ```clojure
 ;; good
 (clojure.string/upper-case "bruce")
-
-;; bad
-(.toUpperCase "bruce")
 ```
 
-## Java Interop
-
-Use sugared syntax:
-
-```clojure
-;; good
-(java.util.ArrayList. 100)
-(Math/pow 2 10)
-(.substring "hello" 1 3)
-Integer/MAX_VALUE
-
-;; bad
-(new java.util.ArrayList 100)
-(. Math pow 2 10)
-(. "hello" substring 1 3)
-(. Integer MAX_VALUE)
-```
+The host skill covers the host's own string namespace where it adds anything beyond `clojure.string`.
 
 ## Macros
 
@@ -864,23 +792,18 @@ Write the desired call site first, then implement the macro. Break complex macro
 
 ```clojure
 ;; good: macro is thin sugar over a function
-(defn perform-transaction [db-spec func]
-  (let [conn (get-connection db-spec)]
-    (try
-      (.setAutoCommit conn false)
-      (let [result (func conn)]
-        (.commit conn)
-        result)
-      (catch Exception e
-        (.rollback conn)
-        (throw e))
-      (finally
-        (.close conn)))))
+(defn perform-with-timing [label thunk]
+  (let [start (System/nanoTime)
+        result (thunk)
+        elapsed (- (System/nanoTime) start)]
+    (println label "took" elapsed "ns")
+    result))
 
-(defmacro with-transaction [binding & body]
-  `(perform-transaction ~(second binding)
-                        (fn [~(first binding)] ~@body)))
+(defmacro with-timing [label & body]
+  `(perform-with-timing ~label (fn [] ~@body)))
 ```
+
+(`System/nanoTime` here is for illustration only; host skills cover platform-specific timing.)
 
 ## Formatting
 
@@ -934,10 +857,7 @@ Use `#_` to comment out forms instead of `;`:
    [clojure.string :as str]
    [clojure.set :as set]
    [my-app.db :as db]
-   [my-app.util :as util])
-  (:import
-   [java.time LocalDate Instant]
-   [java.util UUID]))
+   [my-app.util :as util]))
 ```
 
 - `:require` over `:use`
@@ -946,22 +866,21 @@ Use `#_` to comment out forms instead of `;`:
 - Sort requires alphabetically
 - Group requires: clojure.core libs, third-party libs, project namespaces
 - Avoid single-segment namespaces (use `my-app.core`, not `my-app`)
-- Hyphenated namespace segments map to underscored file paths: `my-app.core` maps to `src/my_app/core.clj`
+- Hyphenated namespace segments map to underscored file paths: `my-app.core` maps to `src/my_app/core.clj` on the JVM, `src/my_app/core.cljs` for ClojureScript, `src/my_app/core.cljd` for ClojureDart
 
-Use idiomatic aliases consistently across the project:
+Host-specific import forms (`(:import ...)` on the JVM, Dart package require strings in ClojureDart, `goog` imports in ClojureScript) live in the host skill.
+
+Use idiomatic aliases consistently across the project. Cross-host aliases:
 
 | Namespace | Alias |
 |-----------|-------|
 | `clojure.string` | `str` |
 | `clojure.set` | `set` |
-| `clojure.java.io` | `io` |
-| `clojure.math` | `math` |
 | `clojure.walk` | `walk` |
 | `clojure.edn` | `edn` |
 | `clojure.pprint` | `pp` |
-| `clojure.spec.alpha` | `s` |
-| `clojure.tools.logging` | `log` |
-| `clojure.core.async` | `async` |
+
+Host-specific aliases (`clojure.java.io`, `clojure.math`, `clojure.tools.logging`, `clojure.spec.alpha`, `clojure.core.async`) live in the host skill.
 
 ## Privacy and Metadata
 
@@ -995,43 +914,14 @@ Access private vars in tests with `@#'some.ns/var`.
 
 ## Exception Handling
 
-Prefer `ex-info` for data-carrying exceptions. Reuse standard Java exception types when appropriate:
+Prefer `ex-info` for data-carrying exceptions across every host:
 
 ```clojure
 ;; good
 (throw (ex-info "Invalid input" {:value x :reason :negative}))
-
-;; good
-(throw (IllegalArgumentException. "x must be positive"))
 ```
 
-Prefer `with-open` over `try`/`finally` for resource cleanup:
-
-```clojure
-;; good
-(with-open [rdr (clojure.java.io/reader "file.txt")]
-  (slurp rdr))
-
-;; bad: verbose and easy to get wrong
-(let [rdr (clojure.java.io/reader "file.txt")]
-  (try
-    (slurp rdr)
-    (finally
-      (.close rdr))))
-```
-
-Never catch `Throwable`. Catch specific exception types:
-
-```clojure
-;; good
-(try (foo)
-  (catch ExceptionInfo ex ...)
-  (catch AssertionError t ...))
-
-;; bad: swallows all errors including OutOfMemoryError
-(try (foo)
-  (catch Throwable t ...))
-```
+Host skills cover host-typed exceptions, resource cleanup (`with-open` on the JVM), and the catch-all rules (no `Throwable` on the JVM, `:default` in ClojureScript, Dart `Exception` in ClojureDart).
 
 ## Testing
 
@@ -1067,14 +957,9 @@ Use `are` for tabular tests:
     ""        true))
 ```
 
-Use `thrown?` for expected exceptions:
+`thrown?` and `thrown-with-msg?` accept host-specific exception types. Examples and host-specific guidance (JVM types, ClojureScript `:default`, ClojureDart `Exception`) live in the host skill.
 
-```clojure
-(is (thrown? ArithmeticException (/ 1 0)))
-(is (thrown-with-msg? ExceptionInfo #"Invalid" (validate! nil)))
-```
-
-Use `with-redefs` sparingly and only for external boundaries (HTTP, database, clock). Prefer passing dependencies as function arguments.
+Prefer passing dependencies as function arguments. `with-redefs` exists on the JVM and in ClojureScript but not in ClojureDart; the JVM and ClojureScript skills cover the trade-offs there.
 
 ## Docstrings
 

@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### 0.1.14
+
+#### Changed
+
+- The `clojure` skill is now the host-neutral baseline for the Clojure family. It triggers across `.clj`, `.cljs`, `.cljc`, and `.cljd` files and `clojure.core` forms in any dialect. JVM-specific guidance (Java interop, `with-open`, refs / agents / STM, `io!`, `alter-var-root`, JVM-typed exceptions, JVM-only aliases, the Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / `test-runner` / nREPL workflow) has been extracted into the separate [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) package. Install that package alongside `clojure-skills` for JVM Clojure work.
+- The `clojure` skill now opens with an explicit applicability block naming the host skills (`clojure-jvm`, `clojuredart`, future `clojurescript`) and the override boundary, so host skills only override in named domains (interop, exceptions, resources, runtime-specific concurrency primitives, host aliases, host-specific tooling).
+- Trimmed `references/project-workflows.md` to host-neutral REPL conventions (`(comment ...)` blocks, `in-ns`, fully-qualified cross-namespace references). The JVM CLI / `deps.edn` / `tools.build` / lint / format / test-runner / nREPL guidance moved to `clojure-jvm-skills/.apm/skills/clojure-jvm/references/project-workflows.md`.
+
+#### Removed
+
+- Removed the Java Interop section, the `with-open` guidance, the "Never catch `Throwable`" rule, the refs / agents / STM / `io!` subsections in State Management, the `alter-var-root` rule, the JVM-typed exception examples, and the `(:import ...)` example. All moved to [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills).
+- Removed the "Does not apply to ClojureDart projects" exclusion. The baseline now applies to ClojureDart and to every other Clojure dialect.
+
 ### 0.1.13
 
 #### Removed

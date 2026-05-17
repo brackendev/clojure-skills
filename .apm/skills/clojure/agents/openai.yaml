@@ -1,6 +1,6 @@
 interface:
   display_name: "Clojure"
-  short_description: "Idiomatic Clojure style, naming conventions, and anti-patterns."
+  short_description: "Host-neutral Clojure family baseline: idiomatic style, naming, threading, collections, atoms, dispatch, namespaces."
   default_prompt: "Review this Clojure code for idiomatic style."
   brand_color: "#5881D8"
 

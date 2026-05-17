@@ -4,15 +4,18 @@ Clojure development skills packaged as an [APM](https://github.com/microsoft/apm
 
 Skills follow the [Agent Skills](https://agentskills.io) open standard. Two auto-trigger from conversation context (`clojure`, `clojure-lenses`); the rest appear as slash commands.
 
+The `clojure` skill is the host-neutral baseline for the Clojure family. It triggers across `.clj`, `.cljs`, `.cljc`, and `.cljd`. Host-specific guidance (Java interop, refs / agents / STM, ClojureDart's `cljd.flutter` directives, Biff conventions) lives in companion packages so this skill stays applicable everywhere.
+
 ## Companion packages
 
-This package covers idiomatic Clojure on the JVM. Install alongside it as needed:
+Four sibling APM packages. Install whichever match your project. Each carries the runtime-specific or framework-specific delta on top of this host-neutral baseline.
 
-| Package | Focus |
-|---------|-------|
-| [clojure-skills](https://github.com/brackendev/clojure-skills) (this package) | Idiomatic Clojure style, scaffolding, quality checks, and code review. |
-| [biff-skills](https://github.com/brackendev/biff-skills) | [Biff](https://biffweb.com/) web framework: scaffolding, framework conventions, deployment. Designed to layer on top of this package. |
-| [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) | ClojureDart / Flutter equivalents for the Clojure toolkit. |
+| Package | Focus | Layers on |
+|---------|-------|-----------|
+| [clojure-skills](https://github.com/brackendev/clojure-skills) (this package) | Host-neutral Clojure family baseline (style, naming, threading, collections, atoms, dispatch, formatting, namespaces, testing). Triggers on `.clj`, `.cljs`, `.cljc`, `.cljd`. | — |
+| [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) | JVM-specific Clojure (Java interop, refs / agents / STM, `with-open`, JVM-typed exceptions, `alter-var-root`, Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / `test-runner` / nREPL workflow). | `clojure-skills` |
+| [biff-skills](https://github.com/brackendev/biff-skills) | [Biff](https://biffweb.com/) web framework on the JVM: scaffolding, conventions, deployment. | `clojure-skills` + `clojure-jvm-skills` |
+| [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) | ClojureDart on Flutter: Dart interop, type hints, `cljd.flutter` directives, async, FFI, REPL, Flutter project workflow. Triggers on `.cljd`, `cljd.flutter`. | `clojure-skills` |
 
 ## Install
 
@@ -28,11 +31,18 @@ Globally for your user account:
 apm install brackendev/clojure-skills -g --target all
 ```
 
+For JVM Clojure work, install `clojure-jvm-skills` alongside:
+
+```bash
+apm install brackendev/clojure-jvm-skills -g --target all
+```
+
 Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/clojure-skills [-g]`. A local filesystem path can replace the shorthand at either scope.
 
 ## Requirements
 
-- [Clojure CLI](https://clojure.org/guides/install_clojure) and [clj-kondo](https://github.com/clj-kondo/clj-kondo) for any skill in this package.
+- A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 17 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
+- [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
 - The `clj-check` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`.
 
 ## Skills
@@ -74,7 +84,7 @@ These skills activate from conversation context. They cannot be invoked directly
 
 | Skill | Triggers |
 |-------|----------|
-| **clojure** | `.clj` files, `deps.edn` projects, `project.clj`, `build.clj`, `clojure.test`, REPL usage, mention of Clojure. Covers idiomatic style, naming conventions, threading macros, collection idioms, state management, and common anti-patterns. |
+| **clojure** | `.clj`, `.cljs`, `.cljc`, `.cljd` files; `deps.edn` projects; `shadow-cljs.edn`; `bb.edn`; `project.clj`; `build.clj`; `clojure.test`, `cljs.test`, `cljd.test`; `clojure.core` forms; REPL usage; or any mention of Clojure, ClojureScript, ClojureDart, or a Clojure dialect. Covers idiomatic style, naming, threading macros, collection idioms, atom-based state, dispatch, formatting, namespaces, and common anti-patterns. Defers to the host skill (`clojure-jvm`, `clojuredart`, or a future `clojurescript`) for runtime-specific guidance. |
 | **clojure-lenses** | Auto-triggers alongside the [code-lenses](https://github.com/brackendev/code-lenses) plugin in Clojure work. Translates grug, APOSD, Tidy First, Parse Don't Validate, Honest Code, and Legacy Code reviews into idiomatic Clojure. |
 
 ## Contributing

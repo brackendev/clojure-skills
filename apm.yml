@@ -1,6 +1,6 @@
 name: clojure-skills
-version: 0.1.13
-description: Clojure toolkit covering idiomatic style, code translation, project scaffolding, quality checks, and code review.
+version: 0.1.14
+description: Host-neutral Clojure family baseline covering idiomatic style, code translation, project scaffolding, quality checks, and code review across .clj, .cljs, .cljc, and .cljd. JVM-specific guidance lives in the companion clojure-jvm-skills package.
 author: Bracken Spencer
 license: MIT
 target: all
