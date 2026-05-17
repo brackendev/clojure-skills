@@ -1,16 +1,20 @@
 ---
 name: clojure-lenses
 description: >-
-  Translate code-lenses design philosophies (grug, APOSD, Tidy First, Parse Don't
-  Validate, Honest Code, Legacy Code) to idiomatic Clojure. Auto-triggers when
-  working in Clojure alongside code-lenses skills. Prevents non-idiomatic
-  translations of language-agnostic design advice.
+  Translate code-lenses design philosophies into idiomatic Clojure. Auto-triggers
+  when working in Clojure alongside code-lenses skills. Covers the four default
+  code-lenses philosophies (grug, Honest Code, Tidy First, Parse Don't Validate)
+  and the two opt-in philosophies (APOSD, Legacy Code) that activate when their
+  lens is added with `+aposd` or `+legacy-code` or invoked directly. Prevents
+  non-idiomatic translations of language-agnostic design advice.
 user-invocable: false
 ---
 
 # Code Lenses for Clojure
 
 When the [code-lenses](https://github.com/brackendev/code-lenses) design philosophy skills are active alongside Clojure code, use these translations to prevent non-idiomatic advice. Each section maps a code-lenses philosophy to Clojure-native tools and patterns.
+
+The default code-lenses review set is `grug`, `honest-code`, `tidy-first`, and `parse-dont-validate`. `aposd` and `legacy-code` are opt-in (added with `+aposd` or `+legacy-code`, or invoked directly via `/aposd-review` and `/legacy-code-review`). The sections below apply when the corresponding lens is active; APOSD and Legacy Code translations are present so the lens can use them when explicitly invoked, but they are not part of the default trigger set.
 
 ## Grug Brain
 

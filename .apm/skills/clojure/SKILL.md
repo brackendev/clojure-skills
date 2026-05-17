@@ -20,6 +20,7 @@ This skill defines host-neutral Clojure family guidance. It applies to JVM Cloju
 Host-specific guidance lives in companion skills, which override this baseline only in named domains: host interop, host-typed exception handling, host resource cleanup, runtime-specific concurrency primitives (refs, agents, STM), `alter-var-root` and var rebinding semantics, host-specific aliases, host-specific test runner ergonomics, host-specific build and run tooling.
 
 - [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) -- JVM Clojure: Java interop, refs / agents / STM, `with-open`, JVM-typed exceptions, `alter-var-root`, Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / test-runner / nREPL workflow.
+- [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) -- ClojureScript on JavaScript hosts: JS interop, externs and advanced compilation, macro stage separation, `catch :default`, JS-flavored numerics and truthiness, the `cljs.main` workflow.
 - [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) -- ClojureDart on Flutter: Dart interop, type hints and nullability, `cljd.flutter` directives, async, FFI, REPL.
 - [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) web framework on the JVM.
 

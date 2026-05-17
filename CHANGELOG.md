@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### 0.1.16
+
+#### Changed
+
+- The `clojure` baseline `SKILL.md` now lists [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) alongside `clojure-jvm-skills` and `clojuredart-skills` as a published companion. The trigger in `README.md` for the `clojure` skill now reads "Defers to the host skill (`clojure-jvm`, `clojurescript`, or `clojuredart`)" instead of naming `clojurescript` as a future package.
+- The `clojure-lenses` skill description and `README.md` row now reflect the upstream code-lenses default-versus-opt-in split: `grug`, `Honest Code`, `Tidy First`, and `Parse Don't Validate` are the default lenses; `APOSD` and `Legacy Code` are opt-in (`+aposd`, `+legacy-code`, or direct invocation). The body still contains APOSD and Legacy Code translations so the lens can apply them when explicitly invoked.
+
 ### 0.1.15
 
 #### Added
