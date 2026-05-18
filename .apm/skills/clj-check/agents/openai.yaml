@@ -1,8 +1,0 @@
-interface:
-  display_name: "Clojure Check"
-  short_description: "Run the Clojure quality pipeline: lint, format, test, dry."
-  default_prompt: "Run /clj-check."
-  brand_color: "#5881D8"
-
-policy:
-  allow_implicit_invocation: false

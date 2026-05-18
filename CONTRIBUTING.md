@@ -53,9 +53,11 @@ Runtime install (requires `apm` and the runtime CLIs you want to verify: `claude
 
 ## Skill conventions
 
+For the argument grammar, scope vocabulary, and mutation defaults that every user-invocable skill follows, see [CONVENTIONS.md](CONVENTIONS.md).
+
 | Setting | When to use |
 |---------|-------------|
-| `user-invocable: true`, `disable-model-invocation: true` | User-only slash command (for example `clj-check`, `cljd-new`). |
+| `user-invocable: true`, `disable-model-invocation: true` | User-only slash command (for example `clj-tidy`, `clj-new`). |
 | `user-invocable: false` (or omitted) | Model-invoked from conversation context (for example `clojure`, `cljd-nav`). |
 
 Every skill carries `agents/openai.yaml` whose `policy.allow_implicit_invocation` matches the table above (`true` for model-invoked, `false` for user-only). Skills in this package use the Clojure logo blue brand color, `#5881D8`. The companion packages use distinguishable colors so runtime UIs can tell host-specific guidance apart: `clojure-jvm-skills` ships Java orange (`#E76F00`); `clojurescript-skills` ships JavaScript yellow (`#F7DF1E`); `biff-skills` ships Biff indigo (`#4338CA`); `fulcro-skills` ships Fulcro teal (`#009E9E`); `clojuredart-skills` ships Flutter blue (`#02569B`).

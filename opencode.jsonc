@@ -2,9 +2,9 @@
   "$schema": "https://opencode.ai/config.json",
   "permission": {
     "skill": {
-      "clj-check": "allow",
       "clj-new": "allow",
       "clj-smells-review": "allow",
+      "clj-tidy": "allow",
       "clojure": "allow",
       "clojure-lenses": "allow"
     }

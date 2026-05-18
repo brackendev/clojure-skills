@@ -45,7 +45,7 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/cloju
 
 - A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 17 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
-- The `clj-check` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`.
+- The `clj-tidy` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`.
 
 ## Skills
 
@@ -59,25 +59,25 @@ Scaffold a new Clojure project with `deps.edn`.
 /clj-new my-service
 ```
 
-#### `/clj-check [lint|format|test|dry]`
+#### `/clj-tidy [lint|format|test|dry] [--report]`
 
-Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). Each step is also addressable on its own.
+Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). The `format` step rewrites files with `cljfmt fix`; the other three steps are pure-read. Pass `--report` to swap the format step for `cljfmt check`, which previews diffs without writing. Each step is also addressable on its own.
 
 ```bash
-/clj-check
-/clj-check lint
-/clj-check dry
+/clj-tidy
+/clj-tidy lint
+/clj-tidy --report
+/clj-tidy format --report
 ```
 
-#### `/clj-smells-review [scope or options...]`
+#### `/clj-smells-review [path|all]`
 
-Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Reports findings with `DEFECT`, `SMELL`, and `HINT` severity tiers plus a smell density verdict. Falls back to LLM-only review when `clj-kondo` is not on `PATH`.
+Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Reports findings with `DEFECT`, `SMELL`, and `HINT` severity tiers plus a smell density verdict. Falls back to LLM-only review when `clj-kondo` is not on `PATH`. Pure report; the skill never writes.
 
 ```bash
 /clj-smells-review
 /clj-smells-review src/auth.clj
 /clj-smells-review all
-/clj-smells-review fix
 ```
 
 ### Auto-triggered

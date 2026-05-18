@@ -1,7 +1,7 @@
 ---
 name: clj-smells-review
-description: Review Clojure code against the clj-smells catalog (35 Clojure-specific smells)
-argument-hint: "[scope or options...]"
+description: Review Clojure code against the clj-smells catalog (35 Clojure-specific smells); pure report, never writes
+argument-hint: "[path|all]"
 allowed-tools: Bash, Read, Grep, Glob
 user-invocable: true
 disable-model-invocation: true
@@ -15,24 +15,25 @@ Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo
 
 Pinned to upstream commit [`d1ae189`](https://github.com/nufuturo-ufcg/clj-smells-catalog/tree/d1ae1896f518e94f3d4f9257b451d89473b94e1b) (2026-01-19). The smell digest in `references/clj-smells-catalog.md` reflects this snapshot. Update both the pin and the digest when upstream revises the catalog.
 
-## Inputs and Scope
+## Arguments
 
-| Input | Action |
-|-------|--------|
-| (no argument) | Review changed files only (staged + unstaged) |
-| `path/to/dir` | Review files under directory |
-| `path/to/file.clj` | Review specific file |
-| `all` | Review full codebase, sampling high-risk and high-traffic namespaces |
-| `fix` | After review, apply non-conflicting findings |
+| Input              | Target                                                                       |
+|--------------------|------------------------------------------------------------------------------|
+| (no argument)      | Review changed files only (staged + unstaged)                                |
+| `all`              | Review the full codebase, sampling high-risk and high-traffic namespaces     |
+| `path/to/dir`      | Review files under directory                                                 |
+| `path/to/file.clj` | Review specific file                                                         |
 
-Modifiers may appear anywhere in user input. Examples:
+Examples:
 
 ```
 /clj-smells-review
 /clj-smells-review src/api
-/clj-smells-review src/api fix
+/clj-smells-review src/api/auth.clj
 /clj-smells-review all
 ```
+
+This skill is pure-report: it never writes. Operators apply suggestions themselves.
 
 ## Severity Tiers
 
@@ -134,28 +135,6 @@ Use this structure unless the user asked for a shorter variant:
 ```
 
 If no smells found, say so explicitly and still emit the metric table.
-
-### 5. Apply Fixes (when `fix` modifier is present)
-
-After presenting the report, apply non-conflicting findings. Skip findings that:
-
-- Conflict with another finding on the same code
-- Require architectural changes (e.g. "Monolithic Namespace Split")
-- Have ambiguous fixes ("Misused Threading" can be resolved multiple ways)
-
-For each applied fix, append a row to a Fixes Applied table:
-
-```markdown
-### Fixes Applied
-
-| File | Smell | Change |
-|------|-------|--------|
-| [file:line] | [smell name] | [what changed] |
-
-### Skipped (ambiguous or conflicting)
-
-[Any findings skipped, with the reason. Omit if none.]
-```
 
 ## False-Positive Guardrails
 

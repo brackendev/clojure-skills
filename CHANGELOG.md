@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### 0.1.17
+
+#### Added
+
+- A repo-root `CONVENTIONS.md` that defines the argument grammar, scope vocabulary, and mutation defaults every user-invocable skill in this package follows. Three rules cover argument grammar (one sanctioned flag, `--report`), scope vocabulary (`(no argument)`, `all`, `<path>`), and mutation-as-default. The document lists `/clj-new` as the standard's positional-required exemption and includes an author checklist that runs against every migrated skill.
+
+#### Changed
+
+- The `clj-check` skill is renamed to `clj-tidy`. The verb now matches the default behavior: `cljfmt fix` runs by default and rewrites files in the `format` step. Operators with a saved `/clj-check` invocation should replace it with `/clj-tidy`. The new `--report` flag swaps the format step for `cljfmt check`, which previews diffs without writing; `lint`, `test`, and `dry` are pure-read regardless.
+- The `clj-smells-review` skill becomes a pure-report skill. The `## Inputs and Scope` section is renamed `## Arguments` and uses the canonical scope vocabulary (`(no argument)`, `all`, `<path>`). The frontmatter `description` now states "pure report, never writes." Operators with a saved `/clj-smells-review ... fix` invocation should drop the `fix` keyword and apply suggestions manually.
+- The `clj-new` skill adds a `## Arguments` section that documents its positional `<project-name>` exemption and a `## Mutation` section that lists the files it writes.
+
+#### Removed
+
+- The `fix` modifier on `clj-smells-review`. The skill no longer applies catalog findings to source files. Apply suggestions manually or run them through a separate tool. This is a breaking change for operators who relied on `fix`.
+
 ### 0.1.16
 
 #### Changed

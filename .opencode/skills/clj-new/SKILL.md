@@ -10,6 +10,19 @@ disable-model-invocation: true
 
 Create a new Clojure project with deps.edn, source layout, test runner, and formatting configured.
 
+## Arguments
+
+| Input             | Target                                                                       |
+|-------------------|------------------------------------------------------------------------------|
+| `<project-name>`  | Required. Use hyphens (for example, `my-app`); the skill maps to underscores for file paths (`my_app/`) and keeps hyphens in namespace symbols. |
+| (no argument)     | Prompt the operator for a project name.                                      |
+
+This skill is exempt from the `all` and `<path>` rows of the standard scope vocabulary because scaffolding has no useful default scope. See `CONVENTIONS.md` for the standard.
+
+## Mutation
+
+Mutates by default: creates the project directory and writes `deps.edn`, `build.clj`, the entry-point and test source files, `.cljfmt.edn`, `.gitignore`, and a `resources/` directory with a `.gitkeep`. No `--report` flag; preview the side effects by reading this `SKILL.md`.
+
 ## Prerequisites
 
 Verify these are installed before proceeding. If any are missing, stop and tell the user.
@@ -30,7 +43,7 @@ clj-kondo --version
 
 Use `$ARGUMENTS` as the project name. If empty, ask the user for a project name.
 
-The project name should use hyphens (e.g., `my-app`). File paths use underscores (e.g., `my_app/`).
+The project name uses hyphens (for example, `my-app`). File paths use underscores (for example, `my_app/`).
 
 ### 2. Create Project Directory and deps.edn
 
