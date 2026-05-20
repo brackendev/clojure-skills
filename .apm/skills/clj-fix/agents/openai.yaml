@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure Fix"
+  short_description: "Fix a Clojure project: lint, format, test, dry."
+  default_prompt: "Run /clj-fix."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: false

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### 0.1.18 - 2026-05-20
+
+#### Changed
+
+- The `clj-tidy` skill is renamed to `clj-fix`. The verb adopts the family-wide noun-first canonical naming (`<target>-<verb>`), where the trailing verb signals behavior. The `fix` suffix matches the cross-language `fix-*` skills in `project-skills` and `code-lenses`, replacing the `tidy` verb that was specific to the Clojure family. Operators with a saved `/clj-tidy` invocation should replace it with `/clj-fix`. Step keywords (`lint`, `format`, `test`, `dry`), the `--report` flag, and the rest of the behavior are unchanged.
+- The package `CONVENTIONS.md` now lists command suffixes (`-fix`, `-sync`, `-review`, and the rest) rather than verb-first patterns, reflecting the family's noun-first canonical naming.
+
 ### 0.1.17
 
 #### Added

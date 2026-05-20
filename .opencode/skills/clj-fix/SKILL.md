@@ -1,12 +1,12 @@
 ---
-name: clj-tidy
-description: Tidy a Clojure project (lint, format, test, dry); writes formatting by default
+name: clj-fix
+description: Fix a Clojure project (lint, format, test, dry); writes formatting by default
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true
 disable-model-invocation: true
 ---
 
-# Clojure Tidy
+# Clojure Fix
 
 Run lint, format, test, and duplicate-form checks on Clojure source files. The format step writes by default; the other three steps are pure-read.
 
@@ -22,7 +22,7 @@ Run lint, format, test, and duplicate-form checks on Clojure source files. The f
 | `dry`             | Run dry only                                                                 |
 | `--report`        | Replace `cljfmt fix` with non-writing `cljfmt check` in the format step      |
 
-Step keywords are combinable (for example, `/clj-tidy lint test`). The `--report` flag may appear in any position. When `--report` is present without an explicit step keyword, every step still runs; only the format step's behavior changes.
+Step keywords are combinable (for example, `/clj-fix lint test`). The `--report` flag may appear in any position. When `--report` is present without an explicit step keyword, every step still runs; only the format step's behavior changes.
 
 ## Mutation
 
@@ -85,7 +85,7 @@ dry4clj exits 0 whether or not it finds candidates, so the step must inspect out
 After running all requested steps, print a summary:
 
 ```
-Clojure Tidy Results:
+Clojure Fix Results:
   Lint:   PASS/FAIL/SKIPPED
   Format: PASS/FAIL/SKIPPED
   Test:   PASS/FAIL/SKIPPED

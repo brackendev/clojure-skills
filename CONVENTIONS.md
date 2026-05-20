@@ -10,7 +10,7 @@ These conventions apply to user-invocable skills (`user-invocable: true` in fron
 
 User-invocable skills accept natural-language keywords and bare paths. The single sanctioned flag is `--report`. No other `--name` flags exist.
 
-Skill-specific modifiers are bare phrases, not flags. For example, `lint test dry` (per-step keywords for `/clj-tidy`) or `all` (scope keyword). Each skill documents its own modifiers in its `## Arguments` table.
+Skill-specific modifiers are bare phrases, not flags. For example, `lint test dry` (per-step keywords for `/clj-fix`) or `all` (scope keyword). Each skill documents its own modifiers in its `## Arguments` table.
 
 Exemptions are listed in the [Exemptions](#exemptions) section with a reason. The standard exemption pattern is a prompt-template or scaffolding skill that needs a required positional argument because no useful default exists.
 
@@ -36,7 +36,7 @@ Skills that can mutate the workspace apply changes when invoked. The operator pa
 
 Only the literal token `--report` enables report-only mode. Natural-language phrases ("preview", "dry run", "rehearse") are scope input or step keywords, not mode triggers.
 
-Command verbs reinforce the default. Skills named `/fix-*`, `/sync-*`, `/commit`, `/prune-*`, `/rebuild-*`, `/tidy`, and `/new` mutate by default. Skills named `/review-*`, `/audit-*`, `/check-*` are pure-report.
+Command suffixes reinforce the default. The family follows a noun-first `<target>-<verb>` pattern, so the trailing verb signals behavior. Skills with suffix `-fix`, `-sync`, `-prune`, `-rebuild`, `-new`, `-deploy`, `-upgrade`, `-test`, `-create`, `-apply` mutate by default. Skills with suffix `-review`, `-audit`, `-check` are pure-report. Bare verbs `/commit` and `/pause` are session-scoped exceptions that mutate by default.
 
 ## Classification
 
@@ -60,16 +60,16 @@ The section name `## Customization` is retired.
 
 ## Worked examples
 
-### `/clj-tidy` -- mutating skill with `--report`
+### `/clj-fix` -- mutating skill with `--report`
 
 ```
-/clj-tidy                    # all four steps; format writes
-/clj-tidy lint               # lint only (pure-read; no writes anywhere)
-/clj-tidy format             # format step; writes via cljfmt fix
-/clj-tidy lint test          # combined step keywords
-/clj-tidy --report           # all four steps; format reads via cljfmt check
-/clj-tidy format --report    # format step; no writes
-/clj-tidy all                # synonym for (no argument)
+/clj-fix                    # all four steps; format writes
+/clj-fix lint               # lint only (pure-read; no writes anywhere)
+/clj-fix format             # format step; writes via cljfmt fix
+/clj-fix lint test          # combined step keywords
+/clj-fix --report           # all four steps; format reads via cljfmt check
+/clj-fix format --report    # format step; no writes
+/clj-fix all                # synonym for (no argument)
 ```
 
 The skill writes when the `format` step runs without `--report`. With `--report`, the format step runs `cljfmt check`, which reports diffs without writing. The other three steps (`lint`, `test`, `dry`) are pure-read regardless. The `## Mutation` section in the skill body documents this asymmetry.
@@ -106,7 +106,7 @@ No `--report` flag, because the skill never writes. Operators apply suggestions 
 
 **`--report` versus natural-language synonyms.** "Preview," "dry run," "rehearse," and similar phrases are scope input or step keywords (or operator chatter), never mode triggers. Only the literal `--report` token disables writes. A skill that accepts both is wrong; the natural-language synonym must mean something else or be rejected.
 
-**Step keywords versus scope keywords.** A skill like `/clj-tidy` accepts step keywords (`lint`, `format`, `test`, `dry`) that select work to run, and scope keywords (`all`) that widen scope. Step keywords are skill-specific and listed in the skill's own table. Scope keywords are shared and listed here. When a skill has both, the `## Arguments` table lists both with clearly distinct rows.
+**Step keywords versus scope keywords.** A skill like `/clj-fix` accepts step keywords (`lint`, `format`, `test`, `dry`) that select work to run, and scope keywords (`all`) that widen scope. Step keywords are skill-specific and listed in the skill's own table. Scope keywords are shared and listed here. When a skill has both, the `## Arguments` table lists both with clearly distinct rows.
 
 ## Author checklist
 
@@ -114,9 +114,9 @@ When adding or modifying a user-invocable skill, confirm each item before commit
 
 - [ ] Skill has a `## Arguments` section (or is listed under [Exemptions](#exemptions)).
 - [ ] Scope rows match the canonical table; opt-in rows appear only where the skill genuinely supports them.
-- [ ] If the skill mutates, the command verb signals it (`/fix-*`, `/sync-*`, `/commit`, `/prune-*`, `/rebuild-*`, `/tidy`, `/new`).
+- [ ] If the skill mutates, the command suffix signals it (`-fix`, `-sync`, `-prune`, `-rebuild`, `-new`, `-deploy`, `-upgrade`, `-test`, `-create`, `-apply`, or the bare verbs `/commit` and `/pause`).
 - [ ] If the skill mutates and preview is useful, `--report` is documented.
-- [ ] If the skill is pure-report, the verb signals it (`/review-*`, `/audit-*`, `/check-*`) and the skill has no `--report` flag.
+- [ ] If the skill is pure-report, the suffix signals it (`-review`, `-audit`, `-check`) and the skill has no `--report` flag.
 - [ ] No `## Customization` section.
 - [ ] No `--name` flags other than `--report`. Tool-level flags the skill calls internally (for example, `cljfmt --check`) are not skill flags and do not count.
 - [ ] Frontmatter `name` matches the skill's directory name.
