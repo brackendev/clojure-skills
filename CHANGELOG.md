@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### 0.1.20 - 2026-05-22
+
+#### Changed
+
+- The `clj-smells-review` skill is renamed to `clj-smells-fix` and adopts a mutating contract that matches the `*-fix` family. Stage 1 mechanical findings from the `clj-kondo` overlay (`:refer :all` expansion, `:use` rewrite, redundant `do`, nested `let` / `when-let`, unused `:require` entries, unused bindings) are applied via Edit by default. A narrow safety band of Stage 2 `DEFECT`-tier findings is also auto-applied: macro double-evaluation (rebind in a `let`), unwrapped resource handles (wrap in `with-open` when the type is in scope), blocking forms inside `go` blocks (`<!!`/`>!!` rewritten to `<!`/`>!`), and load-time side effects in `def` bodies (wrap in `delay`, rewrite callers when all are in scope). Direct `clojure.lang.RT` usage, `SMELL`-tier findings, `HINT`-tier findings, and `DEFECT`-tier findings outside the safety band remain report-only. The skill accepts `--report` to disable all writes and produce the previous pure-report output. Operators with a saved `/clj-smells-review` invocation should replace it with `/clj-smells-fix`; add `--report` to retain the prior behavior.
+
 ### 0.1.19 - 2026-05-20
 
 #### Changed

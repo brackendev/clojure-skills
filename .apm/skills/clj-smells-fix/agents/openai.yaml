@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure Smells Fix"
+  short_description: "Fix Clojure code against the clj-smells catalog; auto-applies Stage 1 mechanical and Stage 2 DEFECT findings, reports the rest. Pass --report to disable writes."
+  default_prompt: "Run /clj-smells-fix."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: false

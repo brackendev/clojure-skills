@@ -83,16 +83,18 @@ The skill writes when the `format` step runs without `--report`. With `--report`
 
 `<project-name>` is a required positional argument. The skill omits the `all` and `<path>` rows because they would not be meaningful for scaffolding. It also omits `--report` because preview is meaningless: the operator reads `SKILL.md` to see what files will be written. The exemption is listed below.
 
-### `/clj-smells-review` -- pure-report skill
+### `/clj-smells-fix` -- mutating skill with `--report`
 
 ```
-/clj-smells-review                       # review changed files
-/clj-smells-review src/api               # review files under directory
-/clj-smells-review src/api/auth.clj      # review specific file
-/clj-smells-review all                   # review the full codebase
+/clj-smells-fix                         # fix changed files; apply Stage 1 mechanical and Stage 2 DEFECT-band findings, report the rest
+/clj-smells-fix src/api                 # fix files under directory
+/clj-smells-fix src/api/auth.clj        # fix specific file
+/clj-smells-fix all                     # fix the full codebase
+/clj-smells-fix --report                # produce the report only; no writes
+/clj-smells-fix src/api --report        # report-only on the given path
 ```
 
-No `--report` flag, because the skill never writes. Operators apply suggestions themselves.
+The skill writes when a finding falls within the documented safety band: Stage 1 mechanical findings from the `clj-kondo` overlay, and Stage 2 `DEFECT`-tier findings with a local well-defined rewrite. `SMELL`, `HINT`, direct `clojure.lang.RT` usage, and `DEFECT` findings outside the band remain report-only. With `--report`, everything is reported as a suggestion. The `## Mutation` section in the skill body lists the exact rewrites the band covers.
 
 ## Exemptions
 

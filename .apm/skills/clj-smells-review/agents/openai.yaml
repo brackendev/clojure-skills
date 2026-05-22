@@ -1,8 +1,0 @@
-interface:
-  display_name: "Clojure Smells Review"
-  short_description: "Review Clojure code against the clj-smells catalog."
-  default_prompt: "Run /clj-smells-review."
-  brand_color: "#5881D8"
-
-policy:
-  allow_implicit_invocation: false

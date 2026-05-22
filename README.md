@@ -70,14 +70,15 @@ Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, t
 /clj-fix format --report
 ```
 
-#### `/clj-smells-review [path|all]`
+#### `/clj-smells-fix [path|all] [--report]`
 
-Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Reports findings with `DEFECT`, `SMELL`, and `HINT` severity tiers plus a smell density verdict. Falls back to LLM-only review when `clj-kondo` is not on `PATH`. Pure report; the skill never writes.
+Fix Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Auto-applies Stage 1 mechanical findings (`:refer :all` expansion, `:use` rewrite, redundant `do`, nested `let`, unused requires and bindings) and the safe band of Stage 2 `DEFECT`-tier findings (macro double-evaluation, unwrapped resource handles, blocking inside `go`, load-time side effects in `def` bodies). `SMELL` and `HINT` findings, and `DEFECT` findings that require cross-file changes, are reported as suggestions. Pass `--report` to disable all writes and receive the same findings as suggestions. Falls back to LLM-only review when `clj-kondo` is not on `PATH`.
 
 ```bash
-/clj-smells-review
-/clj-smells-review src/auth.clj
-/clj-smells-review all
+/clj-smells-fix
+/clj-smells-fix src/auth.clj
+/clj-smells-fix all
+/clj-smells-fix --report
 ```
 
 ### Auto-triggered

@@ -4,7 +4,7 @@
     "skill": {
       "clj-fix": "allow",
       "clj-new": "allow",
-      "clj-smells-review": "allow",
+      "clj-smells-fix": "allow",
       "clojure": "allow",
       "clojure-lenses": "allow"
     }

@@ -1,4 +1,4 @@
-;; clj-kondo overlay for clj-smells-review.
+;; clj-kondo overlay for clj-smells-fix.
 ;;
 ;; Supplements the project's .clj-kondo/config.edn with linters tuned for
 ;; the clj-smells catalog. Project config takes precedence; this overlay
