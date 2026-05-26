@@ -1,6 +1,6 @@
 ---
 name: clj-fix
-description: Fix a Clojure project (lint, format, test, dry); writes formatting by default
+description: "Fix a Clojure project (lint, format, test, dry); writes formatting by default"
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true
 disable-model-invocation: true

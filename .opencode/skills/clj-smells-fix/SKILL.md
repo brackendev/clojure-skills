@@ -1,6 +1,6 @@
 ---
 name: clj-smells-fix
-description: Fix Clojure code against the clj-smells catalog (35 Clojure-specific smells); auto-applies Stage 1 mechanical findings and Stage 2 DEFECT-tier findings, reports SMELL and HINT findings
+description: "Fix Clojure code against the clj-smells catalog (35 Clojure-specific smells); auto-applies Stage 1 mechanical findings and Stage 2 DEFECT-tier findings, reports SMELL and HINT findings"
 argument-hint: "[path|all] [--report]"
 allowed-tools: Bash, Read, Edit, Grep, Glob
 user-invocable: true
