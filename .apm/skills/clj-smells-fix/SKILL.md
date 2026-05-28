@@ -55,6 +55,8 @@ The skill applies findings in two narrow bands. Everything else is reported.
 
 With `--report`, the skill produces the same report but writes nothing. All findings appear as suggestions, including the ones that would otherwise be applied automatically.
 
+This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). Naming a vendored path directly through `<path>` or `<glob>` bypasses the filter for that target. The full policy is Rule 4 in CONVENTIONS.md.
+
 ## Severity Tiers
 
 | Tier | Meaning |

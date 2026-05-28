@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### 0.1.22 - 2026-05-28
+
+#### Added
+
+- `CONVENTIONS.md` gains Rule 4: vendored and generated paths are excluded by default from mutating skills that walk the workspace. The rule sits alongside the existing three rules (renamed from "The three rules" to "The four rules"). Two filters apply together (`.gitignore` matches plus a hardcoded floor of dependency directories, build outputs, and lock files). The override rides on Rule 1's existing `<path>` `<glob>` grammar; no new flag is introduced. Applies to `/clj-fix` and `/clj-smells-fix`. Exempt: `/clj-new` is scaffolding.
+- `/clj-fix` and `/clj-smells-fix` each extend their `## Mutation` section with a paragraph restating Rule 4 in context. Operators see the policy without leaving the skill's page.
+
 ### 0.1.21 - 2026-05-26
 
 #### Fixed
