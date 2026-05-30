@@ -47,6 +47,16 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/cloju
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
 - The `clj-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`.
 
+## Command guide
+
+A quick guide to every slash command. The detailed entries under [Skills](#skills) cover arguments and examples.
+
+| Command | Use it when | What it does |
+|---------|-------------------|--------------|
+| `/clj-new` | Starting a new Clojure project | Scaffolds a project with `deps.edn` |
+| `/clj-fix` | Lint, format, or tests need attention | Runs the quality pipeline, rewriting files in the format step with `cljfmt fix` |
+| `/clj-smells-fix` | Clojure code has smells to address | Applies the safe mechanical and DEFECT-band fixes and reports the rest |
+
 ## Skills
 
 ### Scaffolding and quality
