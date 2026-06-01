@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### 0.1.23 - 2026-06-02
+
+#### Changed
+
+- The `clj-fix` dry step and the README now point the `:dry4clj` alias at the `brackendev/dry4clj` fork rather than `unclebob/dry4clj`. The fork is the maintained source for this family and carries the `.cljd` source-extension support the ClojureDart companion relies on. The alias setup is otherwise unchanged.
+- The `clj-fix` dry step is now advisory and scoped to production source. It scans the source paths declared by the project's build configuration (for example `deps.edn` `:paths`) rather than a hardcoded `src test`, reads dry4clj's EDN output instead of matching a status string, and reports candidates without failing the run or halting the pipeline. The step reports `PASS` when no candidates are found, `REVIEW` when it lists candidates for inspection, `ERROR` when the scan cannot run or parse, or `SKIPPED`. Test directories are excluded by default because repeated test scaffolding is usually intentional, and lint, format, and test remain the pipeline's pass and fail gates.
+
 ### 0.1.22 - 2026-05-28
 
 #### Added
