@@ -72,7 +72,7 @@ Report pass if exit code is 0, fail otherwise. Show the test output.
 
 ### 4. Dry
 
-Scan for duplicate top-level forms with [dry4clj](https://github.com/brackendev/dry4clj). This step is advisory. It reports duplication candidates for review but never fails the run and never halts the pipeline.
+Scan for duplicate top-level forms with [dry4clj](https://github.com/unclebob/dry4clj). This step is advisory. It reports duplication candidates for review but never fails the run and never halts the pipeline.
 
 Determine the project's production source directories from its build configuration instead of assuming a directory name:
 

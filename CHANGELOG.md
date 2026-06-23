@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### 0.1.25 - 2026-06-23
+
+#### Changed
+
+- The `clj-fix` dry step and the README now point the `:dry4clj` alias at `unclebob/dry4clj` rather than the `brackendev/dry4clj` fork. Upstream dry4clj carries the `.cljd` source-extension support and the `--edn` output the family relies on, so the fork is no longer required. The alias setup is otherwise unchanged.
+
 ### 0.1.24 - 2026-06-15
 
 #### Changed
