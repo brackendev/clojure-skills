@@ -71,7 +71,7 @@ Scaffold a new Clojure project with `deps.edn`.
 
 #### `/clj-fix [lint|format|test|dry] [--report]`
 
-Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). The `format` step rewrites files with `cljfmt fix`; the other three steps are pure-read. Pass `--report` to swap the format step for `cljfmt check`, which previews diffs without writing. Each step is also addressable on its own.
+Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). The `lint` step applies safe mechanical fixes and the `format` step rewrites files with `cljfmt fix`. The `test` and `dry` steps are pure-read. Pass `--report` to disable writes and preview the lint and format changes without applying them. Each step is also addressable on its own.
 
 ```bash
 /clj-fix

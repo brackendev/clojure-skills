@@ -90,16 +90,16 @@ The section name `## Customization` is retired.
 ### `/clj-fix` -- mutating skill with `--report`
 
 ```
-/clj-fix                    # all four steps; format writes
-/clj-fix lint               # lint only (pure-read; no writes anywhere)
+/clj-fix                    # all four steps; lint and format write
+/clj-fix lint               # lint step; applies safe mechanical fixes
 /clj-fix format             # format step; writes via cljfmt fix
 /clj-fix lint test          # combined step keywords
-/clj-fix --report           # all four steps; format reads via cljfmt check
+/clj-fix --report           # all four steps; --report disables all writes
 /clj-fix format --report    # format step; no writes
 /clj-fix all                # synonym for (no argument)
 ```
 
-The skill writes when the `format` step runs without `--report`. With `--report`, the format step runs `cljfmt check`, which reports diffs without writing. The other three steps (`lint`, `test`, `dry`) are pure-read regardless. The `## Mutation` section in the skill body documents this asymmetry.
+The skill writes when the `format` or `lint` step runs without `--report`. The `format` step runs `cljfmt fix`, and the `lint` step applies the safe mechanical fix band that `clj-smells-fix` owns. With `--report`, both report their changes without writing. The `test` and `dry` steps are pure-read regardless. The `## Mutation` section in the skill body documents which steps write.
 
 ### `/clj-new` -- mutating skill, exemption from `all`/path rows
 

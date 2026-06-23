@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### 0.1.26 - 2026-06-23
+
+#### Changed
+
+- The `clj-fix` lint step now applies safe mechanical fixes by default instead of only reporting. It applies the Stage 1 mechanical band that `clj-smells-fix` owns (redundant `do`, nested `let` and `when-let`, `:refer :all`, `:use`, unused `:require` entries, unused let-bindings), reports direct `clojure.lang.RT` usage without rewriting it, and writes nothing under `--report`. The lint and format steps now both write by default, while the test and dry steps remain pure-read. The clj-fix worked example in CONVENTIONS.md was updated to match.
+
 ### 0.1.25 - 2026-06-23
 
 #### Changed

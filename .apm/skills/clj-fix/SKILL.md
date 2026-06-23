@@ -1,6 +1,6 @@
 ---
 name: clj-fix
-description: "Fix a Clojure project (lint, format, test, dry); writes formatting by default"
+description: "Fix a Clojure project (lint, format, test, dry); applies safe lint fixes and formatting by default"
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true
 disable-model-invocation: true
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 # Clojure Fix
 
-Run lint, format, test, and duplicate-form checks on Clojure source files. The format step writes by default; the other three steps are pure-read.
+Run lint, format, test, and duplicate-form checks on Clojure source files. The lint and format steps write by default: lint applies the safe mechanical fixes that `clj-smells-fix` owns, and format rewrites formatting. The test and dry steps are pure-read.
 
 ## Arguments
 
@@ -20,13 +20,13 @@ Run lint, format, test, and duplicate-form checks on Clojure source files. The f
 | `format`          | Run format only                                                              |
 | `test`            | Run tests only                                                               |
 | `dry`             | Run dry only                                                                 |
-| `--report`        | Replace `cljfmt fix` with non-writing `cljfmt check` in the format step      |
+| `--report`        | Disable all writes: report the lint fixes, and run `cljfmt check` instead of `cljfmt fix` |
 
-Step keywords are combinable (for example, `/clj-fix lint test`). The `--report` flag may appear in any position. When `--report` is present without an explicit step keyword, every step still runs; only the format step's behavior changes.
+Step keywords are combinable (for example, `/clj-fix lint test`). The `--report` flag may appear in any position. When `--report` is present without an explicit step keyword, every step still runs, and the lint and format steps report their changes instead of writing them.
 
 ## Mutation
 
-Only the `format` step writes. It runs `clj -M:cljfmt fix` by default, rewriting files in place. With `--report`, the step runs `clj -M:cljfmt check`, which exits non-zero when files would change but does not write. The `lint`, `test`, and `dry` steps are pure-read regardless of `--report`.
+The `lint` and `format` steps write by default. The `format` step runs `clj -M:cljfmt fix`, rewriting files in place. The `lint` step applies the safe mechanical fix band that `clj-smells-fix` owns, described in the Lint step below. With `--report`, neither step writes: the `format` step runs `clj -M:cljfmt check`, which exits non-zero when files would change but does not write, and the `lint` step reports the fixes it would apply without editing files. The `test` and `dry` steps are pure-read regardless of `--report`.
 
 This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). Naming a path directly via `<path>` or `<glob>` bypasses the filter for that target; broad scopes (`(no argument)`, `all`, or a parent directory) keep the filter active. The full policy is Rule 4 in CONVENTIONS.md.
 
@@ -42,7 +42,11 @@ Run clj-kondo on the Clojure source:
 clj-kondo --lint src test
 ```
 
-Report pass if exit code is 0, fail otherwise. Show the clj-kondo output.
+Then apply the safe mechanical fix band that `clj-smells-fix` owns: the clj-kondo findings with a deterministic, local rewrite. These are redundant `do` blocks (unwrapped), nested `let` / `when-let` (flattened), `:refer :all` (expanded to the symbols the namespace uses), `:use` (rewritten as `:require :refer`), unused `:require` entries (removed), and unused let-bindings without side-effecting initializers (removed). Direct `clojure.lang.RT` usage has no safe general rewrite, so report it without applying. Use the same clj-kondo overlay and false-positive guardrails the `clj-smells-fix` skill defines so the two skills stay in agreement. When this step rewrites a file and the `format` step is not also running, re-run `cljfmt` over that file so the edits match the project's formatting.
+
+With `--report`, do not write. Instead, list the fixes this step would apply.
+
+Report pass if no clj-kondo findings remain after the safe fixes are applied, fail if findings remain that need manual attention. Show the clj-kondo output and the fixes applied (or, under `--report`, the fixes that would be applied).
 
 ### 2. Format
 
@@ -113,4 +117,4 @@ Clojure Fix Results:
   Dry:    PASS/REVIEW/ERROR/SKIPPED
 ```
 
-If `--report` was passed, append `(report mode: format checked, not written)` after the summary. If a lint, format, or test step fails, stop and report the failure; do not continue to subsequent steps. The dry step is advisory: it never fails the run and never halts the pipeline.
+If `--report` was passed, append `(report mode: lint and format changes reported, not written)` after the summary. If a lint, format, or test step fails, stop and report the failure; do not continue to subsequent steps. The dry step is advisory: it never fails the run and never halts the pipeline.
