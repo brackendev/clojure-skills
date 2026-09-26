@@ -17,7 +17,7 @@ Create a new Clojure project with deps.edn, source layout, test runner, and form
 | `<project-name>`  | Required. Use hyphens (for example, `my-app`); the skill maps to underscores for file paths (`my_app/`) and keeps hyphens in namespace symbols. |
 | (no argument)     | Prompt the operator for a project name.                                      |
 
-This skill is exempt from the `all` and `<path>` rows of the standard scope vocabulary because scaffolding has no useful default scope. See `CONVENTIONS.md` for the standard.
+This skill is exempt from the `all` and `<path>` rows of the standard scope vocabulary because scaffolding has no useful default scope. The package's [CONVENTIONS.md](https://github.com/brackendev/clojure-skills/blob/master/CONVENTIONS.md) defines the standard.
 
 ## Mutation
 

@@ -23,12 +23,15 @@ Host-specific guidance lives in companion skills, which override this baseline o
 - [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) -- ClojureScript on JavaScript hosts: JS interop, externs and advanced compilation, macro stage separation, `catch :default`, JS-flavored numerics and truthiness, the `cljs.main` workflow.
 - [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) -- ClojureDart on Flutter: Dart interop, type hints and nullability, `cljd.flutter` directives, async, FFI, REPL.
 - [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) web framework on the JVM.
+- [fulcro-skills](https://github.com/brackendev/fulcro-skills) -- the [Fulcro](https://github.com/fulcrologic/fulcro) full-stack framework and its Pathom 3 server.
 
 This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
 
 ## REPL-Driven Development
 
 REPL-driven development is the primary workflow for Clojure family code. Prefer evaluating small forms in a running REPL before changing larger code paths; let file edits follow from working REPL code, not the other way around. When no REPL is reachable, start one before continuing — the host skill names the dialect-specific command (nREPL on the JVM, the socket REPL on ClojureDart).
+
+For host-neutral REPL conventions (qualified cross-namespace calls, `in-ns`, and `comment` forms), read `references/project-workflows.md`.
 
 ## Key Rules
 
@@ -172,11 +175,11 @@ Use `when` for single-branch conditionals with side effects. Use `if` for two-br
 
 ```clojure
 ;; good
-(if-not pred (foo))
+(if-not pred (foo) (bar))
 (when-not pred (foo) (bar))
 
 ;; bad
-(if (not pred) (foo))
+(if (not pred) (foo) (bar))
 (when (not pred) (foo) (bar))
 ```
 
@@ -285,19 +288,19 @@ Avoid more than three or four positional parameters. Use an options map instead:
 
 ### Pre/post conditions
 
-Consider function pre and post conditions as an alternative to manual checks:
+Use pre and post conditions for internal invariants that indicate a programming error. They throw an assertion error and stop running when `*assert*` is false, so validate external input with `ex-info` instead:
 
 ```clojure
-;; good
+;; internal invariant
 (defn foo [x]
   {:pre [(pos? x)]}
   (bar x))
 
-;; bad
-(defn foo [x]
+;; input validation at a boundary
+(defn parse-quantity [x]
   (if (pos? x)
-    (bar x)
-    (throw (ex-info "x must be positive" {:value x}))))
+    x
+    (throw (ex-info "Quantity must be positive" {:value x}))))
 ```
 
 ### :else in cond

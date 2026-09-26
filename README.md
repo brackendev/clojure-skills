@@ -54,7 +54,7 @@ A quick guide to every slash command. The detailed entries under [Skills](#skill
 | Command | Use it when | What it does |
 |---------|-------------------|--------------|
 | `/clj-new` | Starting a new Clojure project | Scaffolds a project with `deps.edn` |
-| `/clj-fix` | Lint, format, or tests need attention | Runs the quality pipeline, rewriting files in the format step with `cljfmt fix` |
+| `/clj-fix` | Lint, format, or tests need attention | Runs the quality pipeline, applying safe lint fixes and rewriting formatting with `cljfmt fix` |
 | `/clj-smells-fix` | Clojure code has smells to address | Applies the safe mechanical and DEFECT-band fixes and reports the rest |
 
 ## Skills

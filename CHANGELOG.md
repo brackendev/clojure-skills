@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.30] - 2026-09-26
+
+### Fixed
+
+- The `clj-smells-fix` Stage 1 instructions now list exactly the clj-kondo findings the skill rewrites: `:refer :all`, `:use`, redundant `do`, nested `let`, unused `:require` entries, and unused `let` bindings. The skill no longer tries to rewrite excessive explicit refers, which have no mechanical fix, and it no longer rewrites unused function parameters or destructuring bindings. The catalog digest now names the `:use` linter that the overlay enables for Excessive Refers.
+- The `clj-smells-fix` load-time side-effect fix now updates callers to dereference the new `delay` instead of renaming them.
+- Under `--report`, the `clj-smells-fix` report now lists would-be fixes under a "Would apply" heading, as the skill's report rules describe.
+- The `clj-fix` dry step reports `SKIPPED` rather than `SKIP` when no production source path exists, matching the summary block.
+- The `clj-fix` vendored-path note no longer describes a path argument that the skill does not accept.
+- The `clj-fix`, `clj-new`, and `clj-smells-fix` skills now link to the package's `CONVENTIONS.md` on GitHub, because the file is not installed alongside the skills.
+- The `clojure` skill's `if-not` example now uses two branches, consistent with the rule to use `when` for single-branch conditionals. The pre and post conditions section now reserves `:pre` for internal invariants and uses `ex-info` for input validation, consistent with the skill's exception guidance.
+
+### Changed
+
+- The `clojure` skill lists `fulcro-skills` among its companion packages and points to its host-neutral REPL conventions reference.
+
 ## [0.1.29] - 2026-09-16
 
 ### Changed

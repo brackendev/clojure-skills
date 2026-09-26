@@ -45,7 +45,7 @@ The skill applies findings in two narrow bands. Everything else is reported.
 **Auto-fixed by default:**
 
 - **Stage 1 mechanical findings** from the `clj-kondo` overlay: redundant `do` blocks (unwrapped), nested `let` / `when-let` (flattened), `:refer :all` (expanded to explicit refers based on the symbols actually used in the namespace), `:use` (rewritten as `:require :refer`), unused `:require` entries (removed), unused let-bindings without side-effecting initializers (removed).
-- **Stage 2 DEFECT-tier findings** with a local, well-defined rewrite: macro double-evaluation (bind the argument once in a `let`), unwrapped resource handles (wrap in `with-open` when the JVM `clojure.java.io` type is in scope), blocking forms inside `go` blocks (rewrite `<!!`/`>!!` to `<!`/`>!` when the surrounding form already provides park semantics), load-time side effects inside `def` bodies (wrap the right-hand side in `delay` and rename callers).
+- **Stage 2 DEFECT-tier findings** with a local, well-defined rewrite: macro double-evaluation (bind the argument once in a `let`), unwrapped resource handles (wrap in `with-open` when the JVM `clojure.java.io` type is in scope), blocking forms inside `go` blocks (rewrite `<!!`/`>!!` to `<!`/`>!` when the surrounding form already provides park semantics), load-time side effects inside `def` bodies (wrap the right-hand side in `delay` and update every caller to dereference it).
 
 **Reported only, never auto-applied:**
 
@@ -55,7 +55,7 @@ The skill applies findings in two narrow bands. Everything else is reported.
 
 With `--report`, the skill produces the same report but writes nothing. All findings appear as suggestions, including the ones that would otherwise be applied automatically.
 
-This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). Naming a vendored path directly through `<path>` or `<glob>` bypasses the filter for that target. The full policy is Rule 4 in CONVENTIONS.md.
+This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). Naming a vendored path directly through `<path>` or `<glob>` bypasses the filter for that target. The full policy is Rule 4 in the package's [CONVENTIONS.md](https://github.com/brackendev/clojure-skills/blob/master/CONVENTIONS.md).
 
 ## Severity Tiers
 
@@ -105,15 +105,16 @@ clj-kondo --lint <scope> \
 
 Parse the JSON output. Each clj-kondo finding maps to a catalog smell as documented in `references/clj-smells-catalog.md`. Promote verified findings to the report with `clj-kondo` as evidence.
 
-clj-kondo (with overlay) detects:
+clj-kondo (with overlay) detects the Stage 1 findings. Apply each mechanical rewrite via Edit unless `--report` is set:
 
-- Implicit Namespace Dependencies (`:refer :all`)
-- Excessive Refers
-- Redundant `do` block
-- Nested Forms (nested `let`/`when-let`)
-- Direct usage of `clojure.lang.RT`
+- `:refer-all`: expand `:refer :all` to explicit refers for the symbols the namespace uses.
+- `:use`: rewrite the `:use` entry as `:require` with `:refer`.
+- `:redundant-do`: unwrap the redundant `do`.
+- `:redundant-let`: merge the nested `let` bindings into the outer binding vector.
+- `:unused-namespace`: remove the unused `:require` entry.
+- `:unused-binding`: remove the unused `let` binding when its initializer has no side effects. Report unused function parameters and destructuring bindings instead of rewriting them.
 
-For each mechanical finding (every entry above except direct `clojure.lang.RT` usage), apply the rewrite via Edit unless `--report` is set. Record each applied edit in the report under "Applied fixes" with `file:line` and a one-line summary. Defer `clojure.lang.RT` findings to the report.
+Record each applied edit in the report under "Applied fixes" with `file:line` and a one-line summary. Report direct `clojure.lang.RT` usage (`:discouraged-var`) without rewriting it. Excessive explicit refers have no Stage 1 linter, so Stage 2 evaluates them.
 
 ### 3. Stage 2: LLM Pass
 
@@ -139,7 +140,7 @@ Use this structure unless the user asked for a shorter variant:
 **[file:line]** -- [smell name]
 [one-line description of the rewrite]
 
-(omit this section when --report is set, or when no fixes were applied)
+(under --report, title this section "Would apply"; omit it when no fixes apply)
 
 ### Suggestions
 

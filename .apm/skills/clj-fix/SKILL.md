@@ -28,7 +28,7 @@ Step keywords are combinable (for example, `/clj-fix lint test`). The `--report`
 
 The `lint` and `format` steps write by default. The `format` step runs `clj -M:cljfmt fix`, rewriting files in place. The `lint` step applies the safe mechanical fix band that `clj-smells-fix` owns, described in the Lint step below. With `--report`, neither step writes: the `format` step runs `clj -M:cljfmt check`, which exits non-zero when files would change but does not write, and the `lint` step reports the fixes it would apply without editing files. The `test` and `dry` steps are pure-read regardless of `--report`.
 
-This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). Naming a path directly via `<path>` or `<glob>` bypasses the filter for that target; broad scopes (`(no argument)`, `all`, or a parent directory) keep the filter active. The full policy is Rule 4 in CONVENTIONS.md.
+This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). This skill takes no path argument, so the filter applies to every run. The full policy is Rule 4 in the package's [CONVENTIONS.md](https://github.com/brackendev/clojure-skills/blob/master/CONVENTIONS.md).
 
 ## Steps
 
@@ -101,7 +101,7 @@ dry4clj always exits 0, and the EDN output never prints a clean-state message, s
 | `PASS`   | `:candidates` is empty.                                                                                                     |
 | `REVIEW` | `:candidates` has one or more entries. List them and continue.                                                             |
 | `ERROR`  | The command cannot run or its output cannot be parsed (for example, the `:dry4clj` alias is missing). Report the cause; do not report `PASS`. |
-| `SKIP`   | No production source path can be identified.                                                                               |
+| `SKIPPED` | No production source path can be identified.                                                                             |
 
 For `REVIEW`, sort candidates by exact matches first (`:score` equal to `1.0`), then by descending `min(:left-nodes, :right-nodes)`, then by descending `:score`. Report the scanned source paths, the candidate count, and the highest-priority candidates with their score, node counts, and both file ranges. Note that each candidate needs source inspection before extraction, and that test directories were excluded because repeated test scaffolding is often intentional.
 

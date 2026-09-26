@@ -25,7 +25,7 @@ Default severity: `HINT`.
 Pattern: `(:require [some.ns :refer [a b c d e f g h i j ...]])` with many symbols.
 Why: callers cannot tell which namespace defines a given symbol.
 Fix: prefer `:as` aliases; reserve `:refer` for two or three high-traffic symbols.
-clj-kondo linter: `:refer` with `:exclude-when-contains-meta` configuration; the overlay flags `:refer :all`. Excessive explicit refers fall through to Stage 2.
+clj-kondo linter: `:use`, which the overlay enables to flag `(:use ...)` forms. Excessive explicit refers have no Stage 1 linter and fall through to Stage 2.
 
 ### Redundant `do` block
 
