@@ -55,7 +55,7 @@ Create `<project-name>/deps.edn`:
 
 ```clojure
 {:paths ["src" "resources"]
- :deps  {org.clojure/clojure {:mvn/version "1.12.0"}}
+ :deps  {org.clojure/clojure {:mvn/version "1.12.6"}}
  :aliases
  {:dev     {:extra-paths ["dev"]}
   :test    {:extra-paths ["test"]
@@ -64,9 +64,9 @@ Create `<project-name>/deps.edn`:
             :main-opts   ["-m" "cognitect.test-runner"]
             :exec-fn     cognitect.test-runner.api/test}
   :build   {:deps        {io.github.clojure/tools.build
-                          {:git/tag "v0.10.5" :git/sha "2a21b7a"}}
+                          {:git/tag "v0.10.14" :git/sha "1176afd"}}
             :ns-default  build}
-  :cljfmt  {:extra-deps  {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}
+  :cljfmt  {:extra-deps  {dev.weavejester/cljfmt {:mvn/version "0.16.6"}}
             :main-opts   ["-m" "cljfmt.main"]}}}
 ```
 
@@ -75,10 +75,11 @@ Create `<project-name>/deps.edn`:
 Create `src/<project_name>/core.clj` where `<project_name>` uses underscores:
 
 ```clojure
-(ns <namespace>.core)
+(ns <namespace>.core
+  (:gen-class))
 
 (defn -main
-  [& args]
+  [& _args]
   (println "Hello from <project-name>!"))
 ```
 
@@ -134,9 +135,9 @@ Create `<project-name>/build.clj`:
 
 ```clojure
 {:paths ["src" "test"]
- :indents {ns [[:inner 0]]
-           defn [[:inner 0]]
-           fn [[:inner 0]]}}
+ :extra-indents {ns [[:inner 0]]
+                 defn [[:inner 0]]
+                 fn [[:inner 0]]}}
 ```
 
 ### 7. Create .gitignore

@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.31] - 2026-10-04
+
+### Changed
+
+- The `clj-new` scaffold now pins Clojure 1.12.6, cljfmt 0.16.6, and tools.build v0.10.14.
+
+### Fixed
+
+- The `clj-new` scaffold's `.cljfmt.edn` now uses `:extra-indents` instead of `:indents`. The old key replaced cljfmt's default indentation rules, so `cljfmt check` failed on the scaffold's own test file and `cljfmt fix` mis-indented `deftest` and `testing` bodies.
+- The uberjar built by the `clj-new` scaffold now runs with `java -jar`. The entry namespace now declares `(:gen-class)`, which the build needs to generate the main class.
+- A freshly scaffolded `clj-new` project now lints without warnings. The template's `-main` names its unused rest argument `_args`.
+
 ## [0.1.30] - 2026-09-26
 
 ### Fixed
