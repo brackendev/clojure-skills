@@ -1,10 +1,14 @@
 ---
 name: clj-smells-fix
-description: "Fix Clojure code against the clj-smells catalog (35 Clojure-specific smells); auto-applies Stage 1 mechanical findings and Stage 2 DEFECT-tier findings, reports SMELL and HINT findings"
+description: >-
+  Fix Clojure code against the clj-smells catalog of Clojure-specific code
+  smells. Auto-applies Stage 1 mechanical findings and Stage 2 DEFECT-tier
+  findings, and reports SMELL and HINT findings. Use when asked to find or fix
+  Clojure code smells, or to fix namespace problems such as `:refer :all`,
+  `:use`, or unused requires. Use --report to disable writes.
 argument-hint: "[path|all] [--report]"
 allowed-tools: Bash, Read, Edit, Grep, Glob
 user-invocable: true
-disable-model-invocation: true
 ---
 
 # Clojure Smells Fix

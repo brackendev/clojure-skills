@@ -1,9 +1,15 @@
 ---
 name: clj-fix
-description: "Fix a Clojure project (lint, format, test, dry); applies safe lint fixes and formatting by default"
+description: >-
+  Fix a Clojure project with lint, format, test, and dry (duplicate-form)
+  steps. Applies safe lint fixes and formatting by default. Use when asked to
+  lint, format, test, or check a Clojure project, or to fix clj-kondo warnings
+  or cljfmt formatting in Clojure code. For ClojureScript, Fulcro, and
+  ClojureDart projects, prefer /cljs-fix, /fulcro-fix, or /cljd-fix when
+  installed. Use --report to preview the lint and format changes without
+  writing.
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true
-disable-model-invocation: true
 ---
 
 # Clojure Fix
