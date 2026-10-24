@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.37] - 2026-10-25
+
+### Changed
+
+- The Companion packages table describes biff-skills as covering Biff 2 conventions and deployment, because that package no longer scaffolds projects.
+
+### Removed
+
+- The `/clj-new` scaffolding skill is removed. It wrote a fixed project layout with pinned dependency versions, and only a typed slash command could start it. `/clj-fix` still shows the `:dry4clj` alias to add when a project lacks it.
+
 ## [0.1.36] - 2026-10-24
 
 ### Added

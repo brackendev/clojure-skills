@@ -61,7 +61,7 @@ The boundary statement: Rule 4 applies to mutating skills that discover candidat
 
 **Reporting.** The skill includes a single "skipped N vendored or generated paths" line in its results when the filter excluded any path. Under `--report`, the skill emits the full list so the operator can audit scope.
 
-**Scope of Rule 4 in this plugin.** Applies to `/clj-fix` and `/clj-smells-fix`, both of which discover candidate files from the workspace. Exempt: `/clj-new` is scaffolding (its target set is the new project tree, not workspace discovery). The model-only reference skills `clojure` and `clojure-lenses` have no mutation surface and are also out of scope.
+**Scope of Rule 4 in this plugin.** Applies to `/clj-fix` and `/clj-smells-fix`, both of which discover candidate files from the workspace. The model-only reference skills `clojure` and `clojure-lenses` have no mutation surface and are also out of scope.
 
 The file-aware mutating skills include a one-line reference to Rule 4 in their own `## Mutation` or `## Scope` section.
 
@@ -101,15 +101,6 @@ The section name `## Customization` is retired.
 
 The skill writes when the `format` or `lint` step runs without `--report`. The `format` step runs `cljfmt fix`, and the `lint` step applies the safe mechanical fix band that `clj-smells-fix` owns. With `--report`, both report their changes without writing. The `test` and `dry` steps are pure-read regardless. The `## Mutation` section in the skill body documents which steps write.
 
-### `/clj-new` -- mutating skill, exemption from `all`/path rows
-
-```
-/clj-new my-service          # creates project tree at ./my-service
-/clj-new                     # prompts the operator for a project name
-```
-
-`<project-name>` is a required positional argument. The skill omits the `all` and `<path>` rows because they would not be meaningful for scaffolding. It also omits `--report` because preview is meaningless: the operator reads `SKILL.md` to see what files will be written. The exemption is listed below.
-
 ### `/clj-smells-fix` -- mutating skill with `--report`
 
 ```
@@ -125,7 +116,7 @@ The skill writes when a finding falls within the documented safety band: Stage 1
 
 ## Exemptions
 
-`/clj-new` accepts a required positional `<project-name>` because no useful default exists for scaffolding. It omits the `all` and `<path>` scope rows and the `--report` flag for the same reason. The `## Arguments` table in its `SKILL.md` documents the positional grammar.
+No skill in this plugin claims an exemption today. The standard exemption pattern, for reference, is a scaffolding skill that accepts a required positional `<project-name>` because no useful default exists. Such a skill omits the `all` and `<path>` scope rows and the `--report` flag for the same reason. The `## Arguments` table in its `SKILL.md` documents the positional grammar.
 
 ## Ambiguity notes
 

@@ -1,6 +1,6 @@
 name: clojure-skills
-version: 0.1.36
-description: Host-neutral Clojure family baseline covering idiomatic style, code translation, project scaffolding, quality checks, and the clj-smells catalog fix pipeline across .clj, .cljs, .cljc, and .cljd. JVM-specific guidance lives in the companion clojure-jvm-skills package.
+version: 0.1.37
+description: Host-neutral Clojure family baseline covering idiomatic style, code translation, quality checks, and the clj-smells catalog fix pipeline across .clj, .cljs, .cljc, and .cljd. JVM-specific guidance lives in the companion clojure-jvm-skills package.
 author: Bracken Spencer
 license: MIT
 type: skill
