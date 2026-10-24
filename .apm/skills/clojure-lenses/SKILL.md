@@ -49,7 +49,7 @@ The 15 tidyings apply to Clojure with these translations:
 - **Extract helper** means pulling a block from a `let` body or threading pipeline into a named `defn-` or `letfn` function.
 - **Reading order** is nuanced in Clojure. Clojure files compile top-down, so helpers must be defined before callers unless `declare` is used. Many Clojure codebases prefer helpers-first order naturally. Do not force `declare` or reorder files for top-down reading if it fights the existing convention.
 - **Move declaration and initialization together** means placing `let` bindings close to their first use rather than at the top of a large `let` block. Split large `let` blocks into smaller scopes when bindings serve different concerns.
-- **Chunk statements** means adding blank lines between groups of related `let` bindings or between pipeline stages.
+- **Chunk statements** is limited in Clojure, because the `clojure` skill's Formatting rules allow a blank line inside a definition only between `let` or `cond` pairs that do not fit on one line. Chunk other related work by splitting a large `let` into smaller scopes or by extracting a group of pipeline stages into a named helper.
 - **Normalize symmetries** means making similar `cond` branches, `case` clauses, or multimethod implementations follow identical structure so differences stand out.
 - **New interface, old implementation** means writing a new function with the desired signature that delegates to the existing function. Useful for wrapping Java interop.
 - Threading macros (`->`, `->>`, `as->`) are a tidying tool: they flatten nested calls into a readable pipeline. Use them to replace deeply nested function calls.

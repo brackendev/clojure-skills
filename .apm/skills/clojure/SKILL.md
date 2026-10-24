@@ -819,7 +819,7 @@ Write the desired call site first, then implement the macro. Break complex macro
 - Aim for 80 characters per line (120 maximum)
 - Vertically align `let` bindings and map keys
 - Single blank line between top-level forms
-- No blank lines within function bodies
+- No blank lines within function or macro definitions, except a blank line between `let` or `cond` pairs that do not fit on one line
 - Gather closing parentheses on the same line
 
 ```clojure

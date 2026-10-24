@@ -34,7 +34,7 @@ Step keywords are combinable (for example, `/clj-fix lint test`). The `--report`
 
 The `lint` and `format` steps write by default. The `format` step runs `clj -M:cljfmt fix`, rewriting files in place. The `lint` step applies the safe mechanical fix band that `clj-smells-fix` owns, described in the Lint step below. With `--report`, neither step writes: the `format` step runs `clj -M:cljfmt check`, which exits non-zero when files would change but does not write, and the `lint` step reports the fixes it would apply without editing files. The `test` and `dry` steps are pure-read regardless of `--report`.
 
-This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). This skill takes no path argument, so the filter applies to every run. The full policy is Rule 4 in the package's [CONVENTIONS.md](https://github.com/brackendev/clojure-skills/blob/master/CONVENTIONS.md).
+This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). This skill takes no path argument, so the filter applies to every run. When the filter excludes any path, add a single "skipped N vendored or generated paths" line to the report. Under `--report`, list every skipped path. The full policy is Rule 4 in the package's [CONVENTIONS.md](https://github.com/brackendev/clojure-skills/blob/master/CONVENTIONS.md).
 
 ## Steps
 
@@ -42,13 +42,14 @@ Parse `$ARGUMENTS` to determine which steps to run and whether `--report` is pre
 
 ### 1. Lint
 
-Run clj-kondo on the Clojure source:
+Run clj-kondo on the Clojure source with the `clj-smells-fix` overlay, which ships in this package next to this skill. Pass the overlay by absolute path, because the working directory is the user's project:
 
 ```bash
-clj-kondo --lint src test
+clj-kondo --lint src test \
+  --config <skill-dir>/../clj-smells-fix/references/clj-kondo-overlay.edn
 ```
 
-Then apply the safe mechanical fix band that `clj-smells-fix` owns: the clj-kondo findings with a deterministic, local rewrite. These are redundant `do` blocks (unwrapped), nested `let` / `when-let` (flattened), `:refer :all` (expanded to the symbols the namespace uses), `:use` (rewritten as `:require :refer`), unused `:require` entries (removed), and unused let-bindings without side-effecting initializers (removed). Direct `clojure.lang.RT` usage has no safe general rewrite, so report it without applying. Use the same clj-kondo overlay and false-positive guardrails the `clj-smells-fix` skill defines so the two skills stay in agreement. When this step rewrites a file and the `format` step is not also running, re-run `cljfmt` over that file so the edits match the project's formatting.
+Then apply the safe mechanical fix band that `clj-smells-fix` owns: the clj-kondo findings with a deterministic, local rewrite. These are redundant `do` blocks (`:redundant-do`, unwrapped), nested `let` forms (`:redundant-let`, merged into the outer binding vector), `:refer :all` (`:refer-all`, expanded to explicit refers for the symbols the namespace actually uses), `:use` (`:use`, rewritten as `:require :refer`), unused `:require` entries (`:unused-namespace`, removed), and unused `let` bindings whose initializers have no side effects (`:unused-binding`, removed). Unused function parameters and destructuring bindings are reported, not rewritten. Direct `clojure.lang.RT` usage has no safe general rewrite, so report it without applying. Apply the false-positive guardrails the `clj-smells-fix` skill defines, and skip a linter the project's `.clj-kondo/config.edn` sets to `:off` as that skill's Gotchas describe, so the two skills stay in agreement. When this step rewrites a file and the `format` step is not also running, re-run `cljfmt` over that file so the edits match the project's formatting.
 
 With `--report`, do not write. Instead, list the fixes this step would apply.
 
@@ -123,4 +124,4 @@ Clojure Fix Results:
   Dry:    PASS/REVIEW/ERROR/SKIPPED
 ```
 
-If `--report` was passed, append `(report mode: lint and format changes reported, not written)` after the summary. If a lint, format, or test step fails, stop and report the failure; do not continue to subsequent steps. The dry step is advisory: it never fails the run and never halts the pipeline.
+If `--report` was passed, append `(report mode: lint and format changes reported, not written)` after the summary. If a lint, format, or test step fails, stop and report the failure; do not continue to subsequent steps.

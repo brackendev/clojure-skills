@@ -1,8 +1,9 @@
 ;; clj-kondo overlay for clj-smells-fix.
 ;;
 ;; Supplements the project's .clj-kondo/config.edn with linters tuned for
-;; the clj-smells catalog. Project config takes precedence; this overlay
-;; raises levels but cannot lower a project's explicit :off setting.
+;; the clj-smells catalog. Pass it with clj-kondo's --config option, which
+;; merges it over the project config, so the levels set here take precedence,
+;; even for a linter the project sets to :off.
 ;;
 ;; Maps clj-kondo linters to clj-smells catalog entries. Each enabled
 ;; linter corresponds to a Stage 1 detection in references/clj-smells-catalog.md.
@@ -20,24 +21,27 @@
   ;; Nested Forms (nested let)
   :redundant-let {:level :warning}
 
-  ;; Discourage internal RT class usage
-  :discouraged-var
-  {clojure.lang.RT/iter
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/get
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/nth
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/count
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/seq
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/conj
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/assoc
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-   clojure.lang.RT/dissoc
-   {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}}
+  ;; Discourage internal RT class usage. clojure.lang.RT members are Java
+  ;; static methods, not vars, so :discouraged-var never matches them.
+  ;; :discouraged-java-method requires clj-kondo v2025.06.05 or later.
+  :discouraged-java-method
+  {clojure.lang.RT
+   {iter
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    get
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    nth
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    count
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    seq
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    conj
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    assoc
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
+    dissoc
+    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}}}
 
   ;; Supporting context for several smells (unused bindings often appear
   ;; in conditional build-up patterns).

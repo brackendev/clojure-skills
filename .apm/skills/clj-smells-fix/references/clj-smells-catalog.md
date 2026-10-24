@@ -3,7 +3,7 @@
 Pinned to upstream commit `d1ae1896f518e94f3d4f9257b451d89473b94e1b` (2026-01-19).
 Source: <https://github.com/nufuturo-ufcg/clj-smells-catalog>
 
-The catalog documents 35 Clojure-specific code smells. This digest groups them by detection method and provides default severity guidance, short examples, and false-positive notes for review use. Severity is a starting point; assign the final tier based on impact in context.
+The catalog documents 35 Clojure-specific code smells. This digest groups them by detection method and provides default severity guidance, short examples, and false-positive notes for review use. The severities are defaults. The Severity Tiers section of `SKILL.md` defines how to assign the final tier.
 
 ---
 
@@ -39,7 +39,7 @@ clj-kondo linter: `:redundant-do`.
 Default severity: `HINT`.
 Pattern: `(let [a 1] (let [b 2] ...))` or `(when-let [x ...] (when-let [y ...] ...))`.
 Fix: combine bindings (`let` accepts a vector of multiple bindings; chain with `when-some`/`if-let` or refactor to `some->`).
-clj-kondo linter: `:redundant-let`.
+clj-kondo linter: `:redundant-let`, which flags nested `let` only. Nested `when-let` has no Stage 1 linter and falls through to Stage 2.
 
 ### Direct usage of `clojure.lang.RT`
 
@@ -47,13 +47,13 @@ Default severity: `SMELL` (escalate to `DEFECT` when used to bypass intended pub
 Pattern: `(clojure.lang.RT/...)`.
 Why: `RT` is internal; methods are not part of Clojure's public API and may break across versions.
 Fix: use the public `clojure.core` function or a documented Java interop call.
-clj-kondo linter: `:discouraged-var` configured for `clojure.lang.RT`.
+clj-kondo linter: `:discouraged-java-method` configured for `clojure.lang.RT` methods.
 
 ---
 
 ## Stage 2: LLM-Detected Smells
 
-clj-kondo cannot detect these by default. Evaluate each candidate against the actual code, not against assumptions about what the code might do.
+clj-kondo cannot detect these by default. Step 3 of the Fix Workflow in `SKILL.md` gives the rules for evaluating each candidate.
 
 ### Macros and Metaprogramming
 

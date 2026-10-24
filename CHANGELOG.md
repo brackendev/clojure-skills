@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.35] - 2026-10-24
+
+### Fixed
+
+- `/clj-smells-fix` passes its clj-kondo overlay with `--config`. clj-kondo has no `--config-file` option and ignored that spelling without an error, so the overlay never applied.
+- `/clj-smells-fix` and `/clj-fix` detect direct `clojure.lang.RT` calls with the `:discouraged-java-method` linter, which requires clj-kondo 2025.06.05 or later. The `:discouraged-var` setting never matched these calls, because `RT` members are Java static methods, not vars.
+- `/clj-fix` runs clj-kondo with the `clj-smells-fix` overlay, as its instructions already said it did.
+- The overlay takes precedence over the project's clj-kondo levels, so `/clj-smells-fix` and `/clj-fix` skip a linter that the project's `.clj-kondo/config.edn` sets to `:off` and note it in the report.
+- `/clj-smells-fix` and `/clj-fix` no longer list nested `when-let` among their automatic fixes. clj-kondo's `:redundant-let` linter flags nested `let` only.
+- The `/clj-smells-fix` description of `--report` output matches its report template: the fixes it would apply appear under "Would apply".
+- `/clj-fix` and `/clj-smells-fix` add a "skipped N vendored or generated paths" line to the report when the vendored-path filter excludes any path, and list those paths under `--report`, as Rule 4 of `CONVENTIONS.md` requires.
+
+### Changed
+
+- The `clojure` skill allows a blank line between `let` or `cond` pairs that do not fit on one line, as the Clojure style guide does. The `clojure-lenses` Tidy First guidance no longer suggests blank lines anywhere else inside a definition.
+- `/clj-smells-fix` states each rule once, and its false-positive guardrails now include the extra cases from the catalog digest.
+
 ## [0.1.34] - 2026-10-24
 
 ### Removed
