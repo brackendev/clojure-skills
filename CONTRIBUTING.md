@@ -13,7 +13,7 @@ For people working on the plugin source. End-user install instructions live in [
 | `README.md` | End-user documentation. |
 | `CHANGELOG.md` | User-facing changes per version. |
 | `CONVENTIONS.md` | Canonical argument grammar, scope vocabulary, and mutation defaults for every user-invocable skill. |
-| `CLAUDE.md`, `TODO.md` | Local working notes. Gitignored globally; never committed. |
+| `AGENTS.md`, `GEMINI.md`, `TODO.md` | Local agent instructions (`GEMINI.md` is a symlink to `AGENTS.md`) and working notes. Gitignored globally and never committed. |
 
 ## APM lockfile rule
 
@@ -23,7 +23,7 @@ Do not add `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/marketplace.jso
 
 1. Edit `.apm/skills/<name>/SKILL.md`.
 2. Update `README.md` if the change is user-facing.
-3. Add a `CHANGELOG.md` entry under `[Unreleased]` for user-facing changes.
+3. Add a `CHANGELOG.md` entry under `[Unreleased]` for every change to a published file, including documentation-only changes.
 4. Increment the `version` field in `apm.yml`.
 
 ## Validation
@@ -52,4 +52,4 @@ For the argument grammar, scope vocabulary, and mutation defaults that every use
 | `user-invocable: true`, no `disable-model-invocation` | Slash command the model can also run from a natural-language request, for a fixer whose edits stay in the working tree (for example `clj-fix`, `clj-smells-fix`). Write the description as a trigger. |
 | `user-invocable: false` | Model-invoked from conversation context (for example `clojure`, `clojure-lenses`). |
 
-Every skill carries `agents/openai.yaml` whose `policy.allow_implicit_invocation` matches the table above (`true` for model-invoked, `false` for user-only). Skills in this package use the Clojure logo blue brand color, `#5881D8`. The companion packages use distinguishable colors so runtime UIs can tell host-specific guidance apart: `clojure-jvm-skills` ships Java orange (`#E76F00`); `clojurescript-skills` ships JavaScript yellow (`#F7DF1E`); `biff-skills` ships Biff indigo (`#4338CA`); `fulcro-skills` ships Fulcro teal (`#009E9E`); `clojuredart-skills` ships Flutter blue (`#02569B`).
+Every skill carries `agents/openai.yaml` whose `policy.allow_implicit_invocation` matches the table above: `false` for a user-only skill and `true` for every skill the model can run. Skills in this package use the Clojure logo blue brand color, `#5881D8`. The companion packages use distinguishable colors so runtime UIs can tell host-specific guidance apart: Java orange (`#E76F00`) for `clojure-jvm-skills`, JavaScript yellow (`#F7DF1E`) for `clojurescript-skills`, Biff indigo (`#4338CA`) for `biff-skills`, Hyperfiddle lavender (`#B7A4C2`) for `electric-skills`, Fulcro teal (`#009E9E`) for `fulcro-skills`, and Flutter blue (`#02569B`) for `clojuredart-skills`.

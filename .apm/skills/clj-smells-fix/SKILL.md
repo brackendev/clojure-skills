@@ -85,7 +85,7 @@ Use Bash for changed-file discovery:
 - `git diff --name-only`
 - `git diff --cached --name-only`
 
-Filter to `.clj`, `.cljc`, and `.cljs` files. Apply the path filter described in the Mutation section, and also skip resource directories. If the user provided no scope and no files changed, ask what to fix rather than widening silently to `all`.
+Filter to `.clj`, `.cljc`, `.cljs`, and `.cljd` files. Apply the path filter described in the Mutation section, and also skip resource directories. If the user provided no scope and no files changed, ask what to fix rather than widening silently to `all`.
 
 Build a scope summary (for example `changed files: src/api.clj, src/db.clj`) for the report header.
 
@@ -181,5 +181,6 @@ If no smells found, say so explicitly and still emit the metric table.
 - When `clj-kondo` exits non-zero, output is still on stdout. Parse stdout regardless of exit code; non-zero exit is expected when findings exist.
 - `--config` accepts a file path or an EDN expression, and clj-kondo merges repeated `--config` options. Pass the overlay by absolute path, because the working directory at fix time is the user's project, not the skill directory. clj-kondo has no `--config-file` option and ignores it without an error, so that spelling silently runs without the overlay.
 - ClojureScript (`.cljs`) files trigger different clj-kondo behavior. The overlay is JVM-Clojure focused; some smells (for example atoms-in-atoms) apply equally, others (for example RT usage) do not appear in CLJS code.
+- ClojureDart (`.cljd`) files need ClojureDart's clj-kondo configuration. Import it before linting with `clj-kondo --copy-configs --dependencies --lint "$(clj -Spath)"`, which copies `tensegritics/clojuredart` hooks for `cljd.flutter` and the `dart:core` names. Static calls on Dart classes (for example `DateTime/now`) still report "Unresolved namespace" even with that configuration. Report those findings and never rewrite them. JVM-only smells (RT usage, `with-open` on `clojure.java.io` types) do not apply to `.cljd` code.
 - `:refer :all` expansion requires reading every symbol the namespace actually uses. When the namespace references symbols through reader-conditional branches, macros, or `eval`, the expansion may miss entries. In that case, route the finding to suggestions rather than auto-fixing.
 - Auto-fixes that touch a `:require` form must preserve the rest of the form (other entries, metadata, comments). Re-format with the project's `cljfmt` configuration after the rewrite to avoid drift.

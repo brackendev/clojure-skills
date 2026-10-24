@@ -4,10 +4,10 @@ description: >-
   Fix a Clojure project with lint, format, test, and dry (duplicate-form)
   steps. Applies safe lint fixes and formatting by default. Use when asked to
   lint, format, test, or check a Clojure project, or to fix clj-kondo warnings
-  or cljfmt formatting in Clojure code. For ClojureScript, Fulcro, and
-  ClojureDart projects, prefer /cljs-fix, /fulcro-fix, or /cljd-fix when
-  installed. Use --report to preview the lint and format changes without
-  writing.
+  or cljfmt formatting in Clojure code. For ClojureScript, Electric, Fulcro,
+  and ClojureDart projects, prefer /cljs-fix, /electric-fix, /fulcro-fix, or
+  /cljd-fix when installed. Use --report to preview the lint and format
+  changes without writing.
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true
 ---
@@ -42,10 +42,16 @@ Parse `$ARGUMENTS` to determine which steps to run and whether `--report` is pre
 
 ### 1. Lint
 
-Run clj-kondo on the Clojure source with the `clj-smells-fix` overlay, which ships in this package next to this skill. Pass the overlay by absolute path, because the working directory is the user's project:
+Run clj-kondo on the project's source and test paths with the `clj-smells-fix` overlay, which this package installs next to this skill. Resolve the paths from the build configuration instead of assuming directory names:
+
+- `deps.edn`: the top-level `:paths`, plus the `:extra-paths` of the `:test` alias.
+- Leiningen `project.clj`: `:source-paths` and `:test-paths`.
+- `shadow-cljs.edn`: `:source-paths`, unless `shadow-cljs.edn` sets `:deps`. With `:deps`, shadow-cljs takes its source paths from `deps.edn`, so use the `deps.edn` paths instead.
+
+Skip resource directories and paths that do not exist. If no configuration declares paths, lint the source and test directories that exist in the repository. Pass the overlay by absolute path, because the working directory is the user's project:
 
 ```bash
-clj-kondo --lint src test \
+clj-kondo --lint <source-and-test-paths...> \
   --config <skill-dir>/../clj-smells-fix/references/clj-kondo-overlay.edn
 ```
 
@@ -89,9 +95,17 @@ Determine the project's production source directories from its build configurati
 
 - `deps.edn`: the top-level `:paths` (the `:dry4clj` alias is defined here). Tests usually live under a separate alias's `:extra-paths`, so scanning `:paths` excludes them.
 - Leiningen `project.clj`: `:source-paths` (tests live under `:test-paths`).
-- `shadow-cljs.edn`: `:source-paths`.
+- `shadow-cljs.edn`: `:source-paths`, unless `shadow-cljs.edn` sets `:deps`. With `:deps`, shadow-cljs takes its source paths from `deps.edn`, so use the `deps.edn` paths instead.
 
 Scan the production source paths only and exclude test paths. If no configuration declares source paths, scan the source directories that exist in the repository, excluding any test directory. Do not assume `src`.
+
+Check that `deps.edn` defines a `:dry4clj` alias before running the scan. When it does not, report `SKIPPED` and show the alias to add under `:aliases`:
+
+```clojure
+:dry4clj {:extra-deps {io.github.unclebob/dry4clj {:git/url "https://github.com/unclebob/dry4clj.git"
+                                                    :git/sha "5994ef2bcaaae8d12bcd0afb4f091ae09083228c"}}
+           :main-opts  ["-m" "dry4clj.core"]}
+```
 
 Run dry4clj with EDN output over the resolved paths:
 
@@ -101,14 +115,16 @@ clj -M:dry4clj --edn <source-paths...>
 
 Do not pass `--threshold`, `--min-lines`, or `--min-nodes`. Scoping to production source removes the dominant noise, which is repeated test scaffolding; tightening the score or size knobs either hides real matches or has no effect on exact-structure duplicates.
 
-dry4clj always exits 0, and the EDN output never prints a clean-state message, so do not use the exit code or any text match as the signal. Parse the EDN map `{:candidates [...]}` and classify the result:
+dry4clj exits 0 after a completed scan, and the EDN output never prints a clean-state message, so do not use the exit code or any text match to detect duplicates. A non-zero exit means the scan itself failed (for example, a file the reader cannot parse) and is reported as `ERROR`. Parse the EDN map `{:candidates [...]}` and classify the result:
 
 | Result   | Condition                                                                                                                  |
 |----------|----------------------------------------------------------------------------------------------------------------------------|
 | `PASS`   | `:candidates` is empty.                                                                                                     |
 | `REVIEW` | `:candidates` has one or more entries. List them and continue.                                                             |
-| `ERROR`  | The command cannot run or its output cannot be parsed (for example, the `:dry4clj` alias is missing). Report the cause; do not report `PASS`. |
-| `SKIPPED` | No production source path can be identified.                                                                             |
+| `ERROR`  | The command fails or its output cannot be parsed. Report the cause, and do not report `PASS`. |
+| `SKIPPED` | No production source path can be identified, or `deps.edn` defines no `:dry4clj` alias. |
+
+dry4clj reads source without resolving namespace aliases, so an alias-qualified auto-resolved keyword such as `::str/ok` stops the scan with "Invalid token" and a non-zero exit. Plain auto-resolved keywords such as `::ok` read correctly. Report the file and the error as `ERROR`, keep the step advisory, and do not rewrite source to work around the reader.
 
 For `REVIEW`, sort candidates by exact matches first (`:score` equal to `1.0`), then by descending `min(:left-nodes, :right-nodes)`, then by descending `:score`. Report the scanned source paths, the candidate count, and the highest-priority candidates with their score, node counts, and both file ranges. Note that each candidate needs source inspection before extraction, and that test directories were excluded because repeated test scaffolding is often intentional.
 

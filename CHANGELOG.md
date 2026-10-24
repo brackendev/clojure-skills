@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.36] - 2026-10-24
+
+### Added
+
+- The Companion packages table lists [electric-skills](https://github.com/brackendev/electric-skills), the new companion package for the [Electric](https://github.com/hyperfiddle/electric) v3 full-stack framework, and `CONTRIBUTING.md` cites its Hyperfiddle lavender brand color (`#B7A4C2`).
+- The `clojure` skill teaches the Clojure 1.11 core functions `update-vals`, `update-keys`, `parse-long`, `parse-double`, `parse-boolean`, `parse-uuid`, `random-uuid`, and `abs`, and the `:as-alias` require option. ClojureScript and ClojureDart provide all of them.
+
+### Changed
+
+- The `clojure` skill lists `electric-skills` among its companion packages.
+- The `/clj-fix` description points Electric projects to `/electric-fix` when it is installed, alongside `/cljs-fix`, `/fulcro-fix`, and `/cljd-fix`.
+- The Companion packages table names the major version each framework package targets: Biff 2, Electric v3, and Fulcro 3. The skills in those packages do not apply to other major versions.
+- The `clojure` skill's companion list names Biff 2 and Fulcro 3.
+- `/clj-new` adds a `:dry4clj` alias, so `/clj-fix` runs its duplicate-form step on a new project. When a project has no such alias, `/clj-fix` reports the dry step as `SKIPPED` and shows the alias to add, instead of reporting `ERROR`.
+- The `clojure` skill starts a REPL only when the runtime has REPL tooling. Without it, the agent edits files and verifies them with the project's test and lint commands.
+- `/clj-fix` lints the source and test paths that `deps.edn`, `project.clj`, or `shadow-cljs.edn` declare, instead of always linting `src` and `test`.
+- `/clj-smells-fix` covers `.cljd` files. It imports ClojureDart's clj-kondo configuration first, and it reports, without rewriting, the unresolved-namespace findings that static calls on Dart classes produce.
+- `/clj-new` states the date its fixed versions were last verified (2026-10-24).
+- `CONTRIBUTING.md` asks for a changelog entry and a version increment for every change to a published file, including documentation-only changes, which matches the release history. It asked for entries only for user-facing changes.
+
+### Fixed
+
+- The `CONTRIBUTING.md` Layout table names the local `AGENTS.md`, `GEMINI.md`, and `TODO.md` files. It named `CLAUDE.md`, which the package does not use.
+- `/clj-fix` reads source paths from `deps.edn` when `shadow-cljs.edn` sets `:deps`, because shadow-cljs then ignores its own `:source-paths`.
+- The README explains how Codex, OpenCode, and Gemini CLI offer the commands: Codex runs a skill as `$name` from its `/skills` list, OpenCode attaches one with `@name`, and Gemini CLI does not read the user-only setting. It said every command appears as a slash command and that user-only commands run only when typed.
+- `CONTRIBUTING.md` states that `agents/openai.yaml` sets `allow_implicit_invocation` to `true` for every skill the model can run, including slash commands that the model can also run. It named only model-invoked and user-only skills.
+- `/clj-fix` reports the dry step as `ERROR` when dry4clj stops on an alias-qualified auto-resolved keyword such as `::str/ok`, which the pinned dry4clj commit cannot read, and keeps the step advisory. It said that dry4clj always exits 0.
+
 ## [0.1.35] - 2026-10-24
 
 ### Fixed

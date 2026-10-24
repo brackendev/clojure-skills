@@ -67,8 +67,14 @@ Create `<project-name>/deps.edn`:
                           {:git/tag "v0.10.14" :git/sha "1176afd"}}
             :ns-default  build}
   :cljfmt  {:extra-deps  {dev.weavejester/cljfmt {:mvn/version "0.16.6"}}
-            :main-opts   ["-m" "cljfmt.main"]}}}
+            :main-opts   ["-m" "cljfmt.main"]}
+  :dry4clj {:extra-deps  {io.github.unclebob/dry4clj
+                          {:git/url "https://github.com/unclebob/dry4clj.git"
+                           :git/sha "5994ef2bcaaae8d12bcd0afb4f091ae09083228c"}}
+            :main-opts   ["-m" "dry4clj.core"]}}}
 ```
+
+The fixed versions above were current on 2026-10-24. `dry4clj` is not published to Clojars, so the `:dry4clj` alias uses a Git coordinate pinned to a commit. `/clj-fix` uses it for its duplicate-form step.
 
 ### 3. Create Entry Point
 

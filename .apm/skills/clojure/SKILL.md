@@ -22,14 +22,15 @@ Host-specific guidance lives in companion skills, which override this baseline o
 - [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) -- JVM Clojure: Java interop, refs / agents / STM, `with-open`, JVM-typed exceptions, `alter-var-root`, Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / test-runner / nREPL workflow.
 - [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) -- ClojureScript on JavaScript hosts: JS interop, externs and advanced compilation, macro stage separation, `catch :default`, JS-flavored numerics and truthiness, the `cljs.main` workflow.
 - [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) -- ClojureDart on Flutter: Dart interop, type hints and nullability, `cljd.flutter` directives, async, FFI, REPL.
-- [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) web framework on the JVM.
-- [fulcro-skills](https://github.com/brackendev/fulcro-skills) -- the [Fulcro](https://github.com/fulcrologic/fulcro) full-stack framework and its Pathom 3 server.
+- [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) 2 web framework on the JVM.
+- [electric-skills](https://github.com/brackendev/electric-skills) -- the [Electric](https://github.com/hyperfiddle/electric) v3 full-stack reactive framework from Hyperfiddle.
+- [fulcro-skills](https://github.com/brackendev/fulcro-skills) -- the [Fulcro](https://github.com/fulcrologic/fulcro) 3 full-stack framework and its Pathom 3 server.
 
 This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
 
 ## REPL-Driven Development
 
-REPL-driven development is the primary workflow for Clojure family code. Prefer evaluating small forms in a running REPL before changing larger code paths; let file edits follow from working REPL code, not the other way around. When no REPL is reachable, start one before continuing — the host skill names the dialect-specific command (nREPL on the JVM, the socket REPL on ClojureDart).
+REPL-driven development is the primary workflow for Clojure family code. Prefer evaluating small forms in a running REPL before changing larger code paths, and let file edits follow from working REPL code, not the other way around. When the runtime has REPL tooling (an nREPL client, a socket REPL connection, or an editor integration) and no REPL is running, start one before continuing. The host skill names the dialect-specific command (nREPL on the JVM, the socket REPL on ClojureDart). When the runtime has no REPL tooling, do not stall on starting one: edit the files and verify with the project's test and lint commands.
 
 For host-neutral REPL conventions (qualified cross-namespace calls, `in-ns`, and `comment` forms), read `references/project-workflows.md`.
 
@@ -54,6 +55,7 @@ For host-neutral REPL conventions (qualified cross-namespace calls, `in-ns`, and
 17. **Realize lazy sequences when side effects matter.** Use `run!`, `doseq`, `mapv`, or `doall`.
 18. **Use `some->` and `some->>` for nil-safe pipelines.** Short-circuits on first `nil`.
 19. **Prefer `ex-info` for data-carrying exceptions.** Host-typed exceptions belong in the host skill.
+20. **Use the Clojure 1.11 core functions over hand-rolled equivalents.** `update-vals`, `update-keys`, `parse-long`, `parse-double`, `parse-boolean`, `parse-uuid`, `random-uuid`, and `abs` exist on every host. See [Core functions from Clojure 1.11](#core-functions-from-clojure-111).
 
 ## Naming Conventions
 
@@ -698,6 +700,29 @@ The factory functions exist on every host that ships `defrecord` (JVM Clojure, C
 (= x 0)
 ```
 
+### Core functions from Clojure 1.11
+
+Clojure 1.11 added these functions to `clojure.core`, and ClojureScript and ClojureDart provide them as well (checked against ClojureScript 1.12.145 and ClojureDart 0.9.20261002). Prefer them to reductions written by hand and to host parsing calls:
+
+```clojure
+;; good
+(update-vals prices inc)                  ; apply f to every value
+(update-keys row keyword)                 ; apply f to every key
+(parse-long "42")                         ; => 42, or nil when the string is not an integer
+(parse-double "4.2")                      ; => 4.2, or nil
+(parse-boolean "true")                    ; => true; only "true" and "false" parse, anything else is nil
+(parse-uuid "4fe9...")                    ; => a UUID, or nil
+(random-uuid)
+(abs -3)                                  ; => 3
+
+;; bad
+(into {} (map (fn [[k v]] [k (inc v)])) prices)
+(reduce-kv (fn [m k v] (assoc m (keyword k) v)) {} row)
+(Long/parseLong "42")                     ; host interop that throws on bad input
+```
+
+The `parse-*` functions return `nil` for a string they cannot parse, which suits parsing at a boundary: check for `nil` instead of catching a host exception. They throw when the argument is not a string.
+
 ## State Management
 
 This section covers atoms only. Refs, agents, STM, `io!`, and `alter-var-root` are JVM-only and live in [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills).
@@ -871,6 +896,7 @@ Use `#_` to comment out forms instead of `;`:
 - `:require` over `:use`
 - `:as` aliases over `:refer :all`
 - `:refer` only specific vars when needed
+- `:as-alias` when a namespace is needed only for qualified keywords: `[my-app.user :as-alias user]` makes `::user/id` read as `:my-app.user/id` without loading `my-app.user`. Clojure 1.11 and later, ClojureScript, and ClojureDart support it.
 - Sort requires alphabetically
 - Group requires: clojure.core libs, third-party libs, project namespaces
 - Avoid single-segment namespaces (use `my-app.core`, not `my-app`)
