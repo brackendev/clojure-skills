@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.39] - 2026-10-25
+
+### Added
+
+- The `clojure` skill opens with Iron Laws (CLJ-1 through CLJ-12): numbered rules that prevent bugs, data loss, security holes, and false reports of success. The agent does not write code that breaks a law, and when existing code breaks one, it reports the law ID, the location, and the correct pattern, then asks before changing code outside the task. Key Rules that guarded against bugs or security holes moved into the laws, and the remaining Key Rules are renumbered.
+- The `clojure` skill's new `references/untrusted-input.md` covers reading external data with an EDN reader on each host, SQL parameters, and passing shell command arguments separately. Its other references gained examples for lazy sequences inside `with-open`, transients, `contains?` on vectors, `case` with literal constants, money as `BigDecimal` with explicit rounding or as integer minor units, side effects outside `swap!`, side-effect-free namespace loading, macro arguments evaluated at most once, rethrowing `ex-info` with the cause, and allowlisted SQL identifiers.
+
+### Changed
+
+- `clojure-repl` points to Iron Law CLJ-12 for verifying the saved source in a fresh process.
+
 ## [0.1.38] - 2026-10-25
 
 ### Added

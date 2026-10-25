@@ -174,6 +174,22 @@ Use `condp` when testing the same expression repeatedly. Use `case` for compile-
   :dunno)
 ```
 
+`case` test constants must be literals (Iron Law CLJ-6). The docstring says "The test-constants are not evaluated. They must be compile-time literals," so a symbol is compared as a symbol:
+
+```clojure
+(def limit 10)
+
+;; bad: matches the symbol limit, never the number 10
+(case x
+  limit :at-limit
+  :other)
+
+;; good: compare against runtime values with condp or cond
+(condp = x
+  limit :at-limit
+  :other)
+```
+
 ### not=
 
 ```clojure

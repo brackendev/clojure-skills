@@ -22,6 +22,19 @@ Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.clj
 - Avoid single-segment namespaces (use `my-app.core`, not `my-app`)
 - Hyphenated namespace segments map to underscored file paths: `my-app.core` maps to `src/my_app/core.clj` on the JVM, `src/my_app/core.cljs` for ClojureScript, `src/my_app/core.cljd` for ClojureDart
 
+Keep namespace loading free of side effects (Iron Law CLJ-8). Loading a namespace evaluates every top-level form, in tests, at the REPL, on reload, and on the JVM during AOT compilation:
+
+```clojure
+;; bad: connects to the database whenever the namespace loads
+(def conn (db/connect (System/getenv "DATABASE_URL")))
+
+;; good: connect when the application starts
+(defn start [config]
+  {:conn (db/connect (:database-url config))})
+```
+
+`delay` is an acceptable middle ground for a value that should be created once, on first use.
+
 Host-specific import forms (`(:import ...)` on the JVM, Dart package require strings in ClojureDart, `goog` imports in ClojureScript) live in the host skill.
 
 Use idiomatic aliases consistently across the project. Cross-host aliases:

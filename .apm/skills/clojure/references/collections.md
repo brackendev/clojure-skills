@@ -19,6 +19,33 @@ Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.clj
 (m :name)
 ```
 
+### contains? checks keys (Iron Law CLJ-5)
+
+The `contains?` docstring: "for numerically indexed collections like vectors and Java arrays, this tests if the numeric key is within the range of indexes. 'contains?' operates constant or logarithmic time; it will not perform a linear search for a value."
+
+```clojure
+(contains? [:a :b] :a)  ; => false, :a is not an index
+(contains? [:a :b] 1)   ; => true, index 1 exists
+
+;; good: membership in a set, or a linear search with some
+(contains? #{:a :b} :a)
+(some #{:a} [:a :b])
+```
+
+### Transients (Iron Law CLJ-4)
+
+clojure.org: transients "are not designed to be bashed in-place. You must capture and use the return value in the next call."
+
+```clojure
+;; bad: keeps only some of the entries
+(let [t (transient {})]
+  (dotimes [i 20] (assoc! t i i))
+  (persistent! t))
+
+;; good: thread the return value through every call
+(persistent! (reduce (fn [t i] (assoc! t i i)) (transient {}) (range 20)))
+```
+
 ### Sets as predicates
 
 ```clojure
@@ -162,6 +189,20 @@ The factory functions exist on every host that ships `defrecord` (JVM Clojure, C
 (= x 0)
 ```
 
+### Money (Iron Law CLJ-9)
+
+Floating-point numbers cannot represent most decimal fractions exactly, and clojure.org states that "any operation involving a double or float will result in a double":
+
+```clojure
+(+ 0.1 0.2)     ; => 0.30000000000000004
+(+ 0.1M 0.2M)   ; => 0.3M, a BigDecimal on the JVM
+(+ 0.1M 0.2)    ; => 0.30000000000000004, one double turns the result into a double
+(/ 1M 3M)       ; throws "Non-terminating decimal expansion"
+(with-precision 10 :rounding HALF_EVEN (/ 1M 3M))  ; => 0.3333333333M
+```
+
+On the JVM, keep money in `BigDecimal` from parsing to storage, and choose the rounding mode for every division. ClojureScript has no `BigDecimal` literal, and JavaScript numbers are doubles, so store integer minor units such as cents and keep them below `Number.MAX_SAFE_INTEGER` (9007199254740991). ClojureDart integers are 64-bit on native targets but doubles on the web, so the same limit applies there. Format minor units only for display.
+
 ### Core functions from Clojure 1.11
 
 Clojure 1.11 added these functions to `clojure.core`, and ClojureScript and ClojureDart provide them as well (checked against ClojureScript 1.12.145 and ClojureDart 0.9.20261002). Prefer them to reductions written by hand and to host parsing calls:
@@ -208,6 +249,24 @@ Clojure sequences are lazy by default. `map`, `filter`, `remove`, and `take` ret
 ```
 
 When building a result, prefer eager functions (`mapv`, `filterv`, `reduce`) or transducers. When composing transformations for later consumption, lazy sequences are appropriate.
+
+### Lazy sequences and scope (Iron Law CLJ-2)
+
+A lazy sequence is realized when it is read, not when it is created. When it leaves the scope that it depends on, it is realized after that scope has closed:
+
+```clojure
+;; bad: line-seq is realized after with-open closes the reader, and throws "Stream closed"
+(defn read-lines [path]
+  (with-open [r (io/reader path)]
+    (line-seq r)))
+
+;; good: realize the lines while the reader is open
+(defn read-lines [path]
+  (with-open [r (io/reader path)]
+    (doall (line-seq r))))
+```
+
+The same applies to `binding` (the dynamic value is gone when the sequence is read) and to `try` (an exception thrown while realizing the sequence escapes the handler).
 
 ## Strings
 

@@ -28,6 +28,23 @@ Host-specific guidance lives in companion skills, which override this baseline o
 
 This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
 
+## Iron Laws
+
+These rules prevent bugs, data loss, security holes, and false reports of success. Never write code that breaks one. When existing code breaks a law, stop and report the law ID, the location, the offending code, and the correct pattern, then ask before changing code outside the current task. A law overrides any Key Rule or reference that seems to conflict with it. Host and framework skills add their own laws with the prefixes `JVM`, `CLJS`, `CLJD`, `BIFF`, `ELEC`, and `FUL`.
+
+1. **CLJ-1: NEVER `def` INSIDE A FUNCTION BODY.** `def` interns a namespace-global var when the function compiles and resets its value on every call, so concurrent calls race and values leak from one call into the next. Bind locals with `let`, and hold changing state in an atom (`references/state-and-dispatch.md`).
+2. **CLJ-2: REALIZE LAZY SEQUENCES BEFORE THEIR SCOPE CLOSES.** A lazy sequence returned from `with-open`, `binding`, or `try` is realized after the resource is closed, the binding is gone, or the handler has exited: `(with-open [r (io/reader f)] (line-seq r))` throws "Stream closed" when read. Realize it inside the scope with `doall`, `vec`, or `mapv`. Never use `map` or `for` only for side effects, because their effects run only when someone consumes the result. Use `doseq` or `run!` (`references/collections.md`).
+3. **CLJ-3: KEEP `swap!` FUNCTIONS FREE OF SIDE EFFECTS.** The `swap!` docstring says the function "may be called multiple times." JVM Clojure retries it under contention. ClojureScript and ClojureDart call it once, but portable code must not depend on that. Compute the new value in the function, and act after `swap!` returns (`references/state-and-dispatch.md`).
+4. **CLJ-4: USE THE RETURN VALUE OF EVERY TRANSIENT OPERATION.** clojure.org: transients "are not designed to be bashed in-place. You must capture and use the return value in the next call." Calling `assoc!` twenty times in place on one transient map keeps only 8 entries (`references/collections.md`).
+5. **CLJ-5: `contains?` CHECKS KEYS, NEVER VALUES.** On a vector it tests whether an index exists: `(contains? [:a :b] :a)` is `false`. Test membership with a set, as in `(#{:a :b} x)`, or with `some` (`references/collections.md`).
+6. **CLJ-6: `case` CONSTANTS ARE LITERALS, NEVER VARS.** `case` does not evaluate its test constants, so `(case x limit ...)` compares `x` with the symbol `limit`, not with its value. Use `condp =` or `cond` to compare against runtime values (`references/naming-and-functions.md`).
+7. **CLJ-7: EVALUATE EACH MACRO ARGUMENT AT MOST ONCE.** Every place a macro unquotes an argument becomes a copy of that expression, so an argument unquoted twice runs its side effects twice. Bind it once with an auto-gensym, as in `` `(let [v# ~x] ...) ``, unless repeating it is the macro's purpose, as in a loop body (`references/macros.md`).
+8. **CLJ-8: NO SIDE EFFECTS WHEN A NAMESPACE LOADS.** A top-level form that opens a connection, starts a thread, or performs I/O runs whenever the namespace loads: in tests, at the REPL, on reload, and on the JVM during AOT compilation. Start resources from an explicit function, a `delay`, or a component system (`references/namespaces.md`).
+9. **CLJ-9: NEVER USE FLOATING POINT FOR MONEY.** `(+ 0.1 0.2)` is `0.30000000000000004`, and mixing a `BigDecimal` with a double silently yields a double. On the JVM use `BigDecimal` throughout (`0.1M`), with an explicit rounding mode for division, because `(/ 1M 3M)` throws. On ClojureScript and ClojureDart use integer minor units such as cents (`references/collections.md`).
+10. **CLJ-10: READ UNTRUSTED TEXT ONLY WITH AN EDN READER.** `clojure.core/read-string` and `read` "can execute code" and "should be used only with trusted sources," and `eval` and `load-string` run whatever they receive. Use `clojure.edn/read-string` on the JVM, `cljs.reader/read-string` in ClojureScript, and `cljd.edn/read-string` in ClojureDart, and register only safe tag readers (`references/untrusted-input.md`).
+11. **CLJ-11: NEVER SPLICE INPUT INTO SQL OR SHELL COMMANDS.** Pass SQL values as parameters, as in next.jdbc's `["select * from users where id = ?" id]`, and map identifiers such as column names or sort directions through an allowlist. Pass each command argument as a separate string, never through `sh -c` or a single command string, and still validate arguments that reach another program (`references/untrusted-input.md`).
+12. **CLJ-12: VERIFY FROM SAVED FILES, NOT REPL STATE.** A form that works in the REPL proves nothing about the files, and reloading a namespace does not remove stale definitions. Write the change to the source file, then run the project's tests or lint in a fresh process, or after a full reload, before reporting success. The `clojure-repl` skill covers stale REPL state.
+
 ## REPL-Driven Development
 
 REPL-driven development is the primary workflow for Clojure family code. Prefer evaluating small forms in a running REPL before changing larger code paths, and let file edits follow from working REPL code, not the other way around. When the runtime has REPL tooling (an nREPL client, a socket REPL connection, or an editor integration) and no REPL is running, start one before continuing. The host skill names the dialect-specific command (nREPL on the JVM, the socket REPL on ClojureDart). When the runtime has no REPL tooling, do not stall on starting one: edit the files and verify with the project's test and lint commands.
@@ -42,33 +59,32 @@ For host-neutral REPL conventions (qualified cross-namespace calls, `in-ns`, and
 4. **Use `seq` for empty checks.** `(when (seq s) ...)` not `(when-not (empty? s) ...)`.
 5. **Use `when` for single-branch side effects.** Reserve `if` for two branches.
 6. **Use `condp` or `case` over repeated `=` in `cond`.** Reduces duplication.
-7. **No `def` inside `defn`.** Use `let` for local bindings.
-8. **No commas in sequential collections.** Commas are optional in maps.
-9. **Prefer vectors over quoted lists.** `[1 2 3]` not `'(1 2 3)`.
-10. **Do not write macros when functions work.** Macros complicate debugging and composition.
-11. **Keep functions short.** Aim for under 10 LOC. Most work well under 5 LOC.
-12. **Name side-effecting functions with `!`.** `save-user!` not `save-user`.
-13. **Prefer higher-order functions over `loop/recur`.** Use `map`, `filter`, `reduce`.
-14. **Limit positional parameters to three or four.** Use an options map beyond that.
-15. **Use `defn-` for private functions.** Use `^:private` for private vars.
-16. **Use `->Foo` constructors for records.** Not interop syntax. Applies on every host that ships `defrecord`. ClojureDart adds a further reason: the raw interop form requires extra meta/extmap/hash arguments the factory supplies automatically.
-17. **Realize lazy sequences when side effects matter.** Use `run!`, `doseq`, `mapv`, or `doall`.
-18. **Use `some->` and `some->>` for nil-safe pipelines.** Short-circuits on first `nil`.
-19. **Prefer `ex-info` for data-carrying exceptions.** Host-typed exceptions belong in the host skill.
-20. **Use the Clojure 1.11 core functions over hand-rolled equivalents.** `update-vals`, `update-keys`, `parse-long`, `parse-double`, `parse-boolean`, `parse-uuid`, `random-uuid`, and `abs` exist on every host. See "Core functions from Clojure 1.11" in `references/collections.md`.
+7. **No commas in sequential collections.** Commas are optional in maps.
+8. **Prefer vectors over quoted lists.** `[1 2 3]` not `'(1 2 3)`.
+9. **Do not write macros when functions work.** Macros complicate debugging and composition.
+10. **Keep functions short.** Aim for under 10 LOC. Most work well under 5 LOC.
+11. **Name side-effecting functions with `!`.** `save-user!` not `save-user`.
+12. **Prefer higher-order functions over `loop/recur`.** Use `map`, `filter`, `reduce`.
+13. **Limit positional parameters to three or four.** Use an options map beyond that.
+14. **Use `defn-` for private functions.** Use `^:private` for private vars.
+15. **Use `->Foo` constructors for records.** Not interop syntax. Applies on every host that ships `defrecord`. ClojureDart adds a further reason: the raw interop form requires extra meta/extmap/hash arguments the factory supplies automatically.
+16. **Use `some->` and `some->>` for nil-safe pipelines.** Short-circuits on first `nil`.
+17. **Throw `ex-info` with a data map, and keep the cause when rethrowing.** Pass the caught exception as the third argument so the root cause stays in the chain. Host-typed exceptions belong in the host skill.
+18. **Use the Clojure 1.11 core functions over hand-rolled equivalents.** `update-vals`, `update-keys`, `parse-long`, `parse-double`, `parse-boolean`, `parse-uuid`, `random-uuid`, and `abs` exist on every host. See "Core functions from Clojure 1.11" in `references/collections.md`.
 
 ## References
 
-The Key Rules are the short form. Each reference file below holds the detailed guidance and the good and bad examples for one topic. Before writing, reviewing, or refactoring Clojure code, read every reference whose topic the task touches, and read the next one when the work moves to a new topic.
+The Iron Laws and Key Rules are the short form. Each reference file below holds the detailed guidance and the good and bad examples for one topic. Before writing, reviewing, or refactoring Clojure code, read every reference whose topic the task touches, and read the next one when the work moves to a new topic.
 
 | When the task involves | Read |
 |------------------------|------|
-| Naming functions, vars, parameters, or predicates, or designing a function: its length, arity, parameters, conditionals (`when`, `if-let`, `condp`, `case`), function literals, or pre and post conditions | `references/naming-and-functions.md` |
-| Threading macros, `let` bindings and destructuring, `nil`-returning lookups, or throwing `ex-info` | `references/control-flow.md` |
-| Collections, keyword and set idioms, empty checks, laziness, strings, numbers, or the Clojure 1.11 core functions | `references/collections.md` |
+| Naming functions, vars, parameters, or predicates, or designing a function: its length, arity, parameters, conditionals (`when`, `if-let`, `condp`, `case` and its literal constants), function literals, or pre and post conditions | `references/naming-and-functions.md` |
+| Threading macros, `let` bindings and destructuring, `nil`-returning lookups, or throwing and rethrowing `ex-info` | `references/control-flow.md` |
+| Collections, keyword and set idioms, `contains?`, transients, empty checks, laziness, strings, numbers and money, or the Clojure 1.11 core functions | `references/collections.md` |
 | Atoms and other state, multimethods, protocols, or choosing a dispatch mechanism | `references/state-and-dispatch.md` |
 | Writing or reviewing a macro | `references/macros.md` |
 | `ns` forms, requires and aliases, private vars, or metadata | `references/namespaces.md` |
+| Parsing data from outside the program, or building SQL queries and shell commands | `references/untrusted-input.md` |
 | Formatting, indentation, comments, or docstrings | `references/formatting.md` |
 | Writing or reviewing tests | `references/testing.md` |
 | REPL conventions: qualified cross-namespace calls, `in-ns`, and `comment` forms | `references/project-workflows.md` |

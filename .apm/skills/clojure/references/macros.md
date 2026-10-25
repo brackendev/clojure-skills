@@ -46,3 +46,17 @@ Write the desired call site first, then implement the macro. Break complex macro
 ```
 
 (`System/nanoTime` here is for illustration only; host skills cover platform-specific timing.)
+
+### Evaluate each argument at most once (Iron Law CLJ-7)
+
+Every place a macro unquotes an argument becomes a copy of that expression in the expansion. An argument unquoted twice is evaluated twice, along with its side effects:
+
+```clojure
+;; bad: (twice (swap! n inc)) increments n two times
+(defmacro twice [x] `(+ ~x ~x))
+
+;; good: bind the argument once with an auto-gensym
+(defmacro twice [x] `(let [v# ~x] (+ v# v#)))
+```
+
+A macro may evaluate an argument zero times, as `when` does when its test fails, or repeatedly when repetition is its purpose, as in a loop body. What it must not do is copy an argument into the expansion more than once by accident.

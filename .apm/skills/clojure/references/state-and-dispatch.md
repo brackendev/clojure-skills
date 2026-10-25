@@ -20,6 +20,19 @@ This section covers atoms only. Refs, agents, STM, `io!`, and `alter-var-root` a
     ...))
 ```
 
+### No side effects inside swap! (Iron Law CLJ-3)
+
+The `swap!` docstring says the function "may be called multiple times, and thus should be free of side effects." Compute the new value inside the function, and act on the result after `swap!` returns:
+
+```clojure
+;; bad: the message can be sent more than once
+(swap! state (fn [s] (send-email! (:user s)) (update s :sent inc)))
+
+;; good: swap! returns the new value, and the effect runs once
+(let [s (swap! state update :sent inc)]
+  (send-email! (:user s)))
+```
+
 ### swap! over reset!
 
 Prefer `swap!` to derive the new value from the old:

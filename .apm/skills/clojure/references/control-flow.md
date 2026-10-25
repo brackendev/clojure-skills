@@ -143,4 +143,14 @@ Prefer `ex-info` for data-carrying exceptions across every host:
 (throw (ex-info "Invalid input" {:value x :reason :negative}))
 ```
 
+When rethrowing, pass the caught exception as the third argument so the root cause stays in the chain (Key Rule 17 in `SKILL.md`):
+
+```clojure
+;; good: the cause survives
+(try
+  (parse-order input)
+  (catch Exception e  ; host-specific catch type, see the host skill
+    (throw (ex-info "Order import failed" {:input input} e))))
+```
+
 Host skills cover host-typed exceptions, resource cleanup (`with-open` on the JVM), and the catch-all rules (no `Throwable` on the JVM, `:default` in ClojureScript, Dart `Exception` in ClojureDart).
