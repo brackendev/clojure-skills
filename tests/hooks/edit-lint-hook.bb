@@ -103,8 +103,11 @@
 (let [dir (project)
       interop (support/write-file dir "src/app/main.cljd"
                                   "(ns app.main\n  (:require [\"package:flutter/material.dart\" :as m]))\n\n(defn view [] (m/Text \"hi\"))\n")
-      broken (support/write-file dir "src/app/broken.cljd" "(ns app.broken)\n\n(defn view [] (m/Text \"hi\")\n")]
+      broken (support/write-file dir "src/app/broken.cljd" "(ns app.broken)\n\n(defn view [] (m/Text \"hi\")\n")
+      conditional (support/write-file dir "src/app/conditional.cljd"
+                                      "(ns app.conditional)\n\n(def host #?(:cljd :dart :default :other))\n")]
   (support/result :none (:shape (run (claude-edit (session) interop))) "cljd interop: no output")
+  (support/result :none (:shape (run (claude-edit (session) conditional))) "cljd reader conditional: no output")
   (support/check (some-> (:context (run (claude-edit (session) broken))) (str/includes? "[syntax]"))
                  "cljd reader error: reported"))
 

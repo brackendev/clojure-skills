@@ -48,7 +48,7 @@ Omit parentheses around forms that take no extra arguments:
 ;; good: stops if any step returns nil
 (some-> user :address :city str/upper-case)
 
-;; bad: NPE risk if :address is nil
+;; bad: throws when :address is nil
 (-> user :address :city str/upper-case)
 ```
 
@@ -149,8 +149,8 @@ When rethrowing, pass the caught exception as the third argument so the root cau
 ;; good: the cause survives
 (try
   (parse-order input)
-  (catch Exception e  ; host-specific catch type, see the host skill
+  (catch Exception e  ; the JVM catch-all type, see below for the other hosts
     (throw (ex-info "Order import failed" {:input input} e))))
 ```
 
-Host skills cover host-typed exceptions, resource cleanup (`with-open` on the JVM), and the catch-all rules (no `Throwable` on the JVM, `:default` in ClojureScript, Dart `Exception` in ClojureDart).
+The catch-all type differs by host: `Exception` on the JVM, `:default` in ClojureScript, and `Object` in ClojureDart, where `Exception` does not catch `ex-info`. `references/reader-conditionals.md` shows the portable form. The host skills cover host-typed exceptions and resource cleanup: `clojure-jvm/references/errors-and-resources.md` in the `clojure-jvm` skill (clojure-jvm-skills), `clojurescript/references/async-and-errors.md` in the `clojurescript` skill (clojurescript-skills), and `clojuredart/references/errors-and-resources.md` in the `clojuredart` skill (clojuredart-skills).

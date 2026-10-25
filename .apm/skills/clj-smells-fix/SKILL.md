@@ -13,11 +13,11 @@ user-invocable: true
 
 # Clojure Smells Fix
 
-Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), a community catalog of 35 Clojure-specific code smells with descriptions, examples, and source citations. The skill pairs `clj-kondo` static analysis with LLM-assisted detection for smells static analysis cannot catch, then applies the safe subset of findings to source files.
+Review Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), a community catalog of 34 Clojure-specific code smells with descriptions, examples, and source citations. The skill pairs `clj-kondo` static analysis with LLM-assisted detection for smells static analysis cannot catch, then applies the safe subset of findings to source files.
 
 ## Catalog Source
 
-Pinned to upstream commit [`d1ae189`](https://github.com/nufuturo-ufcg/clj-smells-catalog/tree/d1ae1896f518e94f3d4f9257b451d89473b94e1b) (2026-01-19). The smell digest in `references/clj-smells-catalog.md` reflects this snapshot. Update both the pin and the digest when upstream revises the catalog.
+Pinned to upstream commit [`51abf4b`](https://github.com/nufuturo-ufcg/clj-smells-catalog/tree/51abf4baef3298454e88baf086b3413163c4629f) (2026-06-11). The smell digest in `references/clj-smells-catalog.md` reflects this snapshot. Update both the pin and the digest when upstream revises the catalog.
 
 ## Arguments
 
@@ -49,11 +49,12 @@ The skill applies findings in two narrow bands. Everything else is reported.
 **Auto-fixed by default:**
 
 - **Stage 1 mechanical findings** from the `clj-kondo` overlay: redundant `do` blocks (`:redundant-do`, unwrapped), nested `let` forms (`:redundant-let`, merged into the outer binding vector), `:refer :all` (`:refer-all`, expanded to explicit refers for the symbols the namespace actually uses), `:use` (`:use`, rewritten as `:require :refer`), unused `:require` entries (`:unused-namespace`, removed), and unused `let` bindings whose initializers have no side effects (`:unused-binding`, removed). Unused function parameters and destructuring bindings are reported, not rewritten.
-- **Stage 2 DEFECT-tier findings** with a local, well-defined rewrite: macro double-evaluation (bind the argument once in a `let`), unwrapped resource handles (wrap in `with-open` when the JVM `clojure.java.io` type is in scope), blocking forms inside `go` blocks (rewrite `<!!`/`>!!` to `<!`/`>!` when the surrounding form already provides park semantics), load-time side effects inside `def` bodies when every caller is in scope and can be rewritten in the same pass (wrap the right-hand side in `delay` and update every caller to dereference it with `@` or `deref`).
+- **Stage 2 DEFECT-tier findings** with a local, well-defined rewrite: macro double-evaluation (bind the argument once in a `let`), unwrapped resource handles (wrap the handle in `with-open`, and realize any lazy result inside it with `doall` or `vec`. On the JVM, `with-open` calls `.close`, as a `clojure.java.io/reader` result needs. In ClojureDart it calls `.dispose` unless the binding adds a `:dispose` directive such as `:dispose .close`, so rewrite only when the resource's cleanup method is known. ClojureScript has no `with-open`, so report a ClojureScript finding without rewriting it), blocking channel operations inside `go` blocks (rewrite `<!!`, `>!!`, and `alts!!` to `<!`, `>!`, and `alts!` only when the call is lexically inside the `go` body, not inside a nested `fn`, `#()`, `for`, `letfn`, `reify`, or a function the block calls, where the parking form throws "used not in (go ...) block"), load-time side effects inside `def` bodies when every caller is in scope and can be rewritten in the same pass (wrap the right-hand side in `delay` and update every caller to dereference it with `@` or `deref`).
 
 **Reported only, never auto-applied:**
 
-- Stage 1 finding: direct `clojure.lang.RT` usage (`:discouraged-java-method`). No safe general rewrite exists; the skill reports the call sites and suggested replacements.
+- Stage 1 finding: direct `clojure.lang.RT` usage (`:discouraged-java-method`). No safe general rewrite exists, so the skill reports the call sites with the replacement each finding's message names.
+- Stage 1 finding: a symbol used as a `case` test constant (`:case-symbol-test`, reported at `:info`). `case` never evaluates the symbol, which is a defect when the author meant the symbol's value and correct when the symbol itself is the constant, so Stage 2 decides from the code and the skill never rewrites it.
 - Stage 2 `SMELL` and `HINT` findings: maintainability or style improvements that depend on intent.
 - Any Stage 2 `DEFECT` finding outside the list above, where the fix would require changing call sites across the codebase, changing public API shape, or introducing a new dependency. The report describes the suggested change.
 
@@ -109,7 +110,7 @@ clj-kondo --lint <scope> \
 
 Parse the JSON output. Each clj-kondo finding maps to a catalog smell as documented in `references/clj-smells-catalog.md`. Promote verified findings to the report with `clj-kondo` as evidence.
 
-clj-kondo (with overlay) detects the Stage 1 findings. Unless `--report` is set, apply via Edit the rewrite that the Mutation section lists for each finding's linter. Send the findings that the Mutation section marks as reported only, such as direct `clojure.lang.RT` usage, to the suggestions list.
+clj-kondo (with overlay) detects the Stage 1 findings. Unless `--report` is set, apply via Edit the rewrite that the Mutation section lists for each finding's linter. Send the findings that the Mutation section marks as reported only, such as direct `clojure.lang.RT` usage and symbol `case` test constants, to the suggestions list. Report a symbol `case` test constant as a `DEFECT` suggestion when the symbol names a local or a var whose value the code evidently meant to match, and drop it when the code matches symbols as data, as in `(case op + ... - ...)` over operator symbols.
 
 Record each applied edit in the report under "Applied fixes" with `file:line` and a one-line summary.
 
@@ -169,18 +170,18 @@ If no smells found, say so explicitly and still emit the metric table.
 - **`doall` in REPL utilities, one-off scripts, or small bounded sequences** is the explicit intent. Only flag (and only consider auto-fixing) `doall` in production code paths where laziness was the appropriate default.
 - **`with-redefs` in tests** is the canonical Clojure seam for stubbing boundaries. Do not flag it as "Misuse of Dynamic Scope" inside a test namespace.
 - **`:refer :all` for `clojure.test`** is project convention in many Clojure codebases. Auto-fix only when the project's other test files use `:refer` with explicit symbols.
-- **`core.async` channels** are appropriate when the use case requires fan-out, batching, backpressure, or long-running pipelines. Flag "Overengineering with core.async" only when a `promise`, `future`, or plain function would suffice, and never auto-fix this finding.
-- **`Refs in Dependency Vector`** is a Reagent/re-frame-specific smell. Do not flag it outside Reagent contexts, including in plain Clojure and non-reactive ClojureScript.
+- **`core.async` channels** are appropriate when the use case requires fan-out, batching, backpressure, or long-running pipelines. Flag "Overengineering with core.async" only when a plain function, a callback, a JVM `promise` or `future`, or a ClojureScript promise would suffice, and never auto-fix this finding.
+- **`Refs in Dependency Vector`** applies only to the dependency vector of a React effect hook, such as `reagent.hooks/use-effect` or rumext's hooks. Do not flag it anywhere else, including plain Clojure, Reagent components that do not use hooks, and re-frame subscriptions.
 - **Macros** that capture forms, control evaluation order, or generate top-level definitions cannot be replaced with functions. Flag "Unnecessary Macros" only when the macro body is a straightforward expression a function would compute, and never auto-fix it.
 - **`:refer :all` of `clojure.core`** is implicit and never a finding.
 - Mark uncertain findings as uncertain. Do not auto-fix any finding the model is uncertain about; route it to the suggestions list instead.
 
 ## Gotchas
 
-- `--config` merges the overlay over the project's `.clj-kondo/config.edn`, so the overlay's levels take precedence, and a linter the project sets to `:off` (for example `:linters {:redundant-do {:level :off}}`) reports findings again. Treat such a linter as disabled: do not apply or report its findings, and note in the report that the project config disables it.
+- `--config` merges the overlay over the project's `.clj-kondo/config.edn`, so the overlay's levels take precedence, and a linter the project sets to `:off` (for example `:linters {:redundant-do {:level :off}}`) reports findings again. Namespace-local configuration (`:clj-kondo/config` metadata on the `ns` form) is merged after command-line configuration, so it still overrides the overlay for that namespace. Treat such a linter as disabled: do not apply or report its findings, and note in the report that the project config disables it.
 - When `clj-kondo` exits non-zero, output is still on stdout. Parse stdout regardless of exit code; non-zero exit is expected when findings exist.
 - `--config` accepts a file path or an EDN expression, and clj-kondo merges repeated `--config` options. Pass the overlay by absolute path, because the working directory at fix time is the user's project, not the skill directory. clj-kondo has no `--config-file` option and ignores it without an error, so that spelling silently runs without the overlay.
-- ClojureScript (`.cljs`) files trigger different clj-kondo behavior. The overlay is JVM-Clojure focused; some smells (for example atoms-in-atoms) apply equally, others (for example RT usage) do not appear in CLJS code.
-- ClojureDart (`.cljd`) files need ClojureDart's clj-kondo configuration. Import it before linting with `clj-kondo --copy-configs --dependencies --lint "$(clj -Spath)"`, which copies `tensegritics/clojuredart` hooks for `cljd.flutter` and the `dart:core` names. Static calls on Dart classes (for example `DateTime/now`) still report "Unresolved namespace" even with that configuration. Report those findings and never rewrite them. JVM-only smells (RT usage, `with-open` on `clojure.java.io` types) do not apply to `.cljd` code.
+- clj-kondo checks Java methods only in Clojure code, so the `clojure.lang.RT` check never reports in `.cljs` files or in the `:cljs` branch of a `.cljc` file. The other overlay linters apply in every dialect.
+- ClojureDart (`.cljd`) files need ClojureDart's clj-kondo configuration. Import it before linting with `clj-kondo --copy-configs --dependencies --lint "$(clojure -Spath)"`, which copies `tensegritics/clojuredart` hooks for `cljd.flutter` and the `dart:core` names. Static calls on Dart classes (for example `DateTime/now`) still report "Unresolved namespace" even with that configuration. clj-kondo lints `.cljd` files as Clojure, so it reports a reader conditional in a `.cljd` file as the syntax error "Reader conditionals are only allowed in .cljc files", although ClojureDart reads conditionals there. Report those findings as clj-kondo limits and never rewrite them. JVM-only smells, such as RT usage and `clojure.java.io` readers, do not apply to `.cljd` code.
 - `:refer :all` expansion requires reading every symbol the namespace actually uses. When the namespace references symbols through reader-conditional branches, macros, or `eval`, the expansion may miss entries. In that case, route the finding to suggestions rather than auto-fixing.
 - Auto-fixes that touch a `:require` form must preserve the rest of the form (other entries, metadata, comments). Re-format with the project's `cljfmt` configuration after the rewrite to avoid drift.

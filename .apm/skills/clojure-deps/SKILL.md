@@ -31,21 +31,21 @@ This skill covers researching a dependency before using or changing it. It repor
 
 | Build tool | Command |
 |------------|---------|
-| Clojure CLI (`deps.edn`) | `clj -X:deps tree` prints the resolved dependency tree. Add `:aliases '[:test]'` to include an alias. |
+| Clojure CLI (`deps.edn`) | `clojure -X:deps tree` prints the resolved dependency tree. Add `:aliases '[:test]'` to include an alias. |
 | Leiningen (`project.clj`) | `lein deps :tree` |
-| shadow-cljs | With `:deps` in `shadow-cljs.edn`, the Clojure CLI resolves the dependencies, so use `clj -X:deps tree` with the aliases it names. npm packages resolve through `package.json`: `npm ls <package>`. |
+| shadow-cljs | With `:deps` in `shadow-cljs.edn`, the Clojure CLI resolves the dependencies, so use `clojure -X:deps tree` with the aliases it names. npm packages resolve through `package.json`: `npm ls <package>`. |
 | ClojureDart | The `tensegritics/clojuredart` entry in `deps.edn` is a Git coordinate. Its `:tag` and `:sha` name the version. |
 
-To read a library's source for the resolved version, find its jar on the classpath (`clj -Spath | tr ':' '\n' | grep <artifact>`) and list or print files from it with `unzip -l` and `unzip -p`. In a running JVM REPL, `(clojure.repl/source fn-name)` and `(clojure.repl/doc fn-name)` show the loaded version.
+To read a library's source for the resolved version, find its jar on the classpath (`clojure -Spath | tr ':' '\n' | grep <artifact>`) and list or print files from it with `unzip -l` and `unzip -p`. In a running JVM REPL, `(clojure.repl/source fn-name)` and `(clojure.repl/doc fn-name)` show the loaded version.
 
 ## Looking up releases
 
 | Source | Command or URL | Notes |
 |--------|----------------|-------|
-| Clojure CLI | `clj -X:deps find-versions :lib group/artifact` | Lists Maven versions, or Git tags with their SHA for a library whose Git URL the CLI infers from its name, such as an `io.github` library. Add `:n 5` to limit the list. |
-| Clojars | `curl -sSL -H 'Accept: application/json' https://clojars.org/api/artifacts/<group>/<artifact>` | `latest_release` can be a prerelease, for example an `-alpha` version. Read `recent_versions` to find the latest stable release. |
-| Maven Central | `https://repo1.maven.org/maven2/<group path>/<artifact>/maven-metadata.xml` | `<release>` and `<latest>` can name a prerelease (Clojure reports `1.13.0-alpha10` while 1.12 is the stable line). Read the `<versions>` list. |
-| Git dependencies | `git ls-remote --tags <url>` | Pin both `:git/tag` and `:git/sha`. Use the SHA that the tag points to. |
+| Clojure CLI | `clojure -X:deps find-versions :lib group/artifact` | Lists Maven versions, or Git tags with their SHA for a library whose Git URL the CLI infers from its name, such as an `io.github` library. It prints the newest 8 in ascending order, prereleases included. `:n 5` changes the count, and `:n :all` prints every version. |
+| Clojars | `curl -sSL -H 'Accept: application/json' https://clojars.org/api/artifacts/<group>/<artifact>` | `latest_release` can be a prerelease, for example an `-alpha` version, and `latest_version` can be a `-SNAPSHOT`. Read `recent_versions` to find the latest stable release. |
+| Maven Central | `https://repo1.maven.org/maven2/<group path>/<artifact>/maven-metadata.xml` | `<release>` and `<latest>` can name a prerelease, for example an `-alpha` version newer than the latest stable release. Read the `<versions>` list. |
+| Git dependencies | `git ls-remote --tags <url>` | Pin both `:git/tag` and `:git/sha`. Use the commit SHA: for an annotated tag, the line that ends in `^{}`. |
 
 ## Reading documentation
 

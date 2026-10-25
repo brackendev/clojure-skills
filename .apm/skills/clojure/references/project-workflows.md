@@ -20,15 +20,16 @@ Keep function and namespace references fully qualified when crossing namespace b
 (in-ns 'my-app.core)
 ```
 
+ClojureDart's REPL has no `in-ns`. Switch there by evaluating an `(ns my-app.core)` form, as the `clojuredart` skill describes.
+
 ## comment forms
 
-Use `(comment ...)` forms for REPL-driven development. The compiler ignores them, but they serve as a scratchpad for interactive evaluation:
+Use `(comment ...)` forms for REPL-driven development. `comment` ignores its body and returns `nil`, so the forms inside never run when the namespace loads, but they serve as a scratchpad for interactive evaluation:
 
 ```clojure
 (comment
   (process-data sample-input)
-  (time (expensive-operation))
-  )
+  (time (expensive-operation)))
 ```
 
-Place the closing parenthesis on its own line so the last form is easy to evaluate independently.
+Keep the closing parenthesis on the last form, as the Formatting rules require. cljfmt's default `:remove-surrounding-whitespace?` setting moves a parenthesis placed on its own line back onto the last form.

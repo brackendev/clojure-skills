@@ -251,7 +251,7 @@ Avoid more than three or four positional parameters. Use an options map instead:
 
 ### Pre/post conditions
 
-Use pre and post conditions for internal invariants that indicate a programming error. They throw an assertion error and stop running when `*assert*` is false, so validate external input with `ex-info` instead:
+Use pre and post conditions for internal invariants that indicate a programming error. They throw an assertion error, and every host can turn them off: `*assert*` set to false on the JVM, the `:elide-asserts` compiler option in ClojureScript, and release builds in ClojureDart, which compiles them to Dart `assert`. Validate external input with `ex-info` instead:
 
 ```clojure
 ;; internal invariant

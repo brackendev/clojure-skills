@@ -7,18 +7,17 @@ Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.clj
 ```clojure
 (ns my-app.core
   (:require
-   [clojure.string :as str]
    [clojure.set :as set]
+   [clojure.string :as str]
    [my-app.db :as db]
    [my-app.util :as util]))
 ```
 
 - `:require` over `:use`
-- `:as` aliases over `:refer :all`
+- `:as` aliases over `:refer :all`. ClojureDart rejects `:refer :all` with an error.
 - `:refer` only specific vars when needed
-- `:as-alias` when a namespace is needed only for qualified keywords: `[my-app.user :as-alias user]` makes `::user/id` read as `:my-app.user/id` without loading `my-app.user`. Clojure 1.11 and later, ClojureScript, and ClojureDart support it.
-- Sort requires alphabetically
-- Group requires: clojure.core libs, third-party libs, project namespaces
+- `:as-alias` when a namespace is needed only for qualified keywords: `[my-app.user :as-alias user]` makes `::user/id` read as `:my-app.user/id` without loading `my-app.user`. JVM Clojure, ClojureScript, and ClojureDart support it.
+- Sort requires alphabetically, as one list
 - Avoid single-segment namespaces (use `my-app.core`, not `my-app`)
 - Hyphenated namespace segments map to underscored file paths: `my-app.core` maps to `src/my_app/core.clj` on the JVM, `src/my_app/core.cljs` for ClojureScript, `src/my_app/core.cljd` for ClojureDart
 
@@ -26,7 +25,7 @@ Keep namespace loading free of side effects (Iron Law CLJ-8). Loading a namespac
 
 ```clojure
 ;; bad: connects to the database whenever the namespace loads
-(def conn (db/connect (System/getenv "DATABASE_URL")))
+(def conn (db/connect (config/database-url)))
 
 ;; good: connect when the application starts
 (defn start [config]
@@ -45,9 +44,8 @@ Use idiomatic aliases consistently across the project. Cross-host aliases:
 | `clojure.set` | `set` |
 | `clojure.walk` | `walk` |
 | `clojure.edn` | `edn` |
-| `clojure.pprint` | `pp` |
 
-Host-specific aliases (`clojure.java.io`, `clojure.math`, `clojure.tools.logging`, `clojure.spec.alpha`, `clojure.core.async`) live in the host skill.
+ClojureDart resolves each of these `clojure.*` names to its `cljd.*` namespace. `clojure.pprint` (alias `pp`) exists on the JVM and in ClojureScript, but ClojureDart has no pprint namespace. Host-specific aliases (`clojure.java.io`, `clojure.math`, `clojure.tools.logging`, `clojure.spec.alpha`, `clojure.core.async`) live in the host skill.
 
 ## Privacy and Metadata
 
@@ -77,4 +75,4 @@ Use compact metadata notation for boolean flags:
 (def ^{:dynamic true} *config* {})
 ```
 
-Access private vars in tests with `@#'some.ns/var`.
+On the JVM and in ClojureScript, access private vars in tests with `@#'some.ns/var`. ClojureDart compiles `#'some.ns/var` to the quoted symbol, not to a var, so the form does not work there.

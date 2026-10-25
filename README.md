@@ -44,8 +44,9 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/cloju
 
 ## Requirements
 
-- A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 17 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
+- A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 8 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below and for the `edit-lint` hook.
+- [cljfmt](https://github.com/weavejester/cljfmt) for the `/clj-fix` format step. The step uses the first of these that the project has: a `:cljfmt` alias in `deps.edn`, the Leiningen plugin, the standalone `cljfmt` binary, or a Clojure CLI tool installed as `cljfmt`. Without any of them, the format step reports that it was skipped and shows the `:cljfmt` alias to add.
 - [Babashka](https://babashka.org) (`bb`) to run the `edit-lint` hook. Without it, the hook does nothing and prints a notice on standard error.
 - The `clj-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate. Without the alias, the dry step reports that it was skipped and shows the alias to add.
 
@@ -62,9 +63,9 @@ A quick guide to every slash command. The detailed entries under [Skills](#skill
 
 ### Quality
 
-#### `/clj-fix [lint|format|test|dry] [--report]`
+#### `/clj-fix [lint|format|test|dry] [--report] [all]`
 
-Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). The `lint` step applies safe mechanical fixes and the `format` step rewrites files with `cljfmt fix`. The `test` and `dry` steps are pure-read. Pass `--report` to disable writes and preview the lint and format changes without applying them. Each step is also addressable on its own.
+Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, test, dry). The `lint` step applies safe mechanical fixes and the `format` step rewrites files with `cljfmt fix`. The `test` and `dry` steps are pure-read. Pass `--report` to disable writes and preview the lint and format changes without applying them. Each step is also addressable on its own, and `all` runs every step, the same as no argument.
 
 ```bash
 /clj-fix
@@ -86,7 +87,7 @@ Fix Clojure code against the [clj-smells catalog](https://github.com/nufuturo-uf
 
 ### Auto-triggered
 
-These skills activate from conversation context. They cannot be invoked directly.
+These skills activate from conversation context. They have no slash commands, except in Gemini CLI, which offers every skill as one.
 
 | Skill | Triggers |
 |-------|----------|
@@ -98,11 +99,11 @@ These skills activate from conversation context. They cannot be invoked directly
 
 ## Hooks
 
-The package includes one hook, `edit-lint`. After the agent edits a Clojure family file (`.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb`), the hook lints that file with clj-kondo and returns the findings to the agent in the same turn. An unbalanced delimiter or an unresolved symbol is therefore caught before the agent runs the code. The hook never changes a file.
+The package includes one hook, `edit-lint`. After the agent edits a Clojure family file (`.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb`), the hook lints that file with clj-kondo and returns the findings to the agent in the same turn. An unbalanced delimiter or an unresolved symbol is therefore caught before the agent runs the code. The hook never changes a source file. clj-kondo does update its cache under `.clj-kondo/.cache` when the project has a `.clj-kondo` directory.
 
 - clj-kondo runs from the project root with the project's own `.clj-kondo` configuration and cache, so a linter the project turns off stays quiet. The project root is the nearest directory with `deps.edn`, `project.clj`, `shadow-cljs.edn`, `bb.edn`, or `.clj-kondo`, so a nested project uses its own configuration.
 - The report lists errors first and shows at most twelve findings per file. A finding already reported for a file is not repeated in the same session. The report says that some findings may predate the latest edit, and it notes that an unresolved symbol can come from a macro that clj-kondo does not know.
-- In `.cljd` files the hook reports syntax errors only. Without ClojureDart's exported configuration, clj-kondo reports Dart interop as unresolved.
+- In `.cljd` files the hook reports syntax errors only. Without ClojureDart's exported configuration, clj-kondo reports Dart interop as unresolved. clj-kondo also reports a reader conditional in a `.cljd` file as a syntax error, but ClojureDart reads conditionals there, so the hook leaves that finding out.
 - The hook skips files under `target/`, `node_modules/`, `.cpcache/`, `.shadow-cljs/`, `.clj-kondo/`, `cljd-out/`, `vendor/`, `third_party/`, `build/`, and `dist/`, and files that `.gitignore` excludes.
 - The hook sees edits made through the runtime's file editing tools. A file changed by a shell command, such as `sed -i`, is not linted.
 - When clj-kondo is not installed, the hook tells the agent once per session that it is inactive.

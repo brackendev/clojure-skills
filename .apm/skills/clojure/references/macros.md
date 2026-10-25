@@ -34,18 +34,15 @@ Write the desired call site first, then implement the macro. Break complex macro
 
 ```clojure
 ;; good: macro is thin sugar over a function
-(defn perform-with-timing [label thunk]
-  (let [start (System/nanoTime)
-        result (thunk)
-        elapsed (- (System/nanoTime) start)]
-    (println label "took" elapsed "ns")
-    result))
+(defn perform-with-label [label thunk]
+  (println "running" label)
+  (time (thunk)))
 
-(defmacro with-timing [label & body]
-  `(perform-with-timing ~label (fn [] ~@body)))
+(defmacro with-label [label & body]
+  `(perform-with-label ~label (fn [] ~@body)))
 ```
 
-(`System/nanoTime` here is for illustration only; host skills cover platform-specific timing.)
+`time` exists on every host, so this example runs unchanged on the JVM, in ClojureScript, and in ClojureDart.
 
 ### Evaluate each argument at most once (Iron Law CLJ-7)
 

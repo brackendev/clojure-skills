@@ -36,6 +36,6 @@ Use `are` for tabular tests:
     ""        true))
 ```
 
-`thrown?` and `thrown-with-msg?` accept host-specific exception types. Examples and host-specific guidance (JVM types, ClojureScript `:default`, ClojureDart `Exception`) live in the host skill.
+`thrown?` and `thrown-with-msg?` take a host exception type. The host skills cover the types and examples: the `clojure-jvm` skill itself (clojure-jvm-skills), `clojurescript/references/testing.md` in the `clojurescript` skill (clojurescript-skills), and `clojuredart/references/errors-and-resources.md` in the `clojuredart` skill (clojuredart-skills).
 
-Prefer passing dependencies as function arguments. `with-redefs` exists on the JVM and in ClojureScript but not in ClojureDart; the JVM and ClojureScript skills cover the trade-offs there.
+Prefer passing dependencies as function arguments. `with-redefs` exists on the JVM and in ClojureScript but not in ClojureDart. The JVM and ClojureScript skills cover the trade-offs there.

@@ -6,6 +6,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.40] - 2026-10-25
+
+### Added
+
+- The `clojure` skill has a reader conditionals reference. It covers the platform tags, why a conditional with no matching branch reads nothing instead of `nil`, splicing with `#?@`, the file types that read conditionals, and the portable patterns for a conditional require and a catch-all `catch` type: `Exception` on the JVM, `:default` in ClojureScript, and `Object` in ClojureDart. It explains why `:clj` comes last among the platform tags in a file that ClojureDart also compiles.
+- `/clj-fix` reports a `.cljfmt.edn` that writes a regular expression as `#"..."`, which cljfmt cannot read, and shows the `#re` form, without editing the file unless you confirm.
+- `/clj-smells-fix` and `/clj-fix` report a symbol used as a `case` test constant, which `case` compares as a literal instead of evaluating it. The finding is listed for review, is never rewritten, and does not fail the lint step, because such a symbol can be deliberate.
+- `/clj-smells-fix` detects calls to every `clojure.lang.RT` method that a public `clojure.core` function wraps, and to `RT/var`, `RT/iter`, `RT/classForName`, and `RT/loadClassForName`. Each finding names the public replacement, or says that none exists.
+- The `clojure-repl` skill explains that clojure-mcp's recommended `:repl` profile provides only evaluation, port listing, and delimiter repair, and that clojure-mcp finds a REPL started after it without a restart. It also notes that nREPL leaves a stale `.nrepl-port` file when its process is killed, and that reloading a test namespace does not reload the source namespace it tests.
+
+### Changed
+
+- The `clojure` skill presents `update-vals`, `update-keys`, the `parse-*` functions, `random-uuid`, `abs`, and the `:as-alias` require option as core features on every host, without naming the Clojure release that introduced them.
+- `/clj-smells-fix` follows the clj-smells catalog at commit `51abf4b` (2026-06-11), which documents 34 smells. The digest takes the catalog's current descriptions. Non-Idiomatic Record Construction flags only the `(Foo. ...)` interop constructor, Namespace Load Side Effects covers top-level `require` and `requiring-resolve` calls, Relying on Load-Time Side Effects covers top-level values computed from mutable state, and Refs in Dependency Vector covers the dependency vectors of React effect hooks, such as `reagent.hooks/use-effect`.
+- The `/clj-fix` format step runs cljfmt through the first runner the project supports: a `:cljfmt` alias in `deps.edn`, the Leiningen plugin, the `cljfmt` binary, or a Clojure CLI tool. The test step runs the project's own test command: `clojure -X:test`, `clojure -M:test`, `bin/kaocha`, or `lein test`. Each step reports `SKIPPED` when the project has no way to run it.
+- When a shadow-cljs project reads its dependencies from `deps.edn`, `/clj-fix` also lints and scans the `:extra-paths` of the aliases that `shadow-cljs.edn` names.
+- The `clojure-repl` skill checks that a JVM REPL runs in the current checkout, passes code to `clj-nrepl-eval` through a heredoc, sets a session-wide print limit with `set!`, keeps nREPL on its default local address, and finds the ClojureDart REPL port in `REPL.lock`, noting that `clojure -M:cljd watch` and web targets write that file without serving a REPL.
+- The `clojure-debug` skill recognizes the printing phase, reported as "Error printing return value", in which a lazy result throws while the REPL prints it.
+- The `clojure-deps` skill explains that `find-versions` lists prereleases, that the Clojars `latest_version` field can name a snapshot, and which commit SHA to pin for an annotated Git tag.
+- The README lists cljfmt among the requirements. It also states that the `edit-lint` hook leaves source files unchanged while clj-kondo updates its own cache.
+- The `clojure` skill states its Iron Laws and references for every host, with examples that run unchanged on the JVM, in ClojureScript, and in ClojureDart. JVM examples (`with-open` over a reader, `BigDecimal` arithmetic, next.jdbc calls, `clojure.java.shell`, `babashka.process`, `System/nanoTime`, and `System/getenv`) are replaced with portable ones, such as lazy results of `binding` and `try`, HoneySQL queries, and argument vectors for external commands. Each topic points to the reference file in the JVM, ClojureScript, or ClojureDart skill that covers the host details.
+- When `/clj-fix` finds no cljfmt runner, it shows the `:cljfmt` alias to add. The alias uses `:replace-deps`, so cljfmt runs without the project's dependencies and still works when one of them conflicts with cljfmt or cannot be resolved. The format step passes source paths in the form each runner accepts, explains that cljfmt ignores `.cljfmt.clj` and `cljfmt.clj` unless `--read-clj-config-files` is passed and asks before passing it, and the lint step formats the files it rewrites with the same runner.
+- The skills run Clojure CLI commands as `clojure` instead of `clj`, because `clj` exits with "Please install rlwrap" where `rlwrap` is not installed.
+- The README `/clj-fix` heading shows the `all` keyword, which the command already accepted.
+- The `clojure-lenses` skill limits spec, Malli, Component, Integrant, and Mount to the JVM and ClojureScript, and Ring to the JVM, and suggests the ClojureDart equivalent. It says "host interop" instead of "Java interop", and that no Clojure host has Erlang-style supervisors.
+- The `clojure-debug` skill says which host prints each error format it recognizes.
+- `/clj-smells-fix` describes its `with-open` rewrite for each host: on the JVM `with-open` calls `.close`, in ClojureDart it calls `.dispose` unless a `:dispose` directive names another method, and in ClojureScript, which has no `with-open`, the finding is reported without a rewrite.
+
+### Fixed
+
+- The README states the Java requirement that Clojure documents, Java 8 or higher. It said Java 17 or higher.
+- The README says that the auto-triggered skills have no slash commands, except in Gemini CLI. It said that they could not be invoked directly.
+- `/clj-fix` no longer fails in the format step of a project whose `deps.edn` has no `:cljfmt` alias.
+- `/clj-smells-fix` rewrites `<!!`, `>!!`, and `alts!!` in a `go` block only when the call is lexically inside the `go` body, because a parking operation inside a nested function throws. Its `with-open` rewrite realizes a lazy result inside the form, so the fixed code does not fail with "Stream closed".
+- The clj-smells digest corrects several entries. Blocking Inside Go describes core.async 1.9.865, whose go blocks run on a cached thread pool, and recommends `io-thread` and the `clojure.core.async.go-checking` property. Nested Forms does not suggest chaining `when-let` or `if-let`, which accept one binding. Improper Emptiness Check replaces `(= 0 (count coll))` with `empty?`, not with `seq`, which inverted the test. Verbose Checks warns that `zero?`, `pos?`, and `neg?` throw on non-numbers. Private Multimethods shows `(defmulti ^:private ...)`, and Production `doall` treats realization inside `with-open`, `binding`, or `try` as correct.
+- The `clojure` skill's host statements hold on every host. In-place `assoc!` keeps 8 of 20 entries on JVM Clojure and ClojureScript. ClojureDart has no `clojure.pprint`, rejects `:refer :all`, compiles `#'some.ns/var` to a symbol, and switches REPL namespaces with an `ns` form instead of `in-ns`. ClojureDart's `parse-long` accepts surrounding whitespace and a `0x` prefix, and ClojureScript reads `0.1M` as an ordinary JavaScript number. The skill also names how each host turns off pre and post conditions, and shows that `[clojure.edn :as edn]` works on every host.
+- The `clojure` skill's `ns` example sorts its requires alphabetically, and the skill does not ask for requires grouped by origin, which conflicted with sorting them as the Clojure Style Guide shows.
+- The `clojure` skill keeps the closing parenthesis of a `comment` form on its last form, which is how cljfmt formats it. The skill asked for the parenthesis on its own line, which the `/clj-fix` format step undid.
+- The `clojure-repl` skill states that clojure-mcp also repairs unbalanced delimiters without reporting it, that `clj-nrepl-eval --reset-session` keeps defined vars, that `clj-nrepl-eval` exits 0 when an evaluation fails, and that `*ns*` is `nil` in a shadow-cljs ClojureScript session. It warns that Biff's `prod-nrepl` task writes the production port to `.nrepl-port` while it runs.
+- The `clojure-lenses` skill names refs, agents, `send`, and `dosync` as JVM features, and `with-redefs` as unavailable in ClojureDart.
+- The `edit-lint` hook no longer reports a reader conditional in a `.cljd` file as a syntax error. ClojureDart reads conditionals in `.cljd` files.
+- The dry4clj alias that `/clj-fix` shows is indented the way cljfmt formats it, so the alias passes `cljfmt check` when pasted into `deps.edn`.
+- The `clojure` skill names `Object` and `dynamic` as ClojureDart's catch-all types, and `cljd.core/ExceptionInfo` as the type that catches `ex-info`. It named Dart's `Exception`, which does not catch `ex-info`.
+- The `clojure` skill's money guidance states that ClojureDart compiles `0.1M` to an ordinary double, so the `M` suffix gives no decimal precision there.
+- The `clojure` skill's untrusted input reference states that `cljs.reader/read-string` also accepts an options map, and that both of its forms apply every tag parser registered with `register-tag-parser!`.
+- `/clj-smells-fix` notes that clj-kondo checks `clojure.lang.RT` calls in `.cljd` files, which it lints as Clojure, and that it reports a reader conditional there as a syntax error. The clj-smells digest labels the blocking `go` examples as JVM code, because ClojureScript core.async has no `<!!`, `>!!`, or `alts!!`.
+
+### Removed
+
+- The `clj-smells-fix` clj-kondo overlay does not name a minimum clj-kondo version.
+
 ## [0.1.39] - 2026-10-25
 
 ### Added

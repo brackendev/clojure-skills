@@ -9,10 +9,9 @@
 ;; linter corresponds to a Stage 1 detection in references/clj-smells-catalog.md.
 
 {:linters
- {;; Implicit Namespace Dependencies
+ {;; Implicit Namespace Dependencies (:refer :all and :use). Long explicit
+  ;; :refer lists (Excessive Refers) have no linter and are left to Stage 2.
   :refer-all {:level :warning}
-
-  ;; Excessive Refers (partial coverage; explicit-large refers handled by LLM)
   :use {:level :warning}
 
   ;; Redundant do block
@@ -21,27 +20,82 @@
   ;; Nested Forms (nested let)
   :redundant-let {:level :warning}
 
-  ;; Discourage internal RT class usage. clojure.lang.RT members are Java
-  ;; static methods, not vars, so :discouraged-var never matches them.
-  ;; :discouraged-java-method requires clj-kondo v2025.06.05 or later.
+  ;; Case with Non-Literal Test Values. Off by default in clj-kondo because a
+  ;; symbol test constant is sometimes deliberate, so it reports at :info:
+  ;; the finding is evidence for review, never an automatic fix, and never a
+  ;; lint failure. Opt out per form with #_{:clj-kondo/ignore [:case-symbol-test]}.
+  :case-symbol-test {:level :info}
+
+  ;; Direct usage of clojure.lang.RT. RT members are Java static methods, not
+  ;; vars, so :discouraged-var never matches them. clj-kondo checks Java
+  ;; methods only in Clojure (:clj) code: .clj files, the :clj branch of
+  ;; .cljc files, and .cljd files, which it lints as Clojure. .cljs files
+  ;; never report them. The list holds every RT method that a public clojure.core
+  ;; function wraps (checked against clojure-1.12.6), the RT methods found in
+  ;; published libraries, and RT/var, which creates what it looks up.
+  ;; RT/loadLibrary is left out: it has no clojure.core equivalent, and
+  ;; RT.java describes it as loading "a library in the System ClassLoader
+  ;; instead of Clojure's own".
   :discouraged-java-method
   {clojure.lang.RT
-   {iter
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    get
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    nth
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    count
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    seq
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    conj
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    assoc
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}
-    dissoc
-    {:message "Direct use of clojure.lang.RT bypasses Clojure's public API and is fragile across versions."}}}
+   {;; Sequences and collections
+    seq {:message "clojure.lang.RT is internal. Use clojure.core/seq."}
+    first {:message "clojure.lang.RT is internal. Use clojure.core/first."}
+    next {:message "clojure.lang.RT is internal. Use clojure.core/next."}
+    more {:message "clojure.lang.RT is internal. Use clojure.core/rest."}
+    cons {:message "clojure.lang.RT is internal. Use clojure.core/cons."}
+    conj {:message "clojure.lang.RT is internal. Use clojure.core/conj."}
+    assoc {:message "clojure.lang.RT is internal. Use clojure.core/assoc."}
+    dissoc {:message "clojure.lang.RT is internal. Use clojure.core/dissoc."}
+    get {:message "clojure.lang.RT is internal. Use clojure.core/get."}
+    nth {:message "clojure.lang.RT is internal. Use clojure.core/nth."}
+    count {:message "clojure.lang.RT is internal. Use clojure.core/count."}
+    contains {:message "clojure.lang.RT is internal. Use clojure.core/contains?."}
+    find {:message "clojure.lang.RT is internal. Use clojure.core/find."}
+    keys {:message "clojure.lang.RT is internal. Use clojure.core/keys."}
+    vals {:message "clojure.lang.RT is internal. Use clojure.core/vals."}
+    peek {:message "clojure.lang.RT is internal. Use clojure.core/peek."}
+    pop {:message "clojure.lang.RT is internal. Use clojure.core/pop."}
+    subvec {:message "clojure.lang.RT is internal. Use clojure.core/subvec."}
+    isReduced {:message "clojure.lang.RT is internal. Use clojure.core/reduced?."}
+    canSeq {:message "clojure.lang.RT is internal. Use clojure.core/seqable?."}
+    chunkIteratorSeq {:message "clojure.lang.RT is internal. Use clojure.core/iterator-seq."}
+    iter {:message "clojure.lang.RT is internal, and clojure.core has no public equivalent. Walk the collection with seq, reduce, or eduction, or call .iterator on a java.lang.Iterable."}
+
+    ;; Arrays
+    toArray {:message "clojure.lang.RT is internal. Use clojure.core/to-array."}
+    object_array {:message "clojure.lang.RT is internal. Use clojure.core/object-array."}
+    seqToTypedArray {:message "clojure.lang.RT is internal. Use clojure.core/into-array."}
+    aget {:message "clojure.lang.RT is internal. Use clojure.core/aget."}
+    aset {:message "clojure.lang.RT is internal. Use clojure.core/aset."}
+    alength {:message "clojure.lang.RT is internal. Use clojure.core/alength."}
+    aclone {:message "clojure.lang.RT is internal. Use clojure.core/aclone."}
+
+    ;; Coercions
+    booleanCast {:message "clojure.lang.RT is internal. Use clojure.core/boolean."}
+    byteCast {:message "clojure.lang.RT is internal. Use clojure.core/byte."}
+    charCast {:message "clojure.lang.RT is internal. Use clojure.core/char."}
+    shortCast {:message "clojure.lang.RT is internal. Use clojure.core/short."}
+    intCast {:message "clojure.lang.RT is internal. Use clojure.core/int."}
+    longCast {:message "clojure.lang.RT is internal. Use clojure.core/long."}
+    floatCast {:message "clojure.lang.RT is internal. Use clojure.core/float."}
+    doubleCast {:message "clojure.lang.RT is internal. Use clojure.core/double."}
+    uncheckedByteCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-byte."}
+    uncheckedCharCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-char."}
+    uncheckedShortCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-short."}
+    uncheckedIntCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-int."}
+    uncheckedLongCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-long."}
+    uncheckedFloatCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-float."}
+    uncheckedDoubleCast {:message "clojure.lang.RT is internal. Use clojure.core/unchecked-double."}
+
+    ;; Reading, loading, and names
+    readString {:message "clojure.lang.RT is internal. Use clojure.core/read-string for trusted code only, and clojure.edn/read-string for data from outside the program."}
+    load {:message "clojure.lang.RT is internal. Use require for a namespace, or clojure.core/load for a classpath resource."}
+    nextID {:message "clojure.lang.RT is internal. Use gensym for a unique symbol, or an atom for a counter."}
+    var {:message "clojure.lang.RT/var creates the namespace and interns the var when they are missing. Use requiring-resolve or find-var to look up a var, or intern to create one."}
+    addURL {:message "clojure.lang.RT is internal. Use clojure.repl.deps/add-lib to add a library at the REPL."}
+    classForName {:message "clojure.lang.RT is internal, and clojure.core has no public equivalent. (resolve 'some.Class) looks the class up with RT/classForName and returns nil when the class is missing."}
+    loadClassForName {:message "clojure.lang.RT is internal, and clojure.core has no public equivalent. (resolve 'some.Class) looks the class up with RT/classForName and returns nil when the class is missing."}}}
 
   ;; Supporting context for several smells (unused bindings often appear
   ;; in conditional build-up patterns).

@@ -173,12 +173,19 @@
         (catch Exception _
           {:error (str "clj-kondo produced no readable output: " (str/trim (:err result)))})))))
 
+(def cljd-reader-conditional-message
+  "Reader conditionals are only allowed in .cljc files")
+
 (defn relevant-findings
   "ClojureDart files lint without ClojureDart's exported clj-kondo configuration,
-  which reports Dart interop as unresolved. Only syntax errors are reliable there."
+  which reports Dart interop as unresolved. Only syntax errors are reliable there.
+  clj-kondo lints .cljd files as Clojure, so it reports a reader conditional as a
+  syntax error, but ClojureDart reads conditionals in .cljd files."
   [path findings]
   (cond->> findings
-    (= "cljd" (extension path)) (filter #(= "syntax" (:type %)))))
+    (= "cljd" (extension path))
+    (filter #(and (= "syntax" (:type %))
+                  (not= cljd-reader-conditional-message (:message %))))))
 
 (defn finding-key
   "Identifies a finding by its type, message, and source line, so a finding that

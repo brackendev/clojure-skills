@@ -15,13 +15,13 @@ Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.clj
 ;; bad: verbose
 (get m :name)
 
-;; bad: NPE risk if m is nil
+;; bad: throws when m is nil
 (m :name)
 ```
 
 ### contains? checks keys (Iron Law CLJ-5)
 
-The `contains?` docstring: "for numerically indexed collections like vectors and Java arrays, this tests if the numeric key is within the range of indexes. 'contains?' operates constant or logarithmic time; it will not perform a linear search for a value."
+The `contains?` docstring on every host says that "for numerically indexed collections like vectors" it "tests if the numeric key is within the range of indexes" and that "it will not perform a linear search for a value."
 
 ```clojure
 (contains? [:a :b] :a)  ; => false, :a is not an index
@@ -37,7 +37,7 @@ The `contains?` docstring: "for numerically indexed collections like vectors and
 clojure.org: transients "are not designed to be bashed in-place. You must capture and use the return value in the next call."
 
 ```clojure
-;; bad: keeps only some of the entries
+;; bad: keeps only some of the entries (8 of 20 on JVM Clojure and ClojureScript)
 (let [t (transient {})]
   (dotimes [i 20] (assoc! t i i))
   (persistent! t))
@@ -191,21 +191,21 @@ The factory functions exist on every host that ships `defrecord` (JVM Clojure, C
 
 ### Money (Iron Law CLJ-9)
 
-Floating-point numbers cannot represent most decimal fractions exactly, and clojure.org states that "any operation involving a double or float will result in a double":
+Floating-point numbers cannot represent most decimal fractions exactly, on every host:
 
 ```clojure
 (+ 0.1 0.2)     ; => 0.30000000000000004
-(+ 0.1M 0.2M)   ; => 0.3M, a BigDecimal on the JVM
-(+ 0.1M 0.2)    ; => 0.30000000000000004, one double turns the result into a double
-(/ 1M 3M)       ; throws "Non-terminating decimal expansion"
-(with-precision 10 :rounding HALF_EVEN (/ 1M 3M))  ; => 0.3333333333M
 ```
 
-On the JVM, keep money in `BigDecimal` from parsing to storage, and choose the rounding mode for every division. ClojureScript has no `BigDecimal` literal, and JavaScript numbers are doubles, so store integer minor units such as cents and keep them below `Number.MAX_SAFE_INTEGER` (9007199254740991). ClojureDart integers are 64-bit on native targets but doubles on the web, so the same limit applies there. Format minor units only for display.
+Keep money in an exact decimal type from parsing to storage where the host has one, and never mix it with floating-point values. Where the host has no decimal type, store integer minor units such as cents and format them only for display.
 
-### Core functions from Clojure 1.11
+- **JVM Clojure** has `BigDecimal`. `clojure-jvm/references/numbers.md` in the `clojure-jvm` skill (clojure-jvm-skills) covers `M` literals, the double contagion of mixed arithmetic, division with an explicit rounding mode, and parsing money at a boundary.
+- **ClojureScript** has no decimal type and reads `0.1M` as an ordinary JavaScript number, so the `M` suffix gives no decimal precision there. JavaScript numbers are doubles, so keep minor units below `Number.MAX_SAFE_INTEGER` (9007199254740991). `clojurescript/references/host-semantics.md` in the `clojurescript` skill (clojurescript-skills) covers JavaScript numbers and money.
+- **ClojureDart** has no decimal type in its core library. It compiles `0.1M` to a Dart double, so `(+ 0.1M 0.2M)` is `0.30000000000000004` there, and `cljd.edn/read-string` throws "BigDecimal not supported yet." on `"0.1M"`. Its integers are 64-bit on native targets but doubles on the web, so the `Number.MAX_SAFE_INTEGER` limit applies on the web. `clojuredart/references/errors-and-resources.md` in the `clojuredart` skill (clojuredart-skills) covers `M`, `N`, and ratio literals.
 
-Clojure 1.11 added these functions to `clojure.core`, and ClojureScript and ClojureDart provide them as well (checked against ClojureScript 1.12.145 and ClojureDart 0.9.20261002). Prefer them to reductions written by hand and to host parsing calls:
+### Core functions for maps, parsing, and UUIDs
+
+These `clojure.core` functions exist in JVM Clojure, ClojureScript, and ClojureDart (checked against ClojureScript 1.12.145 and ClojureDart 0.9.20261002). Prefer them to reductions written by hand and to host parsing calls:
 
 ```clojure
 ;; good
@@ -221,10 +221,10 @@ Clojure 1.11 added these functions to `clojure.core`, and ClojureScript and Cloj
 ;; bad
 (into {} (map (fn [[k v]] [k (inc v)])) prices)
 (reduce-kv (fn [m k v] (assoc m (keyword k) v)) {} row)
-(Long/parseLong "42")                     ; host interop that throws on bad input
+(Long/parseLong "42")                     ; a JVM host call, which throws on bad input
 ```
 
-The `parse-*` functions return `nil` for a string they cannot parse, which suits parsing at a boundary: check for `nil` instead of catching a host exception. They throw when the argument is not a string.
+The `parse-*` functions return `nil` for a string they cannot parse, which suits parsing at a boundary: check for `nil` instead of catching a host exception. They throw when the argument is not a string. The hosts accept different edge cases: ClojureDart's `parse-long` calls Dart's `int.tryParse`, which accepts surrounding whitespace and a `0x` hexadecimal prefix, so `(parse-long " 42")` returns `42` there and `nil` on the JVM and in ClojureScript. When the accepted format matters, match the string against a regular expression before parsing it.
 
 ## Laziness
 
@@ -252,21 +252,34 @@ When building a result, prefer eager functions (`mapv`, `filterv`, `reduce`) or 
 
 ### Lazy sequences and scope (Iron Law CLJ-2)
 
-A lazy sequence is realized when it is read, not when it is created. When it leaves the scope that it depends on, it is realized after that scope has closed:
+A lazy sequence is realized when it is read, not when it is created. When it leaves the scope that it depends on, it is realized after that scope has closed. These examples behave the same on the JVM, in ClojureScript, and in ClojureDart:
 
 ```clojure
-;; bad: line-seq is realized after with-open closes the reader, and throws "Stream closed"
-(defn read-lines [path]
-  (with-open [r (io/reader path)]
-    (line-seq r)))
+(def ^:dynamic *rate* 1)
 
-;; good: realize the lines while the reader is open
-(defn read-lines [path]
-  (with-open [r (io/reader path)]
-    (doall (line-seq r))))
+(defn parse-all [inputs]
+  (map parse-one inputs))   ; lazy: parse-one runs when the result is read
+
+;; bad: the sequence is read after binding ends, so it uses the root value: (1 2 3)
+(binding [*rate* 10]
+  (map #(* % *rate*) [1 2 3]))
+
+;; good: realize it while the binding is in effect: [10 20 30]
+(binding [*rate* 10]
+  (mapv #(* % *rate*) [1 2 3]))
+
+;; bad: parse-all returns a lazy sequence, so its exception is thrown after try returns
+(try
+  (parse-all inputs)
+  (catch #?(:cljd Object :cljs :default :clj Exception) _ :invalid))
+
+;; good: the exception is thrown inside try
+(try
+  (doall (parse-all inputs))
+  (catch #?(:cljd Object :cljs :default :clj Exception) _ :invalid))
 ```
 
-The same applies to `binding` (the dynamic value is gone when the sequence is read) and to `try` (an exception thrown while realizing the sequence escapes the handler).
+The same applies to `with-open`, which closes the resource before a lazy result is read. `clojure-jvm/references/errors-and-resources.md` in the `clojure-jvm` skill (clojure-jvm-skills) shows the JVM reader case, which fails with "Stream closed", and `clojuredart/references/errors-and-resources.md` in the `clojuredart` skill (clojuredart-skills) covers ClojureDart's `with-open`. ClojureScript has no `with-open`. Release resources there in `try`/`finally`, as `clojurescript/references/async-and-errors.md` in the `clojurescript` skill (clojurescript-skills) describes. `references/reader-conditionals.md` explains the catch-all types in the `try` example.
 
 ## Strings
 

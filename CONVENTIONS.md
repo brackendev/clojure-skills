@@ -112,7 +112,7 @@ The skill writes when the `format` or `lint` step runs without `--report`. The `
 /clj-smells-fix src/api --report        # report-only on the given path
 ```
 
-The skill writes when a finding falls within the documented safety band: Stage 1 mechanical findings from the `clj-kondo` overlay, and Stage 2 `DEFECT`-tier findings with a local well-defined rewrite. `SMELL`, `HINT`, direct `clojure.lang.RT` usage, and `DEFECT` findings outside the band remain report-only. With `--report`, everything is reported as a suggestion. The `## Mutation` section in the skill body lists the exact rewrites the band covers.
+The skill writes when a finding falls within the documented safety band: Stage 1 mechanical findings from the `clj-kondo` overlay, and Stage 2 `DEFECT`-tier findings with a local well-defined rewrite. `SMELL`, `HINT`, direct `clojure.lang.RT` usage, symbols used as `case` test constants, and `DEFECT` findings outside the band remain report-only. With `--report`, everything is reported as a suggestion. The `## Mutation` section in the skill body lists the exact rewrites the band covers.
 
 ## Exemptions
 

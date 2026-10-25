@@ -5,8 +5,9 @@ description: >-
   build, or test fails with an error: a stack trace, an exception, a compiler
   or macroexpansion error, or `ex-info` data in output. Triggers: "Syntax error
   compiling", "Syntax error macroexpanding", "Syntax error reading source",
-  "Execution error", "Unable to resolve symbol", "Could not locate ... on
-  classpath", "did not conform to spec", "Full report at", `ExceptionInfo`,
+  "Execution error", "Error printing return value", "Unable to resolve
+  symbol", "Could not locate ... on classpath", "did not conform to spec",
+  "Full report at", `ExceptionInfo`,
   `CompilerException`, `ex-data`, `ex-cause`, `*e`, a `NullPointerException`
   or `ClassCastException` in Clojure code, or a failing test that reports an
   error rather than a failed assertion. Covers keeping the original evidence,
@@ -32,14 +33,15 @@ This skill covers finding the cause of a Clojure family error. The procedure app
 
 ## Error phases
 
-A Clojure error happens in one of four phases:
+A Clojure error happens in one of these phases:
 
 - **Read.** The reader cannot parse the source, usually because of unbalanced delimiters or an invalid literal.
 - **Macroexpansion.** A macro call has the wrong shape, for example an odd number of `let` bindings, or the macro itself threw while expanding.
 - **Compile.** A symbol cannot be resolved, often because of a missing `:require` or `:refer`, a typo, or a use before definition.
 - **Execution.** The code ran and threw. The location in the message is where the error surfaced, not necessarily where the defect is.
+- **Printing.** At a REPL, the expression returned, and the error came while printing the result. A common cause is a lazy sequence that is realized only when printed, and then the defect is in the code that produced the sequence. JVM Clojure reports this phase as "Error printing return value".
 
-The host's error format names the phase. The host notes below say where to read it.
+The host's error format names the phase. The host notes below say where to read it. The messages this skill's description quotes, such as "Syntax error compiling", "Execution error", and "Full report at", are the JVM Clojure format, and `NullPointerException` and `ClassCastException` are JVM exception types. `cljs.main` runs its compiler on the JVM and reports compiler errors in the same format, as in "Unexpected error (ExceptionInfo) compiling at (REPL:1)." ClojureDart reports a compiler error as "Compilation error" followed by sections such as "Faulty subform and/or expansion".
 
 ## Inspecting exceptions
 
