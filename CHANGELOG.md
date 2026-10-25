@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.38] - 2026-10-25
+
+### Added
+
+- The `clojure-repl` skill loads when the agent evaluates code in a running REPL. It finds and verifies the project's REPL, prefers clojure-mcp or `clj-nrepl-eval` when available, evaluates small forms with bounded output, asks before evaluating side effects outside the process, and confirms REPL results against the saved source.
+- The `clojure-debug` skill loads when code, a build, or a test fails with an error. It keeps the original error output, identifies the error phase, reads the whole cause chain with `ex-message`, `ex-data`, and `ex-cause`, and reproduces the failure before fixing it.
+- The `clojure-deps` skill loads when the agent checks a dependency. It reads the resolved version, uses documentation and source for that exact version, and looks up releases on Clojars and Maven Central without treating a prerelease as the latest stable release.
+- The `edit-lint` hook lints each Clojure family file the agent edits with clj-kondo and the project's own configuration, and returns new findings to the agent in the same turn, so an unbalanced delimiter or an unresolved symbol is caught before the code runs. It runs under Claude Code, Codex (after you trust the hook), and the GitHub Copilot CLI, needs Babashka and clj-kondo, and never edits a file.
+
+### Changed
+
+- The `clojure` skill loads a short entry file that keeps the Key Rules and routes each task to a reference file: naming and function design, control flow, collections, state and dispatch, macros, namespaces, formatting, and testing. The detailed guidance moved into those files without changes, so less text loads on every matching task and the agent reads the detail for the topic at hand.
+- The `clojure` skill points to `clojure-repl`, `clojure-debug`, and `clojure-deps` for REPL, error, and dependency work.
+
 ## [0.1.37] - 2026-10-25
 
 ### Changed

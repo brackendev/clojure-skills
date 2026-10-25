@@ -8,6 +8,8 @@ For people working on the plugin source. End-user install instructions live in [
 |------|---------|
 | `apm.yml` | Package manifest (`type: skill`, no MCP dependencies). |
 | `.apm/skills/<name>/` | Canonical skill source. APM deploys from here. Each directory holds `SKILL.md` plus optional `agents/openai.yaml`, `references/`, `scripts/`, `examples/`. |
+| `.apm/hooks/` | Hook definitions. `edit-lint.json` holds the generic copy, `copilot-hooks.json` the Copilot CLI copy, and `cursor-hooks.json` is empty. `scripts/` holds the bash launcher and the Babashka script. |
+| `tests/hooks/` | Hook test suites. They are repository files, not package content, and APM does not deploy them. |
 | `.opencode/skills` | Symlink to `../.apm/skills`. OpenCode finds it from any directory in the repository, so an OpenCode session loads the canonical skills and their supporting files without an APM install. |
 | `opencode.jsonc` | Local OpenCode configuration. |
 | `README.md` | End-user documentation. |
@@ -26,6 +28,15 @@ Do not add `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/marketplace.jso
 3. Add a `CHANGELOG.md` entry under `[Unreleased]` for every change to a published file, including documentation-only changes.
 4. Increment the `version` field in `apm.yml`.
 
+## Adding or modifying a hook
+
+1. Edit the hook JSON in `.apm/hooks/<name>.json`, keyed by lifecycle event (`PostToolUse`). Use the matcher `"*"` and choose the events inside the script, because APM passes matchers through unchanged and each runtime names its tools differently.
+2. Add the same hook to `.apm/hooks/copilot-hooks.json` in Copilot's format: a camelCase event and a flat entry with `type`, `bash`, and `timeoutSec`. Pass the event name to the script as an argument, because Copilot's input does not name it. Keep `.apm/hooks/cursor-hooks.json` empty: an install fails when a hook reaches Cursor both natively and through its import of Claude Code settings.
+3. Write the hook as a Babashka script, `.apm/hooks/scripts/<name>.bb`, started by a bash launcher, `.apm/hooks/scripts/<name>.sh`. When `bb` is missing, the launcher prints that the hook is inactive to standard error and exits 0. Reference the launcher as `${PLUGIN_ROOT}/.apm/hooks/scripts/<name>.sh`. The `.apm/` segment is required, or APM logs "Hook script not found". Keep the launcher executable.
+4. Read every input shape and answer in the shape each runtime reads. Claude Code and Codex send `tool_name` and `tool_input` and read `hookSpecificOutput.additionalContext`, and Codex rejects output that also carries a top-level `additionalContext`. Copilot's own copy sends `toolName` and `toolArgs`, where `toolArgs` can be a JSON string or, for `apply_patch`, the patch text, and it reads a top-level `additionalContext`. Copilot's run of the Claude Code copy sends `tool_result`.
+5. Add cases to the suites in `tests/hooks/` and run them (see "Hook tests" below).
+6. Update `README.md`, add a `CHANGELOG.md` entry under `[Unreleased]`, and increment the `version` field in `apm.yml`.
+
 ## Validation
 
 Configuration files:
@@ -41,6 +52,10 @@ Runtime install (requires `apm` and the runtime CLIs you want to verify: `claude
 - Run `apm install --target all`, `apm update`, and `apm uninstall` in a clean temporary project. Pre-create the runtime roots: `.agents/`, `.claude/`, `.cursor/`, `.opencode/`, `.gemini/`, `.github/`, `.windsurf/`. With several runtime roots present, APM stops with "Multiple harnesses detected" unless the install names a target. `apm update` reuses the targets that the install records in the project's `apm.yml`.
 - Exercise user scope with `apm install brackendev/clojure-skills -g [--target ...]` and `apm uninstall brackendev/clojure-skills -g`. A local filesystem path (`apm install /absolute/path -g`) is also accepted.
 - Confirm OpenCode deployment from the temporary project with `opencode api GET "/api/skill?location[directory]=$PWD"`, which lists the skills OpenCode discovers and their source paths. The first request for a directory can return an empty list while OpenCode loads the skills, so repeat it before reading the result.
+
+### Hook tests
+
+Run every hook suite with `bb tests/hooks/run.bb`. It needs `bb`, `git`, `apm`, and `clj-kondo`, and a missing requirement fails the run. `edit-lint-hook.bb` runs the hook against temporary projects with each runtime's input, and `install-check.bb` installs the package with APM at project and user scope, with `--target claude` and with `--target all`, and checks the deployed hook.
 
 ## Skill conventions
 

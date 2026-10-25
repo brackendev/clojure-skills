@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure Debugging"
+  short_description: "Find the cause of a Clojure family error from its phase, cause chain, and ex-data."
+  default_prompt: "Find the cause of this Clojure error."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: true

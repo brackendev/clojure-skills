@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure Dependencies"
+  short_description: "Research the resolved version, documentation, and releases of a Clojure family dependency."
+  default_prompt: "Check which version of this library the project uses."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: true

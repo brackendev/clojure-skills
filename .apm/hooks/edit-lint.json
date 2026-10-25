@@ -1,0 +1,14 @@
+{
+  "PostToolUse": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${PLUGIN_ROOT}/.apm/hooks/scripts/edit-lint.sh",
+          "timeout": 20
+        }
+      ]
+    }
+  ]
+}

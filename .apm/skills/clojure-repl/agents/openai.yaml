@@ -1,0 +1,8 @@
+interface:
+  display_name: "Clojure REPL"
+  short_description: "Find, verify, and use the project's REPL, and confirm REPL results against the saved source."
+  default_prompt: "Evaluate this function in the project's REPL."
+  brand_color: "#5881D8"
+
+policy:
+  allow_implicit_invocation: true

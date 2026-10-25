@@ -2,7 +2,7 @@
 
 Clojure development skills packaged as an [APM](https://github.com/microsoft/apm) plugin. One install deploys the full set to every runtime in APM's default target set: Claude Code, Codex, OpenCode, Cursor, Copilot, Gemini, Windsurf, Kiro, and Grok Build. Antigravity is supported by naming it explicitly with `--target antigravity`.
 
-Skills follow the [Agent Skills](https://agentskills.io) open standard. Two auto-trigger from conversation context (`clojure`, `clojure-lenses`). The other two, `/clj-fix` and `/clj-smells-fix`, are slash commands, and the agent can also run them from a natural-language request. Runtimes differ in how they offer these commands: Codex lists them under `/skills` and runs them as `$name`, OpenCode attaches them with `@name`, and Gemini CLI also offers the auto-triggered skills as slash commands.
+Skills follow the [Agent Skills](https://agentskills.io) open standard. Five auto-trigger from conversation context (`clojure`, `clojure-lenses`, `clojure-repl`, `clojure-debug`, `clojure-deps`). The other two, `/clj-fix` and `/clj-smells-fix`, are slash commands, and the agent can also run them from a natural-language request. Runtimes differ in how they offer these commands: Codex lists them under `/skills` and runs them as `$name`, OpenCode attaches them with `@name`, and Gemini CLI also offers the auto-triggered skills as slash commands.
 
 The `clojure` skill is the host-neutral baseline for the Clojure family. It triggers across `.clj`, `.cljs`, `.cljc`, and `.cljd`. Host-specific guidance (Java interop, refs / agents / STM, ClojureDart's `cljd.flutter` directives, Biff conventions) lives in companion packages so this skill stays applicable everywhere.
 
@@ -45,7 +45,8 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/cloju
 ## Requirements
 
 - A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 17 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
-- [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
+- [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below and for the `edit-lint` hook.
+- [Babashka](https://babashka.org) (`bb`) to run the `edit-lint` hook. Without it, the hook does nothing and prints a notice on standard error.
 - The `clj-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate. Without the alias, the dry step reports that it was skipped and shows the alias to add.
 
 ## Command guide
@@ -91,6 +92,32 @@ These skills activate from conversation context. They cannot be invoked directly
 |-------|----------|
 | **clojure** | `.clj`, `.cljs`, `.cljc`, `.cljd` files; `deps.edn` projects; `shadow-cljs.edn`; `bb.edn`; `project.clj`; `build.clj`; `clojure.test`, `cljs.test`, `cljd.test`; `clojure.core` forms; REPL usage; or any mention of Clojure, ClojureScript, ClojureDart, or a Clojure dialect. Covers idiomatic style, naming, threading macros, collection idioms, atom-based state, dispatch, formatting, namespaces, and common anti-patterns. Defers to the host skill (`clojure-jvm`, `clojurescript`, or `clojuredart`) for runtime-specific guidance. |
 | **clojure-lenses** | Auto-triggers alongside the [code-lenses](https://github.com/brackendev/code-lenses) plugin in Clojure work. Translates the four default code-lenses philosophies (grug, Honest Code, Tidy First, Parse Don't Validate) into idiomatic Clojure, plus the two opt-in philosophies (APOSD, Legacy Code) that activate when their lens is added with `+aposd` or `+legacy-code` or invoked directly. |
+| **clojure-repl** | Evaluating code in a running REPL: nREPL, `.nrepl-port`, `.shadow-cljs/nrepl.port`, `clj-nrepl-eval`, clojure-mcp, `shadow/repl`, the ClojureDart socket REPL, `:reload`, or a request to try code in the REPL. Covers finding and verifying the project's REPL, choosing a client, evaluating small forms with bounded output, reloading, and confirming REPL results against the saved source. |
+| **clojure-debug** | A failing program, REPL evaluation, build, or test: "Syntax error compiling", "Syntax error macroexpanding", "Syntax error reading source", "Execution error", "Could not locate ... on classpath", "did not conform to spec", `ExceptionInfo`, `ex-data`, or a stack trace. Covers keeping the evidence, finding the error phase and the root cause, reading `ex-data`, reproducing the failure, and verifying a focused fix. |
+| **clojure-deps** | Researching a dependency: `deps.edn`, `project.clj`, or `shadow-cljs.edn` coordinates, Clojars, Maven Central, cljdoc, `find-versions`, or a question about which version a project uses or what the latest release is. Covers reading the resolved version, finding documentation and source for that exact version, and separating the latest release from a compatible one. |
+
+## Hooks
+
+The package includes one hook, `edit-lint`. After the agent edits a Clojure family file (`.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb`), the hook lints that file with clj-kondo and returns the findings to the agent in the same turn. An unbalanced delimiter or an unresolved symbol is therefore caught before the agent runs the code. The hook never changes a file.
+
+- clj-kondo runs from the project root with the project's own `.clj-kondo` configuration and cache, so a linter the project turns off stays quiet. The project root is the nearest directory with `deps.edn`, `project.clj`, `shadow-cljs.edn`, `bb.edn`, or `.clj-kondo`, so a nested project uses its own configuration.
+- The report lists errors first and shows at most twelve findings per file. A finding already reported for a file is not repeated in the same session. The report says that some findings may predate the latest edit, and it notes that an unresolved symbol can come from a macro that clj-kondo does not know.
+- In `.cljd` files the hook reports syntax errors only. Without ClojureDart's exported configuration, clj-kondo reports Dart interop as unresolved.
+- The hook skips files under `target/`, `node_modules/`, `.cpcache/`, `.shadow-cljs/`, `.clj-kondo/`, `cljd-out/`, `vendor/`, `third_party/`, `build/`, and `dist/`, and files that `.gitignore` excludes.
+- The hook sees edits made through the runtime's file editing tools. A file changed by a shell command, such as `sed -i`, is not linted.
+- When clj-kondo is not installed, the hook tells the agent once per session that it is inactive.
+
+The hook has been run under these runtimes:
+
+| Runtime | Behavior |
+|---------|----------|
+| Claude Code | Runs after `Write` and `Edit`. |
+| Codex | Runs after `apply_patch`, for every file in the patch, once you trust the hook. Codex does not run a project hook until you approve it in an interactive session, and it records the approval in `~/.codex/config.toml`. |
+| GitHub Copilot CLI | Runs from a separate copy, `copilot-hooks.json`, written in Copilot's format, after `create`, `edit`, and `apply_patch`. In prompt mode (`copilot -p`), Copilot loads the project-scope copy only in a trusted folder. In a trusted folder Copilot also runs the Claude Code copy, and the hook stays silent there, so the findings arrive once. |
+
+The hook has not been run under the other runtimes. APM writes no native Cursor hook, so the install does not fail when Cursor also imports the Claude Code settings, but the hook has not been tested under Cursor. APM also installs the hook for Gemini CLI, Kiro, and Windsurf. The script recognizes only the edit tools named above, so it is expected to do nothing there, but this has not been tested. OpenCode and Grok Build have no hook support.
+
+`apm uninstall` removes the hook with the package. A user-scope uninstall can leave behind an empty runtime configuration file that the install created, such as `~/.claude/settings.json` or `~/.codex/hooks.json`. Such a file names no hook command and is safe to delete or keep.
 
 ## Contributing
 

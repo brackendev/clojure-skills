@@ -2,7 +2,7 @@
 
 This document defines the argument grammar, scope vocabulary, and mutation defaults that every user-invocable skill in `clojure-skills` follows. A reader who learns one skill should be able to predict every other skill.
 
-These conventions apply to user-invocable skills (`user-invocable: true` in frontmatter). Model-invocable reference skills with no argument surface (currently `clojure` and `clojure-lenses`) are outside the standard.
+These conventions apply to user-invocable skills (`user-invocable: true` in frontmatter). Model-invocable reference skills with no argument surface (currently `clojure`, `clojure-lenses`, `clojure-repl`, `clojure-debug`, and `clojure-deps`) are outside the standard.
 
 ## The four rules
 
@@ -61,7 +61,7 @@ The boundary statement: Rule 4 applies to mutating skills that discover candidat
 
 **Reporting.** The skill includes a single "skipped N vendored or generated paths" line in its results when the filter excluded any path. Under `--report`, the skill emits the full list so the operator can audit scope.
 
-**Scope of Rule 4 in this plugin.** Applies to `/clj-fix` and `/clj-smells-fix`, both of which discover candidate files from the workspace. The model-only reference skills `clojure` and `clojure-lenses` have no mutation surface and are also out of scope.
+**Scope of Rule 4 in this plugin.** Applies to `/clj-fix` and `/clj-smells-fix`, both of which discover candidate files from the workspace. The model-only reference skills (`clojure`, `clojure-lenses`, `clojure-repl`, `clojure-debug`, and `clojure-deps`) have no mutation surface and are also out of scope.
 
 The file-aware mutating skills include a one-line reference to Rule 4 in their own `## Mutation` or `## Scope` section.
 
