@@ -8,7 +8,7 @@ For people working on the plugin source. End-user install instructions live in [
 |------|---------|
 | `apm.yml` | Package manifest (`type: skill`, no MCP dependencies). |
 | `.apm/skills/<name>/` | Canonical skill source. APM deploys from here. Each directory holds `SKILL.md` plus optional `agents/openai.yaml`, `references/`, `scripts/`, `examples/`. |
-| `.apm/hooks/` | Hook definitions. `edit-lint.json` holds the generic copy, `copilot-hooks.json` the Copilot CLI copy, and `cursor-hooks.json` is empty. `scripts/` holds the bash launcher and the Babashka script. |
+| `.apm/hooks/` | Hook definitions. `edit-lint.json` and `clj-rules.json` hold the generic copies, `copilot-hooks.json` holds the Copilot CLI copy of `edit-lint` only, and `cursor-hooks.json` is empty. `scripts/` holds each hook's bash launcher and Babashka script, and `clj-rules.md`, the condensed Iron Laws that `clj-rules` delivers. |
 | `tests/hooks/` | Hook test suites. They are repository files, not package content, and APM does not deploy them. |
 | `.opencode/skills` | Symlink to `../.apm/skills`. OpenCode finds it from any directory in the repository, so an OpenCode session loads the canonical skills and their supporting files without an APM install. |
 | `opencode.jsonc` | Local OpenCode configuration. |
@@ -25,7 +25,7 @@ Do not add `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/marketplace.jso
 
 1. Edit `.apm/skills/<name>/SKILL.md`.
 2. Update `README.md` if the change is user-facing.
-3. Add a `CHANGELOG.md` entry under `[Unreleased]` for every change to a published file, including documentation-only changes.
+3. Add a `CHANGELOG.md` entry for every change to a published file, including documentation-only changes, under a `## [x.y.z] - YYYY-MM-DD` heading for the new `apm.yml` version. Leave `## [Unreleased]` empty above it.
 4. Increment the `version` field in `apm.yml`.
 
 ## Adding or modifying a hook
@@ -35,7 +35,11 @@ Do not add `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/marketplace.jso
 3. Write the hook as a Babashka script, `.apm/hooks/scripts/<name>.bb`, started by a bash launcher, `.apm/hooks/scripts/<name>.sh`. When `bb` is missing, the launcher prints that the hook is inactive to standard error and exits 0. Reference the launcher as `${PLUGIN_ROOT}/.apm/hooks/scripts/<name>.sh`. The `.apm/` segment is required, or APM logs "Hook script not found". Keep the launcher executable.
 4. Read every input shape and answer in the shape each runtime reads. Claude Code and Codex send `tool_name` and `tool_input` and read `hookSpecificOutput.additionalContext`, and Codex rejects output that also carries a top-level `additionalContext`. Copilot's own copy sends `toolName` and `toolArgs`, where `toolArgs` can be a JSON string or, for `apply_patch`, the patch text, and it reads a top-level `additionalContext`. Copilot's run of the Claude Code copy sends `tool_result`.
 5. Add cases to the suites in `tests/hooks/` and run them (see "Hook tests" below).
-6. Update `README.md`, add a `CHANGELOG.md` entry under `[Unreleased]`, and increment the `version` field in `apm.yml`.
+6. Update `README.md`, increment the `version` field in `apm.yml`, and add a `CHANGELOG.md` entry under a `## [x.y.z] - YYYY-MM-DD` heading for that version.
+
+## Changing an Iron Law
+
+The rules hook delivers `.apm/hooks/scripts/clj-rules.md`, which condenses each Iron Law in `.apm/skills/clojure/SKILL.md` into one `- CLJ-<n>: ...` line, plus the data-driven design rule. When a law or Key Rule 19 changes, update its line in the same change, keeping the law's exceptions. The coordinator's drift check compares the law IDs in both files but cannot compare their meaning.
 
 ## Validation
 
@@ -55,7 +59,7 @@ Runtime install (requires `apm` and the runtime CLIs you want to verify: `claude
 
 ### Hook tests
 
-Run every hook suite with `bb tests/hooks/run.bb`. It needs `bb`, `git`, `apm`, and `clj-kondo`, and a missing requirement fails the run. `edit-lint-hook.bb` runs the hook against temporary projects with each runtime's input, and `install-check.bb` installs the package with APM at project and user scope, with `--target claude` and with `--target all`, and checks the deployed hook.
+Run every hook suite with `bb tests/hooks/run.bb`. It needs `bb`, `git`, `apm`, and `clj-kondo`, and a missing requirement fails the run. `edit-lint-hook.bb` runs the hook against temporary projects with each runtime's input, and `install-check.bb` installs the package with APM at project and user scope, with `--target claude` and with `--target all`, and checks the deployed hook. `clj-rules-hook.bb` checks when `clj-rules` delivers the rules: at session start, on the first matching edit, after a clear or compaction, and never twice or outside a Clojure-family project.
 
 ## Skill conventions
 

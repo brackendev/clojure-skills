@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.42] - 2026-10-29
+
+### Added
+
+- `clojure` skill: Key Rule 19, "Let catalog data own policy," and the `references/data-driven-design.md` reference with examples of declared relationships, one resolver function per question, no hardcoded fallbacks, and load-time validation. `clojure-lenses` points to the reference from the Honest Code construct note.
+- `clj-smells-fix`: a local `SMELL` entry, Catalog Policy Duplicated in Code, marked as separate from the pinned upstream catalog. It is reported only with evidence of both the catalog and the branch, and never applied automatically.
+- `clj-rules` hook: delivers the condensed CLJ-1 through CLJ-12 Iron Laws to the agent at session start, after `/clear` or a compaction, and on the first matching edit when the session started outside a matching project, with an instruction to load the `clojure` skill and the host skill for the project. Verified only under Claude Code. Copilot and Cursor receive no copy.
+
 ## [0.1.41] - 2026-10-29
 
 ### Changed

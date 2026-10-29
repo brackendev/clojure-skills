@@ -1,11 +1,15 @@
 ;; Installs the package with APM into a temporary project and a temporary HOME,
-;; at project scope and at user scope, and checks the deployed edit-lint hook:
+;; at project scope and at user scope, and checks the deployed edit-lint and
+;; clj-rules hooks. For edit-lint:
 ;; the scripts are present and identical to the source, the launcher is
 ;; executable, the deployed copy reports a malformed file, and a launcher
-;; without Babashka reports the hook as inactive. It also checks that an
+;; without Babashka reports the hook as inactive. For clj-rules: the scripts and
+;; the rules file are present and identical to the source, and the deployed copy
+;; delivers the rules at session start. It also checks that an
 ;; install with every target succeeds at both scopes, gives Claude Code the
-;; PostToolUse hook, writes no native Cursor hook, and gives Copilot only the
-;; flat camelCase entry from copilot-hooks.json.
+;; PostToolUse hook and the clj-rules SessionStart hook, writes no native Cursor
+;; hook, and gives Copilot only the flat camelCase edit-lint entry from
+;; copilot-hooks.json.
 ;;
 ;; Usage: bb install-check.bb <package source directory>
 (require '[babashka.fs :as fs]
@@ -41,6 +45,8 @@
   (and (fs/regular-file? a) (= (slurp (str a)) (slurp (str b)))))
 
 (def hook-files ["edit-lint.sh" "edit-lint.bb"])
+
+(def rules-files ["clj-rules.sh" "clj-rules.bb" "clj-rules.md"])
 
 ;; A PATH with what the launcher needs before it looks for bb.
 (def path-without-bb
@@ -79,6 +85,26 @@
                                          "/bin/bash" (str (fs/path deployed "edit-lint.sh")))]
       (support/check (and (zero? exit) (str/includes? err "is inactive: Babashka (bb) is not installed"))
                      (str label ": the launcher without bb did not report the hook as inactive (exit " exit ")")))))
+
+(doseq [scope [(fs/path project ".claude") (fs/path home ".claude")]
+        :let [label (str (fs/relativize work scope))
+              deployed (some-> (first (fs/glob scope "**/clj-rules.sh" {:hidden true})) fs/parent)]]
+  (support/check deployed (str label ": clj-rules.sh was not deployed"))
+  (when deployed
+    (doseq [file rules-files]
+      (support/check (and (same-file? (fs/path deployed file) (fs/path package-source ".apm/hooks/scripts" file))
+                          (or (not= file "clj-rules.sh") (fs/executable? (fs/path deployed file))))
+                     (str label ": " file " is missing, differs from the source, or is not executable")))
+    (let [{:keys [exit out]} (support/run-hook (fs/path deployed "clj-rules.sh")
+                                               (json/generate-string {"session_id" (str "install-" (random-uuid))
+                                                                      "hook_event_name" "SessionStart"
+                                                                      "source" "startup"
+                                                                      "cwd" project}))]
+      (support/check (and (zero? exit)
+                          (some-> (not-empty out) json/parse-string
+                                  (get-in ["hookSpecificOutput" "additionalContext"])
+                                  (str/includes? "CLJ-1:")))
+                     (str label ": the deployed clj-rules hook did not deliver the rules at session start")))))
 
 ;; The test suites are repository files, not package content.
 (support/check (empty? (for [dir [(fs/path project ".claude") (fs/path home ".claude")]
@@ -119,6 +145,10 @@
   (support/check (and (fs/exists? claude-config)
                       (contains? (get (hook-scripts claude-config) "PostToolUse") "edit-lint.sh"))
                  (str label ": Claude Code settings do not register edit-lint for PostToolUse"))
+  (support/check (and (fs/exists? claude-config)
+                      (contains? (get (hook-scripts claude-config) "SessionStart") "clj-rules.sh")
+                      (contains? (get (hook-scripts claude-config) "PostToolUse") "clj-rules.sh"))
+                 (str label ": Claude Code settings do not register clj-rules for SessionStart and PostToolUse"))
   (support/check (or (not (fs/exists? cursor-config)) (every? empty? (vals (hook-scripts cursor-config))))
                  (str label ": .cursor/hooks.json contains a native hook"))
   (support/check (and (fs/exists? copilot-config)

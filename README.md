@@ -47,7 +47,7 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/cloju
 - A Clojure dialect runtime for whichever skill you exercise: the [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 8 or higher for JVM Clojure, [ClojureDart](https://github.com/Tensegritics/ClojureDart) for `.cljd` work, [shadow-cljs](https://github.com/thheller/shadow-cljs) or similar for ClojureScript.
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below and for the `edit-lint` hook.
 - [cljfmt](https://github.com/weavejester/cljfmt) for the `/clj-fix` format step. The step uses the first of these that the project has: a `:cljfmt` alias in `deps.edn`, the Leiningen plugin, the standalone `cljfmt` binary, or a Clojure CLI tool installed as `cljfmt`. Without any of them, the format step reports that it was skipped and shows the `:cljfmt` alias to add.
-- [Babashka](https://babashka.org) (`bb`) to run the `edit-lint` hook. Without it, the hook does nothing and prints a notice on standard error.
+- [Babashka](https://babashka.org) (`bb`) to run the `edit-lint` and `clj-rules` hooks. Without it, the hooks do nothing and print a notice on standard error.
 - The `clj-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate. Without the alias, the dry step reports that it was skipped and shows the alias to add.
 
 ## Command guide
@@ -76,7 +76,7 @@ Run the Clojure quality pipeline. Defaults to the full sequence (lint, format, t
 
 #### `/clj-smells-fix [path|all] [--report]`
 
-Fix Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Auto-applies Stage 1 mechanical findings (`:refer :all` expansion, `:use` rewrite, redundant `do`, nested `let`, unused requires and bindings) and the safe band of Stage 2 `DEFECT`-tier findings (macro double-evaluation, unwrapped resource handles, blocking inside `go`, load-time side effects in `def` bodies). `SMELL` and `HINT` findings, and `DEFECT` findings that require cross-file changes, are reported as suggestions. Pass `--report` to disable all writes and receive the same findings as suggestions. Falls back to LLM-only review when `clj-kondo` is not on `PATH`.
+Fix Clojure code against the [clj-smells catalog](https://github.com/nufuturo-ufcg/clj-smells-catalog), pairing `clj-kondo` static analysis with LLM-assisted detection. Auto-applies Stage 1 mechanical findings (`:refer :all` expansion, `:use` rewrite, redundant `do`, nested `let`, unused requires and bindings) and the safe band of Stage 2 `DEFECT`-tier findings (macro double-evaluation, unwrapped resource handles, blocking inside `go`, load-time side effects in `def` bodies). `SMELL` and `HINT` findings, and `DEFECT` findings that require cross-file changes, are reported as suggestions. One local `SMELL` entry, Catalog Policy Duplicated in Code, extends the upstream catalog: it reports code that branches on a catalog's entry ids to decide what the entries could declare. Pass `--report` to disable all writes and receive the same findings as suggestions. Falls back to LLM-only review when `clj-kondo` is not on `PATH`.
 
 ```bash
 /clj-smells-fix
@@ -91,7 +91,7 @@ These skills activate from conversation context. They have no slash commands, ex
 
 | Skill | Triggers |
 |-------|----------|
-| **clojure** | `.clj`, `.cljs`, `.cljc`, `.cljd` files; `deps.edn` projects; `shadow-cljs.edn`; `bb.edn`; `project.clj`; `build.clj`; `clojure.test`, `cljs.test`, `cljd.test`; `clojure.core` forms; REPL usage; or any mention of Clojure, ClojureScript, ClojureDart, or a Clojure dialect. Covers idiomatic style, naming, threading macros, collection idioms, atom-based state, dispatch, formatting, namespaces, and common anti-patterns. Defers to the host skill (`clojure-jvm`, `clojurescript`, or `clojuredart`) for runtime-specific guidance. The skill opens with Iron Laws (CLJ-1 through CLJ-12), rules that prevent bugs, data loss, security holes, and false reports of success. The agent does not write code that breaks them, and it reports a violation it finds in existing code before changing it. |
+| **clojure** | `.clj`, `.cljs`, `.cljc`, `.cljd` files; `deps.edn` projects; `shadow-cljs.edn`; `bb.edn`; `project.clj`; `build.clj`; `clojure.test`, `cljs.test`, `cljd.test`; `clojure.core` forms; REPL usage; or any mention of Clojure, ClojureScript, ClojureDart, or a Clojure dialect. Covers idiomatic style, naming, threading macros, collection idioms, atom-based state, dispatch, data-driven design (catalog data owns policy, and code never branches on a specific entry), formatting, namespaces, and common anti-patterns. Defers to the host skill (`clojure-jvm`, `clojurescript`, or `clojuredart`) for runtime-specific guidance. The skill opens with Iron Laws (CLJ-1 through CLJ-12), rules that prevent bugs, data loss, security holes, and false reports of success. The agent does not write code that breaks them, and it reports a violation it finds in existing code before changing it. |
 | **clojure-lenses** | Auto-triggers alongside the [code-lenses](https://github.com/brackendev/code-lenses) plugin in Clojure work. Translates the four default code-lenses philosophies (grug, Honest Code, Tidy First, Parse Don't Validate) into idiomatic Clojure, plus the two opt-in philosophies (APOSD, Legacy Code) that activate when their lens is added with `+aposd` or `+legacy-code` or invoked directly. |
 | **clojure-repl** | Evaluating code in a running REPL: nREPL, `.nrepl-port`, `.shadow-cljs/nrepl.port`, `clj-nrepl-eval`, clojure-mcp, `shadow/repl`, the ClojureDart socket REPL, `:reload`, or a request to try code in the REPL. Covers finding and verifying the project's REPL, choosing a client, evaluating small forms with bounded output, reloading, and confirming REPL results against the saved source. |
 | **clojure-debug** | A failing program, REPL evaluation, build, or test: "Syntax error compiling", "Syntax error macroexpanding", "Syntax error reading source", "Execution error", "Could not locate ... on classpath", "did not conform to spec", `ExceptionInfo`, `ex-data`, or a stack trace. Covers keeping the evidence, finding the error phase and the root cause, reading `ex-data`, reproducing the failure, and verifying a focused fix. |
@@ -99,7 +99,11 @@ These skills activate from conversation context. They have no slash commands, ex
 
 ## Hooks
 
-The package includes one hook, `edit-lint`. After the agent edits a Clojure family file (`.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb`), the hook lints that file with clj-kondo and returns the findings to the agent in the same turn. An unbalanced delimiter or an unresolved symbol is therefore caught before the agent runs the code. The hook never changes a source file. clj-kondo does update its cache under `.clj-kondo/.cache` when the project has a `.clj-kondo` directory.
+The package includes two hooks, `edit-lint` and `clj-rules`.
+
+### `edit-lint`
+
+After the agent edits a Clojure family file (`.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb`), the hook lints that file with clj-kondo and returns the findings to the agent in the same turn. An unbalanced delimiter or an unresolved symbol is therefore caught before the agent runs the code. The hook never changes a source file. clj-kondo does update its cache under `.clj-kondo/.cache` when the project has a `.clj-kondo` directory.
 
 - clj-kondo runs from the project root with the project's own `.clj-kondo` configuration and cache, so a linter the project turns off stays quiet. The project root is the nearest directory with `deps.edn`, `project.clj`, `shadow-cljs.edn`, `bb.edn`, or `.clj-kondo`, so a nested project uses its own configuration.
 - The report lists errors first and shows at most twelve findings per file. A finding already reported for a file is not repeated in the same session. The report says that some findings may predate the latest edit, and it notes that an unresolved symbol can come from a macro that clj-kondo does not know.
@@ -119,6 +123,12 @@ The hook has been run under these runtimes:
 The hook has not been run under the other runtimes. APM writes no native Cursor hook, so the install does not fail when Cursor also imports the Claude Code settings, but the hook has not been tested under Cursor. APM also installs the hook for Gemini CLI, Kiro, and Windsurf. The script recognizes only the edit tools named above, so it is expected to do nothing there, but this has not been tested. OpenCode and Grok Build have no hook support.
 
 `apm uninstall` removes the hook with the package. A user-scope uninstall can leave behind an empty runtime configuration file that the install created, such as `~/.claude/settings.json` or `~/.codex/hooks.json`. Such a file names no hook command and is safe to delete or keep.
+
+### `clj-rules`
+
+Agents seldom load an auto-triggered skill on their own, so this hook gives the agent the CLJ-1 through CLJ-12 Iron Laws of the `clojure` skill as text. In a Clojure-family project (a directory with `deps.edn`, `project.clj`, `bb.edn`, or `shadow-cljs.edn`), it puts the condensed laws into the agent's context when a session starts, and again after `/clear` or a compaction, with an instruction to load the `clojure` skill and the host skill for the project. The block also carries the data-driven design rule (Key Rule 19): when catalog data decides behavior, code reads the declarations and never names a specific entry. When the session starts outside such a project, for example in a parent directory, the hook delivers the laws on the first edit of a `.clj`, `.cljs`, `.cljc`, `.cljd`, `.edn`, or `.bb` file in a matching project instead, once per session. The hook never edits a file. Without Babashka it does nothing and prints a notice on standard error.
+
+The hook has been run only under Claude Code, where it registers `SessionStart` and `PostToolUse`. The package's Copilot hook file carries only `edit-lint`, and its Cursor hook file is empty, so APM writes no Copilot copy of this hook and no native Cursor hook. APM also installs the generic copy for Codex, Gemini CLI, Kiro, and Windsurf, where its effect has not been tested. OpenCode and Grok Build have no hook support.
 
 ## Contributing
 

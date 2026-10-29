@@ -1,6 +1,7 @@
 ;; Runs every hook test suite against this repository:
 ;;   1. The edit-lint hook end to end, for each runtime's input.
-;;   2. A local APM install at project and user scope, checking the deployed
+;;   2. The clj-rules hook end to end, for session starts and edits.
+;;   3. A local APM install at project and user scope, checking the deployed
 ;;      hook scripts.
 ;; Requires bb, git, apm, and clj-kondo. A missing requirement fails the run. No
 ;; suite is skipped.
@@ -23,6 +24,7 @@
 
 (def suites
   [["edit-lint hook" "edit-lint-hook.bb" scripts]
+   ["clj-rules hook" "clj-rules-hook.bb" scripts]
    ["APM install" "install-check.bb" root]])
 
 (def failed

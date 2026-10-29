@@ -3,7 +3,7 @@
 Pinned to upstream commit `51abf4baef3298454e88baf086b3413163c4629f` (2026-06-11).
 Source: <https://github.com/nufuturo-ufcg/clj-smells-catalog>. Upstream keeps each smell's description in `README.md` and its cited sources and excerpts in `sources-and-excerpts.md`.
 
-The catalog documents 34 Clojure-specific code smells. This digest groups them by detection method and provides default severity guidance, short examples, and false-positive notes for review use. The severities are defaults. The Severity Tiers section of `SKILL.md` defines how to assign the final tier.
+The catalog documents 34 Clojure-specific code smells. This digest adds one local entry, Catalog Policy Duplicated in Code, which is marked as a local extension and is not part of the upstream catalog. The digest groups the smells by detection method and provides default severity guidance, short examples, and false-positive notes for review use. The severities are defaults. The Severity Tiers section of `SKILL.md` defines how to assign the final tier.
 
 ---
 
@@ -292,6 +292,15 @@ Pattern: `(case x sym-bound-to-1 :one ...)` where `sym-bound-to-1` is a runtime 
 Why: `case` matches against the symbol literally, not its value, leading to silent misses.
 Fix: use `condp =` or a `cond` with explicit equality.
 clj-kondo linter: `:case-symbol-test`, off by default. The overlay turns it on at `:info`, so Stage 1 reports every symbol test constant, including each symbol in a grouped list such as `(a b)`, without failing a lint run. A symbol constant is correct when the code matches symbols as data, as in `(case op + :plus - :minus)` over operator symbols, so decide each finding from the code and never auto-fix it. A form that matches symbols deliberately can opt out with `#_{:clj-kondo/ignore [:case-symbol-test]}` before the `case`.
+
+#### Catalog Policy Duplicated in Code
+
+Default severity: `SMELL`. Local extension: this entry is not part of the pinned upstream catalog.
+Pattern: a catalog, registry, or configuration map declares entries with ids, and a `case`, `cond`, `condp`, or `=` test elsewhere branches on those ids to decide behavior or a relationship that the entries could declare, as in `(case (:source/id source) :jira (contains? installed :jira-cli) true)` next to a catalog with `:source/requires` and `:tool/provides`.
+Why: the decision now lives in two places. Adding, removing, or renaming an entry changes the data but not the branch, and a default branch invents behavior for entries the data never described.
+Fix: declare the relationship in the entries and answer the question with one function that reads the declarations. See `clojure/references/data-driven-design.md` in the `clojure` skill.
+Evidence: report a finding only when the review shows both the catalog and the branch, and name both locations and the decision they duplicate. Never auto-apply the fix, because it moves policy into data and changes every caller.
+False positive: dispatch on a closed set of variants that belong to the code, such as shape types or message kinds, with no catalog that lists them.
 
 ### React Hooks
 
