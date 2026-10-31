@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.43] - 2026-10-31
+
+### Changed
+
+- The Honest Code section of `clojure-lenses` cites the Honest Code Principles by number (P01-P25), which the code-lenses `honest-code` skill now follows, instead of the twelve constructs code-lenses no longer uses. It adds translations for P15 (`:or` defaults), P16 (multimethod `:default` methods and `get` fallbacks), and P17 (`swap!` against a `deref` followed by `reset!`). It treats `with-redefs` as a mock under P10, and it reports a Reagent, re-frame, or Fulcro client-state design as a departure from P05 instead of describing it as conforming.
+
 ## [0.1.42] - 2026-10-29
 
 ### Added
