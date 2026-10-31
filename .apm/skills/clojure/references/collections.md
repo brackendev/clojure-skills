@@ -109,6 +109,19 @@ Use namespaced keywords to signal parsed domain data and prevent key collisions:
 
 Use a schema library available on the target runtime (`clojure.spec.alpha` and Malli on JVM and ClojureScript) at system boundaries to parse raw input into domain maps. Downstream functions receive conformed data and do not re-validate. The host skill names the runtime-specific options.
 
+### Plain maps, not wrapper types
+
+Plain maps with namespaced keys are the default representation for domain data. Reach for `defrecord` or `deftype` only when a protocol must dispatch on the type or host interop requires a class. Never wrap a single value in a record or type to imitate a nominal or branded type from a statically typed language: Clojure cannot enforce it, and every caller must unwrap it. Mark parsed data with namespaced keys and a schema check at the boundary instead.
+
+```clojure
+;; good: parsed data is a plain map with namespaced keys
+{:user/email "ada@example.com"}
+
+;; bad: a wrapper type that only imitates a branded string
+(defrecord Email [value])
+(->Email "ada@example.com")
+```
+
 ### Commas in collections
 
 No commas in sequential collection literals (vectors, lists). Commas in maps are optional for readability:

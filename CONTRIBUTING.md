@@ -69,6 +69,6 @@ For the argument grammar, scope vocabulary, and mutation defaults that every use
 |---------|-------------|
 | `user-invocable: true`, `disable-model-invocation: true` | User-only slash command, for any skill whose changes reach beyond the working tree or are hard to undo. |
 | `user-invocable: true`, no `disable-model-invocation` | Slash command the model can also run from a natural-language request, for a fixer whose edits stay in the working tree (for example `clj-fix`, `clj-smells-fix`). Write the description as a trigger. |
-| `user-invocable: false` | Model-invoked from conversation context (for example `clojure`, `clojure-lenses`). |
+| `user-invocable: false` | Model-invoked from conversation context (for example `clojure`, `clojure-repl`). |
 
 Every skill carries `agents/openai.yaml` whose `policy.allow_implicit_invocation` matches the table above: `false` for a user-only skill and `true` for every skill the model can run. Skills in this package use the Clojure logo blue brand color, `#5881D8`. The companion packages use distinguishable colors so runtime UIs can tell host-specific guidance apart: Java orange (`#E76F00`) for `clojure-jvm-skills`, JavaScript yellow (`#F7DF1E`) for `clojurescript-skills`, Biff indigo (`#4338CA`) for `biff-skills`, Hyperfiddle lavender (`#B7A4C2`) for `electric-skills`, Fulcro teal (`#009E9E`) for `fulcro-skills`, and Flutter blue (`#02569B`) for `clojuredart-skills`.

@@ -2,6 +2,8 @@
 
 Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.cljs`, `.cljc`, and `.cljd` code. It expands Key Rule 19: when a catalog, registry, or configuration map describes the things a program works with, the data owns the policy and the code stays generic.
 
+Two parts of the rule come from the Honest Code Principles: P15 (No Implicit Defaults) and P16 (Dispatch Tables Close Open Input) reject a default that answers for an input nobody declared, and require a lookup of an unknown key to fail. The rest, declaring relationships between catalog entries and answering each question with one function, is this package's rule.
+
 ## Where the rule applies
 
 The rule applies when a program keeps a collection of entries that share a shape: tools, data sources, feature flags, plugins, report columns, deployment targets. Each entry is a map, and the program decides what to do by reading those maps.
@@ -54,19 +56,23 @@ The bad version has three defects that the data-driven version cannot have. It d
 
 ## No declaration means no behavior
 
-When no entry declares a relationship, the answer is "none," not a guess. A default that the code supplies is a relationship that the data never stated, and it survives every later change to the data.
+When no entry declares a relationship, the answer is "none," not a guess. A default that the code supplies is a relationship that the data never stated, and it survives every later change to the data (Honest Code P15 and P16).
 
 ```clojure
 ;; bad: a hardcoded fallback for sources without :source/requires
 (defn required-capabilities [source]
   (or (:source/requires source) #{:pull-requests}))
 
-;; good: an absent declaration requires nothing, so validation must catch a missing key
+;; bad: a quieter default; a source that forgot the key looks like one that needs nothing
 (defn required-capabilities [source]
   (:source/requires source #{}))
+
+;; good: every source declares the key, and a source that needs nothing declares #{}
+(defn required-capabilities [source]
+  (:source/requires source))
 ```
 
-Decide whether an absent key is legal when you write the schema. If it is not, the load-time check rejects the entry, and the resolver never sees it.
+Make absence explicit in the data. The load-time check requires `:source/requires` on every source, so "requires nothing" is a declared `#{}` and a missing key is a rejected entry that the resolver never sees.
 
 ## Validate the data when it loads
 
@@ -76,14 +82,19 @@ Check what the resolvers depend on: required keys, value types, unique ids, and 
 
 ```clojure
 (defn validate-catalog!
-  "Returns the catalog when every required capability has a declared provider.
-  Throws ex-info naming the unprovided capabilities otherwise."
+  "Returns the catalog when every source declares :source/requires and every
+  required capability has a declared provider. Throws ex-info naming the
+  undeclared sources or the unprovided capabilities otherwise."
   [{:keys [tools sources] :as catalog}]
-  (let [provided (into #{} (mapcat :tool/provides) tools)
+  (let [undeclared (vec (keep #(when-not (contains? % :source/requires) (:source/id %)) sources))
+        provided (into #{} (mapcat :tool/provides) tools)
         missing (for [source sources
                       capability (:source/requires source)
                       :when (not (provided capability))]
                   {:source/id (:source/id source) :capability capability})]
+    (when (seq undeclared)
+      (throw (ex-info "Sources must declare :source/requires, using #{} for none"
+                      {:undeclared undeclared})))
     (when (seq missing)
       (throw (ex-info "Catalog declares requirements that no tool provides"
                       {:missing (vec missing)})))

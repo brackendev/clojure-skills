@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.44] - 2026-10-31
+
+### Removed
+
+- The `clojure-lenses` skill. The code-lenses package now detects the stack of the code under review and applies each lens to it through general rules, so a separate translation skill per language is no longer needed and its copy of code-lenses guidance can no longer drift.
+
+### Changed
+
+- Key Rule 19, `clojure/references/data-driven-design.md`, and the `clj-rules` hook text credit Honest Code P15 (No Implicit Defaults) and P16 (Dispatch Tables Close Open Input) for the rule that an undeclared relationship gets no fallback and a lookup of an undeclared entry fails, and label the catalog-relationship and one-function-per-question parts as this package's rule.
+- `clojure/references/data-driven-design.md` no longer shows `(:source/requires source #{})` as the good example, because the default hides a source that forgot the key. Every source declares `:source/requires`, using `#{}` for none, and `validate-catalog!` rejects a source that does not declare it.
+
+### Added
+
+- `clojure/references/collections.md` says to keep domain data in plain maps and never wrap a value in `defrecord` or `deftype` to imitate a branded type.
+- `clojure/references/state-and-dispatch.md` warns against reading an atom with `@` and then writing with `reset!`, which loses concurrent changes, and shows the `swap!` form.
+
 ## [0.1.43] - 2026-10-31
 
 ### Changed

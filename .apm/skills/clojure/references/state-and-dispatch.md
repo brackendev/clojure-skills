@@ -47,6 +47,17 @@ Prefer `swap!` to derive the new value from the old:
 (reset! a 5)
 ```
 
+Never read an atom with `@` and then write a value computed from that read with `reset!`. Another thread, or on a single-threaded host another callback, can change the atom between the read and the write, and the write silently discards that change. Compute the new value inside `swap!`, or use `compare-and-set!` when the write must happen only if the value is still the one that was read.
+
+```clojure
+;; bad: check-then-act; a change between the deref and the reset! is lost
+(when (< @counter limit)
+  (reset! counter (inc @counter)))
+
+;; good: the check and the update happen together
+(swap! counter (fn [n] (if (< n limit) (inc n) n)))
+```
+
 ## Dispatch
 
 Choose the simplest dispatch mechanism that fits:
