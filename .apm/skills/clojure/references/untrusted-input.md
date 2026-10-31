@@ -1,6 +1,6 @@
 # Untrusted Input
 
-Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.cljs`, `.cljc`, and `.cljd` code. It covers Iron Laws CLJ-10 and CLJ-11. `clojure-jvm/references/untrusted-input.md` in the `clojure-jvm` skill (clojure-jvm-skills) covers the JVM and Babashka libraries: next.jdbc, external commands, and the `clojure.edn` reader options.
+Part of the `clojure` skill. This host-neutral guidance applies to `.clj`, `.cljs`, `.cljc`, and `.cljd` code. It covers Iron Laws CLJ-10 and CLJ-11. `clojure-jvm/references/untrusted-input.md` in the `clojure-jvm` skill (clojure-jvm-skills) covers the JVM libraries: next.jdbc, external commands, and the `clojure.edn` reader options. `babashka/references/untrusted-input.md` in the `babashka` skill (babashka-skills) covers external commands through `babashka.process`.
 
 ## Reading data
 

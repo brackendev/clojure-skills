@@ -1,6 +1,6 @@
 # Clojure rules from clojure-skills
 
-This is a Clojure-family project. The Iron Laws below come from the `clojure` skill. Never write code that breaks one. Before writing, reviewing, or refactoring Clojure code, load the `clojure` skill and the host skill for this project (`clojure-jvm`, `clojurescript`, or `clojuredart`, and a framework skill such as `biff`, `electric`, or `fulcro` when it applies). The skills hold the full laws, their exceptions, and the references.
+This is a Clojure-family project. The Iron Laws below come from the `clojure` skill. Never write code that breaks one. Before writing, reviewing, or refactoring Clojure code, load the `clojure` skill and the host skill for this project (`clojure-jvm`, `clojurescript`, `clojuredart`, or `babashka`, and a framework skill such as `biff`, `electric`, or `fulcro` when it applies). The skills hold the full laws, their exceptions, and the references.
 
 ## Iron Laws
 

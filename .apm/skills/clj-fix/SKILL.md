@@ -5,8 +5,8 @@ description: >-
   steps. Applies safe lint fixes and formatting by default. Use when asked to
   lint, format, test, or check a Clojure project, or to fix clj-kondo warnings
   or cljfmt formatting in Clojure code. For ClojureScript, Electric, Fulcro,
-  and ClojureDart projects, prefer /cljs-fix, /electric-fix, /fulcro-fix, or
-  /cljd-fix when installed. Use --report to preview the lint and format
+  ClojureDart, and Babashka projects, prefer /cljs-fix, /electric-fix,
+  /fulcro-fix, /cljd-fix, or /bb-fix when installed. Use --report to preview the lint and format
   changes without writing.
 argument-hint: "[lint|format|test|dry] [--report] [all]"
 user-invocable: true

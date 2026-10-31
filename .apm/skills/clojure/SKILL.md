@@ -22,11 +22,12 @@ Host-specific guidance lives in companion skills, which override this baseline o
 - [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) -- JVM Clojure: Java interop, refs / agents / STM, `with-open` over Java resources, JVM-typed exceptions, `BigDecimal` and the other JVM number types, `alter-var-root`, Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / test-runner / nREPL workflow.
 - [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) -- ClojureScript on JavaScript hosts: JS interop, externs and advanced compilation, macro stage separation, `catch :default`, cleanup with `try`/`finally` (ClojureScript has no `with-open`), JS-flavored numerics and truthiness, the `cljs.main` workflow.
 - [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) -- ClojureDart on Flutter: Dart interop, type hints and nullability, `cljd.flutter` directives, Dart error types and `with-open`, which calls `.dispose`, async, FFI, REPL.
+- [babashka-skills](https://github.com/brackendev/babashka-skills) -- Babashka, the Clojure interpreter in a native binary: the built-in namespaces, `bb.edn` tasks, subprocesses, threads and process exit, records and types without Java classes, testing, pods, and packaging.
 - [biff-skills](https://github.com/brackendev/biff-skills) -- the [Biff](https://biffweb.com/) 2 web framework on the JVM.
 - [electric-skills](https://github.com/brackendev/electric-skills) -- the [Electric](https://github.com/hyperfiddle/electric) v3 full-stack reactive framework from Hyperfiddle.
 - [fulcro-skills](https://github.com/brackendev/fulcro-skills) -- the [Fulcro](https://github.com/fulcrologic/fulcro) 3 full-stack framework and its Pathom 3 server.
 
-This skill does not duplicate that material. When in JVM, ClojureScript, or ClojureDart context, defer to the host skill for its named domains and keep using this skill for everything else.
+This skill does not duplicate that material. When in JVM, ClojureScript, ClojureDart, or Babashka context, defer to the host skill for its named domains and keep using this skill for everything else.
 
 ## Iron Laws
 

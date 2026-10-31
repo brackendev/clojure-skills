@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.45] - 2026-10-31
+
+### Changed
+
+- The README companion packages table, the `clojure` skill's list of host packages, and the `clj-rules` hook text add [babashka-skills](https://github.com/brackendev/babashka-skills), the new Babashka host package, and its `babashka` skill. The `clojure` skill defers to it in Babashka context.
+- The `clj-fix` description names `/bb-fix` for Babashka projects. `/clj-fix` reads no `bb.edn` paths and runs no bb test task.
+- `clojure/references/untrusted-input.md` points to `babashka/references/untrusted-input.md` for external commands through `babashka.process`, which moved there from clojure-jvm-skills.
+- The README Requirements list Babashka as the runtime for `.bb` scripts and `bb.edn` projects.
+- `CONTRIBUTING.md` names only this package's brand color and no longer lists the color of every other Clojure-family package. The coordinator's drift check now confirms that each skill's `agents/openai.yaml` uses that color and that no two packages share one.
+
 ## [0.1.44] - 2026-10-31
 
 ### Removed
